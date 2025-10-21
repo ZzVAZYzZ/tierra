@@ -1,0 +1,7 @@
+{
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/home/page": "app/home/page.js",
+  "/page": "app/page.js",
+  "/ring/[ringId]/page": "app/ring/[ringId]/page.js",
+  "/ring/page": "app/ring/page.js"
+}
