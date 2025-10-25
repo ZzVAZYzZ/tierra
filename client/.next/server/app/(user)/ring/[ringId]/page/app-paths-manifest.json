@@ -1,0 +1,3 @@
+{
+  "/(user)/ring/[ringId]/page": "app/(user)/ring/[ringId]/page.js"
+}
