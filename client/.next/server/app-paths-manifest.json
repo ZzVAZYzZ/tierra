@@ -1,8 +1,8 @@
 {
-  "/bracelet/page": "app/bracelet/page.js",
-  "/earring/page": "app/earring/page.js",
-  "/home/page": "app/home/page.js",
-  "/necklace/page": "app/necklace/page.js",
-  "/page": "app/page.js",
-  "/ring/page": "app/ring/page.js"
+  "/(user)/bracelet/page": "app/(user)/bracelet/page.js",
+  "/(user)/earring/page": "app/(user)/earring/page.js",
+  "/(user)/home/page": "app/(user)/home/page.js",
+  "/(user)/necklace/page": "app/(user)/necklace/page.js",
+  "/(user)/page": "app/(user)/page.js",
+  "/(user)/ring/page": "app/(user)/ring/page.js"
 }

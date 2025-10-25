@@ -13,7 +13,17 @@ const ProductCard = ({ item, isFavorite, onToggleFavorite }) => {
   const router = useRouter();
   
   const goToDetail = () => {
-    if (item?.product_id) router.push(`/ring/${item.product_id}`);
+    const id = item?.product_id;
+    const cat = String(item?.Category?.name || "").trim().toLowerCase();
+    if (!id) return;
+    const map = {
+      "nhan": "ring",
+      "bong tai": "earring",
+      "day chuyen": "necklace",
+      "vong tay": "bracelet",
+    };
+    const segment = map[cat] || "ring";
+    router.push(`/${segment}/${id}`);
   };
 
   return (
@@ -43,3 +53,4 @@ const ProductCard = ({ item, isFavorite, onToggleFavorite }) => {
 };
 
 export default ProductCard;
+

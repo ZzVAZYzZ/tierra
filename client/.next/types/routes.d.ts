@@ -3,7 +3,7 @@
 
 type AppRoutes = never
 type PageRoutes = never
-type LayoutRoutes = "/" | "/bracelet" | "/earring" | "/home" | "/necklace" | "/ring" | "/ring/[ringId]"
+type LayoutRoutes = "/" | "/bracelet" | "/bracelet/[braceletId]" | "/earring" | "/earring/[earringId]" | "/home" | "/necklace" | "/necklace/[necklaceId]" | "/ring" | "/ring/[ringId]"
 type RedirectRoutes = never
 type RewriteRoutes = never
 type Routes = AppRoutes | PageRoutes | LayoutRoutes | RedirectRoutes | RewriteRoutes
@@ -12,9 +12,12 @@ type Routes = AppRoutes | PageRoutes | LayoutRoutes | RedirectRoutes | RewriteRo
 interface ParamMap {
   "/": {}
   "/bracelet": {}
+  "/bracelet/[braceletId]": { "braceletId": string; }
   "/earring": {}
+  "/earring/[earringId]": { "earringId": string; }
   "/home": {}
   "/necklace": {}
+  "/necklace/[necklaceId]": { "necklaceId": string; }
   "/ring": {}
   "/ring/[ringId]": { "ringId": string; }
 }
@@ -25,9 +28,12 @@ export type ParamsOf<Route extends Routes> = ParamMap[Route]
 interface LayoutSlotMap {
   "/": never
   "/bracelet": never
+  "/bracelet/[braceletId]": never
   "/earring": never
+  "/earring/[earringId]": never
   "/home": never
   "/necklace": never
+  "/necklace/[necklaceId]": never
   "/ring": never
   "/ring/[ringId]": never
 }

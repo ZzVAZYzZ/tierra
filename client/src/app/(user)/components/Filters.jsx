@@ -31,7 +31,7 @@ const Filters = ({
             }
             className="mr-2 cursor-pointer"
           />
-          <p>Từ 10 triệu đến 20 triệu</p>
+          <p>Dưới 20 triệu</p>
         </label>
         <label className="flex items-center cursor-pointer">
           <input
@@ -202,3 +202,4 @@ const Filters = ({
 };
 
 export default Filters;
+

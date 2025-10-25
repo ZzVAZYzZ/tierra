@@ -7,8 +7,8 @@ export const toIntegerVND = (input) => {
   if (!string) return 0;
   if (/\.00$/.test(string)) string = string.slice(0, -3);
   string = string.replace(/\./g, "");
-  // number = number.replace(/[^0-9]/g, "");
   if (!string) return 0;
   const number = Number(string);
   return Number.isFinite(number) ? number : 0;
 };
+

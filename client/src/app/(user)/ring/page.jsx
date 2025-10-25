@@ -1,26 +1,21 @@
 "use client";
 import React from "react";
-import Filters from "./components/Filters";
-import ProductGrid from "./components/ProductGrid";
-import ringData from "./components/data";
-import { toIntegerVND } from "./utils/price";
+import Filters from "../components/Filters";
+import ProductGrid from "../components/ProductGrid";
+import { toIntegerVND } from "../utils/price";
+import { useProducts } from "../../../store/productsStore.jsx";
 
 const parsePrice = toIntegerVND;
 
 const Page = () => {
-  const [data, setData] = React.useState(ringData);
+  const { products, status, error, fetchProducts } = useProducts();
   const [favorites, setFavorites] = React.useState([]);
 
-  React.useEffect(()=>{
-    fetch('http://localhost:8000/api/products')
-    .then((res)=>{
-      return res.json();
-    })
-    .then((res)=>{
-      setData(res)
-    })
-    
-  },[])
+  React.useEffect(() => {
+    if (status === "idle") {
+      fetchProducts();
+    }
+  }, [status, fetchProducts]);
 
   // Filter & sort state
   const [priceRange, setPriceRange] = React.useState(""); // "2"|"2"|"3"|"4"
@@ -28,11 +23,14 @@ const Page = () => {
   const [material, setMaterial] = React.useState(""); // "8"|"9"
   const [sortBy, setSortBy] = React.useState(""); // """", "priceAsc","priceDesc","nameAsc"
 
-  // parser/formatter handle cả "30000000.00" và "30.000.000"
-
   // danh sách được lọc + sắp xếp
   const displayedData = React.useMemo(() => {
-    let list = [...data];
+    let list = Array.isArray(products) ? [...products] : [];
+
+    list = list.filter((item) => {
+      const cat = item?.Category?.name || "";
+      return String(cat).trim().toLowerCase() === "nhan";
+    });
 
     // phạm vi lọc theo giá
     if (priceRange) {
@@ -44,7 +42,7 @@ const Page = () => {
         max = Number(maxStr);
       } else {
         if (priceRange === "1") {
-          min = 10;
+          min = 0;
           max = 20;
         } else if (priceRange === "2") {
           min = 20;
@@ -94,7 +92,7 @@ const Page = () => {
     }
 
     return list;
-  }, [data, priceRange, color, material, sortBy]);
+  }, [products, priceRange, color, material, sortBy]);
 
   const toggleFavorite = (productId) => {
     setFavorites((prev) =>
@@ -129,14 +127,23 @@ const Page = () => {
         />
 
         {/* ProductGrid */}
-        <ProductGrid
-          products={displayedData}
-          favorites={favorites}
-          onToggleFavorite={toggleFavorite}
-        />
+        <div className="flex-1">
+          {status === "loading" && (
+            <div className="p-4 text-sm text-gray-500">Đang tải sản phẩm…</div>
+          )}
+          {status === "failed" && (
+            <div className="p-4 text-sm text-red-500">Lỗi tải dữ liệu: {String(error)}</div>
+          )}
+          <ProductGrid
+            products={displayedData}
+            favorites={favorites}
+            onToggleFavorite={toggleFavorite}
+          />
+        </div>
       </div>
     </div>
   );
 };
 
 export default Page;
+

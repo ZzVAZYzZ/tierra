@@ -1,13 +1,13 @@
 "use client";
 import React from "react";
 import { useRouter } from 'next/navigation';
-import Picture from "../../assets/images/NKC-2160X900-2-2048x853 1.png";
-import nhan1 from "../../assets/images/RI-4945-OV125-SET-YELLOW-1MAIN 1.png";
-import nhan2 from "../../assets/images/RI-6632-RO200-SET-WHITE-1MAIN 1.png";
-import nhan3 from "../../assets/images/RI-6713-RO020-SET-YELLOW-1MAIN 1.png";
-import nhan4 from "../../assets/images/RI-9215-RO010-SET-YELLOW-1MAIN 1.png";
-import nhan5 from "../../assets/images/Rectangle 16.png";
-import Arrow from "../../assets/icons/arrow";
+import Picture from "../../../assets/images/NKC-2160X900-2-2048x853 1.png";
+import nhan1 from "../../../assets/images/RI-4945-OV125-SET-YELLOW-1MAIN 1.png";
+import nhan2 from "../../../assets/images/RI-6632-RO200-SET-WHITE-1MAIN 1.png";
+import nhan3 from "../../../assets/images/RI-6713-RO020-SET-YELLOW-1MAIN 1.png";
+import nhan4 from "../../../assets/images/RI-9215-RO010-SET-YELLOW-1MAIN 1.png";
+import nhan5 from "../../../assets/images/Rectangle 16.png";
+import Arrow from "../../../assets/icons/arrow";
 
 export default function Page() {
   const [data] = React.useState([

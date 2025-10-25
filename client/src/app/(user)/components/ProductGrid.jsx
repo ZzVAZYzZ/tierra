@@ -7,7 +7,7 @@ const ProductGrid = ({ products, favorites, onToggleFavorite }) => {
   return (
     <div className="flex flex-col mb-[50px] gap-[25px]">
       <p>Hiện có {count} sản phẩm</p>
-      <div className="grid grid-cols-4 gap-[30px]">
+      <div className=" min-w-[1030px] grid grid-cols-4 gap-[30px]">
         {products?.map((item, index) => (
           <ProductCard
             key={index}
