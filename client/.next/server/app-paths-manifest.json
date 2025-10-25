@@ -1,7 +1,11 @@
 {
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/home/page": "app/home/page.js",
-  "/page": "app/page.js",
-  "/ring/[ringId]/page": "app/ring/[ringId]/page.js",
-  "/ring/page": "app/ring/page.js"
+  "/(user)/bracelet/page": "app/(user)/bracelet/page.js",
+  "/(user)/earring/[earringId]/page": "app/(user)/earring/[earringId]/page.js",
+  "/(user)/earring/page": "app/(user)/earring/page.js",
+  "/(user)/home/page": "app/(user)/home/page.js",
+  "/(user)/necklace/[necklaceId]/page": "app/(user)/necklace/[necklaceId]/page.js",
+  "/(user)/necklace/page": "app/(user)/necklace/page.js",
+  "/(user)/ring/[ringId]/page": "app/(user)/ring/[ringId]/page.js",
+  "/(user)/ring/page": "app/(user)/ring/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js"
 }
