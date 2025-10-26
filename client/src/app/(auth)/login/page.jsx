@@ -5,15 +5,14 @@ import logo from '../../../assets/images/logo.png'
 import Image from 'next/image'
 import loginImage from '../../../assets/images/tay.png'
 import googleIcon from '../../../assets/images/google_icon.png'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useFetchProducts } from '../../../hook/useFetchProducts'
+
 
 export default function page() {
-  const router = useRouter()
-  const handleChangeSignUpClick = () => {
-    router.push('/register');
-  }
-  
+  const { products, loading, error } = useFetchProducts()
+
+
   return (
     <div className='w-full h-screen flex justify-center items-center relative'>
       <img src={background.src} alt="background"  className=' absolute w-full h-full top-0 left-0'/>

@@ -1,4 +1,4 @@
-import Providers from '../store/Providers'
+import { ReduxProvider } from '../redux/provider';
 
 export const metadata = {
   title: "web trang suc nu",
@@ -9,9 +9,12 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <Providers>
+        <ReduxProvider>
+  
             {children}
-        </Providers>
+    
+        </ReduxProvider>
+        
     </body>
     </html>
   )
