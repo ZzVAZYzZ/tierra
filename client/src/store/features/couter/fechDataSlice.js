@@ -1,52 +1,44 @@
-
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  // value: 0,
-  // data: [],
-  // status: "idle",
-  // error: "",
   products: [],
-  status: "idle",
-  error: "",
-  productDetail: {}
-}
+  status: "idle", // idle | loading | succeeded | failed
+  error: null,
+  productDetail: {},
+};
 
 export const fetchProducts = createAsyncThunk(
-    'API/postTransaction',
-    async () => {
-        // const responseData = await axios.get('')
-        const response = await getAllProducts();
-        // console.log(response);
-
-        return response;
-    },
-)
+  "products/fetchAll",
+  async () => {
+    const res = await fetch("http://localhost:8000/api/products", { cache: "no-store" });
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  }
+);
 
 export const productsSlice = createSlice({
-  name: 'products',
+  name: "products",
   initialState,
-  reducers: {
-    
-  },
-  extraReducers:(builder)=>{
+  reducers: {},
+  extraReducers: (builder) => {
     builder
-      .addCase(fetchProducts.pending,(state,action)=>{
+      .addCase(fetchProducts.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(fetchProducts.fulfilled,(state,action)=>{
-        state.status = "successed";
+      .addCase(fetchProducts.fulfilled, (state, action) => {
+        state.status = "succeeded";
         state.products = action.payload;
       })
-      .addCase(fetchProducts.rejected,(state,action)=>{
+      .addCase(fetchProducts.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error;
-      })
+        state.error = action.error?.message || "Fetch failed";
+      });
   },
-  
-})
+});
 
-// export const { increment, decrement, incrementByAmount } = counterSlice.actions
+export default productsSlice.reducer;
 
-// export default counterSlice.reducer
-
-export default productsSlice.reducer
+export const selectProductsState = (state) => state.products;

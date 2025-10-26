@@ -9,15 +9,17 @@ import CartIcon from "../assets/icons/cart_icon";
 import BillIcon from "../assets/icons/bill_icon";
 import UserIcon from "../assets/icons/user_icon";
 import SearchIcon from "../assets/icons/search_icon";
-import { useProducts } from "../store/productsStore.jsx";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchProducts, selectProductsState } from "../store/features/couter/fechDataSlice.js";
 import { toIntegerVND } from "../app/(user)/utils/price";
 
 const Nav = () => {
-  const { products, status, fetchProducts } = useProducts();
+  const dispatch = useDispatch();
+  const { products, status } = useSelector(selectProductsState);
 
   React.useEffect(() => {
-    if (status === "idle") fetchProducts();
-  }, [status, fetchProducts]);
+    if (status === "idle") dispatch(fetchProducts());
+  }, [status, dispatch]);
 
   const [query, setQuery] = React.useState("");
   const [debounced, setDebounced] = React.useState("");
@@ -113,10 +115,10 @@ const Nav = () => {
             <a href="#">
               <HeartIcon />
             </a>
-            <a href="#">
+            <a href="/cart">
               <CartIcon />
             </a>
-            <a href="#">
+            <a href="/bill">
               <BillIcon />
             </a>
             <a href="#">

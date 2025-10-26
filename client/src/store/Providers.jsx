@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
-import { ProductsProvider } from "./productsStore.jsx";
+import { Provider } from "react-redux";
+import { store } from "./store.js";
 
 export default function Providers({ children }) {
-  return <ProductsProvider>{children}</ProductsProvider>;
+  return <Provider store={store}>{children}</Provider>;
 }
-

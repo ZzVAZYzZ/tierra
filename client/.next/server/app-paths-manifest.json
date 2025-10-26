@@ -1,11 +1,13 @@
 {
-  "/(user)/bracelet/page": "app/(user)/bracelet/page.js",
+  "/(user)/bill/page": "app/(user)/bill/page.js",
+  "/(user)/cart/page": "app/(user)/cart/page.js",
   "/(user)/earring/[earringId]/page": "app/(user)/earring/[earringId]/page.js",
   "/(user)/earring/page": "app/(user)/earring/page.js",
   "/(user)/home/page": "app/(user)/home/page.js",
-  "/(user)/necklace/[necklaceId]/page": "app/(user)/necklace/[necklaceId]/page.js",
   "/(user)/necklace/page": "app/(user)/necklace/page.js",
+  "/(user)/page": "app/(user)/page.js",
   "/(user)/ring/[ringId]/page": "app/(user)/ring/[ringId]/page.js",
   "/(user)/ring/page": "app/(user)/ring/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
   "/favicon.ico/route": "app/favicon.ico/route.js"
 }
