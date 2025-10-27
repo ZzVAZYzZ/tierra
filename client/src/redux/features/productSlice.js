@@ -12,7 +12,6 @@ export const fetchProducts = createAsyncThunk(
   'products/fetchProducts',
   async () => {
     const response = await axios.get('http://localhost:8000/api/products');
-    console.log(response.data);
     
     return response.data;
     
@@ -62,8 +61,5 @@ export const productsSlice = createSlice({
   },
   
 })
-
-// Action creators are generated for each case reducer function
-// export const {  } = productsSlice.actions
 
 export default productsSlice.reducer

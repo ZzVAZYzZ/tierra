@@ -1,16 +1,16 @@
-"use client";
+'use client'
 
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchProducts } from "../redux/features/productSlice";
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchProducts } from '../redux/features/productSlice'
 
 export const useFetchProducts = () => {
-  const dispatch = useDispatch();
-  const { products, status, error } = useSelector((state) => state.products);
+  const dispatch = useDispatch()
+  const { products, loading, error } = useSelector((state) => state.products)
 
   useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
+    dispatch(fetchProducts())
+  }, [dispatch])
 
-  return { products, status, error };
-};
+  return { products, loading, error }
+}

@@ -1,5 +1,4 @@
-import { ReduxProvider } from "../redux/provider";
-import "./globals.css"; // hoặc đường dẫn đúng tới file
+import { ReduxProvider } from '../redux/provider';
 
 export const metadata = {
   title: "web trang suc nu",
@@ -10,8 +9,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <ReduxProvider>{children}</ReduxProvider>
-      </body>
+        <ReduxProvider>
+  
+            {children}
+    
+        </ReduxProvider>
+        
+    </body>
     </html>
-  );
+  )
 }
