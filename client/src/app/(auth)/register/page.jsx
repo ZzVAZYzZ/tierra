@@ -23,8 +23,11 @@ export default function page() {
           <label htmlFor="email" className='mb-[16px]'>
             <input type="text" placeholder='Nhập tài khoản' className='pl-[19px] w-[350px] h-[60px] bg-[#F3F3F3] rounded-[10px]'/>
           </label>
-          <label htmlFor="password" >
+          <label htmlFor="password" className='mb-[16px]'>
             <input type="password" placeholder='Nhập mật khẩu' className='pl-[19px] w-[350px] h-[60px] bg-[#F3F3F3] rounded-[10px]'/>
+          </label>
+          <label htmlFor="repassword" >
+            <input type="password" placeholder='Nhập lại mật khẩu' className='pl-[19px] w-[350px] h-[60px] bg-[#F3F3F3] rounded-[10px]'/>
           </label>
           <label htmlFor="remember" className="w-[350px] flex items-center justify-start mt-[13px] ">
             <input type="checkbox" name="remember" className='accent-[#9B8D6F] mr-[3px] cursor-pointer'/> <span className='text-[#9B8D6F] text-[14px]'>Nhớ mật khẩu</span>

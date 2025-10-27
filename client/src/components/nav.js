@@ -9,15 +9,11 @@ import CartIcon from "../assets/icons/cart_icon";
 import BillIcon from "../assets/icons/bill_icon";
 import UserIcon from "../assets/icons/user_icon";
 import SearchIcon from "../assets/icons/search_icon";
-import { useProducts } from "../store/productsStore.jsx";
+import { useFetchProducts } from "../hook/useFetchProducts";
 import { toIntegerVND } from "../app/(user)/utils/price";
 
 const Nav = () => {
-  const { products, status, fetchProducts } = useProducts();
-
-  React.useEffect(() => {
-    if (status === "idle") fetchProducts();
-  }, [status, fetchProducts]);
+  const { products, loading, error } = useFetchProducts()
 
   const [query, setQuery] = React.useState("");
   const [debounced, setDebounced] = React.useState("");

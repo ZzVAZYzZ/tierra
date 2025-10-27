@@ -3,19 +3,15 @@ import React from "react";
 import Filters from "../components/Filters";
 import ProductGrid from "../components/ProductGrid";
 import { toIntegerVND } from "../utils/price";
-import { useProducts } from "../../../store/productsStore.jsx";
+import { useFetchProducts } from "../../../hook/useFetchProducts";
 
 const parsePrice = toIntegerVND;
 
 export default function Page() {
-  const { products, status, error, fetchProducts } = useProducts();
+  const { products, loading, error } = useFetchProducts()
   const [favorites, setFavorites] = React.useState([]);
 
-  React.useEffect(() => {
-    if (status === "idle") {
-      fetchProducts();
-    }
-  }, [status, fetchProducts]);
+
 
   // Filter & sort state
   const [priceRange, setPriceRange] = React.useState("");
@@ -120,10 +116,10 @@ export default function Page() {
         />
 
         <div className="flex-1">
-          {status === "loading" && (
+          {loading && (
             <div className="p-4 text-sm text-gray-500">Đang tải sản phẩm…</div>
           )}
-          {status === "failed" && (
+          {error  && (
             <div className="p-4 text-sm text-red-500">Lỗi tải dữ liệu: {String(error)}</div>
           )}
           <ProductGrid
