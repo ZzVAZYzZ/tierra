@@ -3,19 +3,14 @@ import React from "react";
 import Filters from "../components/Filters";
 import ProductGrid from "../components/ProductGrid";
 import { toIntegerVND } from "../utils/price";
-import { useProducts } from "../../../store/productsStore.jsx";
+import { useFetchProducts } from "../../../hook/useFetchProducts";
+
 
 const parsePrice = toIntegerVND;
 
 const Page = () => {
-  const { products, status, error, fetchProducts } = useProducts();
+  const { products, loading, error } = useFetchProducts()
   const [favorites, setFavorites] = React.useState([]);
-
-  React.useEffect(() => {
-    if (status === "idle") {
-      fetchProducts();
-    }
-  }, [status, fetchProducts]);
 
   // Filter & sort state
   const [priceRange, setPriceRange] = React.useState(""); // "2"|"2"|"3"|"4"

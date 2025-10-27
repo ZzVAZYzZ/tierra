@@ -3,7 +3,7 @@
 
 type AppRoutes = never
 type PageRoutes = never
-type LayoutRoutes = "/" | "/bracelet" | "/bracelet/[braceletId]" | "/earring" | "/earring/[earringId]" | "/home" | "/necklace" | "/necklace/[necklaceId]" | "/ring" | "/ring/[ringId]"
+type LayoutRoutes = "/" | "/bracelet" | "/bracelet/[braceletId]" | "/dashboard" | "/earring" | "/earring/[earringId]" | "/home" | "/login" | "/necklace" | "/necklace/[necklaceId]" | "/register" | "/ring" | "/ring/[ringId]"
 type RedirectRoutes = never
 type RewriteRoutes = never
 type Routes = AppRoutes | PageRoutes | LayoutRoutes | RedirectRoutes | RewriteRoutes
@@ -13,11 +13,14 @@ interface ParamMap {
   "/": {}
   "/bracelet": {}
   "/bracelet/[braceletId]": { "braceletId": string; }
+  "/dashboard": {}
   "/earring": {}
   "/earring/[earringId]": { "earringId": string; }
   "/home": {}
+  "/login": {}
   "/necklace": {}
   "/necklace/[necklaceId]": { "necklaceId": string; }
+  "/register": {}
   "/ring": {}
   "/ring/[ringId]": { "ringId": string; }
 }
@@ -29,11 +32,14 @@ interface LayoutSlotMap {
   "/": never
   "/bracelet": never
   "/bracelet/[braceletId]": never
+  "/dashboard": never
   "/earring": never
   "/earring/[earringId]": never
   "/home": never
+  "/login": never
   "/necklace": never
   "/necklace/[necklaceId]": never
+  "/register": never
   "/ring": never
   "/ring/[ringId]": never
 }
