@@ -57,6 +57,29 @@ export const fetchProductsById = createAsyncThunk(
   }
 );
 
+export const updateProduct = createAsyncThunk(
+  "products/updateProduct",
+  async ({ id, data, token }, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:8000/api/products/${id}`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Update product failed"
+      );
+    }
+  }
+);
+
 export const queryProductById = createAsyncThunk(
   "product/queryProductById",
   async (id) => {
@@ -123,6 +146,36 @@ export const productsSlice = createSlice({
         state.status = "failed";
         state.error = action.payload || action.error.message;
         state.productDetail = {};
+      })
+      .addCase(updateProduct.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(updateProduct.fulfilled, (state, action) => {
+        state.status = "succeeded";
+
+        // 🔄 Cập nhật sản phẩm trong mảng `products`
+        const updatedProduct = action.payload.product || action.payload;
+        const index = state.products.findIndex(
+          (item) => item.product_id === updatedProduct.product_id
+        );
+        if (index !== -1) {
+          state.products[index] = {
+            ...state.products[index],
+            ...updatedProduct,
+          };
+        }
+
+        // 🔄 Cập nhật luôn productDetail nếu đang xem chi tiết
+        if (state.productDetail?.product_id === updatedProduct.product_id) {
+          state.productDetail = {
+            ...state.productDetail,
+            ...updatedProduct,
+          };
+        }
+      })
+      .addCase(updateProduct.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
       });
   },
 });
