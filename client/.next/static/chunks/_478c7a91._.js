@@ -483,7 +483,6 @@ const formatPriceVND = (input)=>new Intl.NumberFormat("vi-VN", {
     }).format((0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f28$user$292f$utils$2f$price$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toIntegerVND"])(input));
 const ProductCard = (param)=>{
     let { item, isFavorite, onToggleFavorite } = param;
-    var _item_ProductImages;
     _s();
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
     const goToDetail = ()=>{
@@ -500,37 +499,95 @@ const ProductCard = (param)=>{
         const segment = map[cat] || "ring";
         router.push("/".concat(segment, "/").concat(id));
     };
+    const images = Array.isArray(item === null || item === void 0 ? void 0 : item.ProductImages) ? item.ProductImages : [];
+    const mainImage = images.find((img)=>img === null || img === void 0 ? void 0 : img.is_main) || images[0];
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "w-[250px] h-[350px] flex flex-col justify-around border border-[#D6D6D6] hover:shadow-xl transition-shadow duration-300 rounded-md cursor-pointer relative",
         onClick: goToDetail,
         children: [
-            item === null || item === void 0 ? void 0 : (_item_ProductImages = item.ProductImages) === null || _item_ProductImages === void 0 ? void 0 : _item_ProductImages.map((img, idx)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    children: img.is_main === true && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
-                        src: img.image_url
-                    }, void 0, false, {
-                        fileName: "[project]/src/app/(user)/components/ProductCard.jsx",
-                        lineNumber: 35,
-                        columnNumber: 49
-                    }, ("TURBOPACK compile-time value", void 0))
-                }, idx, false, {
-                    fileName: "[project]/src/app/(user)/components/ProductCard.jsx",
-                    lineNumber: 35,
-                    columnNumber: 9
-                }, ("TURBOPACK compile-time value", void 0))),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "text-[20px] font-medium ml-[15px]",
-                children: item === null || item === void 0 ? void 0 : item.name
+                className: "w-[248px] h-[250px] overflow-hidden rounded-t-md",
+                children: (mainImage === null || mainImage === void 0 ? void 0 : mainImage.image_url) ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
+                    src: mainImage.image_url,
+                    alt: item === null || item === void 0 ? void 0 : item.name,
+                    className: "w-full h-full object-cover"
+                }, void 0, false, {
+                    fileName: "[project]/src/app/(user)/components/ProductCard.jsx",
+                    lineNumber: 39,
+                    columnNumber: 11
+                }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-sm",
+                    children: "Không có hình ảnh"
+                }, void 0, false, {
+                    fileName: "[project]/src/app/(user)/components/ProductCard.jsx",
+                    lineNumber: 45,
+                    columnNumber: 11
+                }, ("TURBOPACK compile-time value", void 0))
             }, void 0, false, {
                 fileName: "[project]/src/app/(user)/components/ProductCard.jsx",
                 lineNumber: 37,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "text-[16px] text-[#C0C0C0] mt-[20px] mb-[10px] ml-[15px]",
-                children: formatPriceVND(item === null || item === void 0 ? void 0 : item.price)
+                className: "text-[20px] font-medium ml-[15px]",
+                children: item === null || item === void 0 ? void 0 : item.name
             }, void 0, false, {
                 fileName: "[project]/src/app/(user)/components/ProductCard.jsx",
-                lineNumber: 38,
+                lineNumber: 50,
+                columnNumber: 7
+            }, ("TURBOPACK compile-time value", void 0)),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "mt-[20px] mb-[10px] ml-[15px]",
+                children: (()=>{
+                    const priceInt = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f28$user$292f$utils$2f$price$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toIntegerVND"])(item === null || item === void 0 ? void 0 : item.price);
+                    const discountInt = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f28$user$292f$utils$2f$price$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toIntegerVND"])(item === null || item === void 0 ? void 0 : item.discount_price);
+                    const hasDiscount = Number.isFinite(priceInt) && Number.isFinite(discountInt) && discountInt > 0 && discountInt < priceInt;
+                    const finalPrice = hasDiscount ? Math.max(priceInt - discountInt, 0) : priceInt;
+                    return hasDiscount ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "flex items-baseline gap-2",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                className: "text-[16px] font-semibold text-[#9B8D6F]",
+                                children: [
+                                    formatPriceVND(finalPrice),
+                                    " ₫"
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/app/(user)/components/ProductCard.jsx",
+                                lineNumber: 59,
+                                columnNumber: 15
+                            }, ("TURBOPACK compile-time value", void 0)),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                className: "text-[14px] text-gray-400 line-through",
+                                children: [
+                                    formatPriceVND(priceInt),
+                                    " ₫"
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/app/(user)/components/ProductCard.jsx",
+                                lineNumber: 60,
+                                columnNumber: 15
+                            }, ("TURBOPACK compile-time value", void 0))
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/app/(user)/components/ProductCard.jsx",
+                        lineNumber: 58,
+                        columnNumber: 13
+                    }, ("TURBOPACK compile-time value", void 0)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "text-[16px] text-[#9B8D6F]",
+                        children: [
+                            formatPriceVND(priceInt),
+                            " ₫"
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/app/(user)/components/ProductCard.jsx",
+                        lineNumber: 63,
+                        columnNumber: 13
+                    }, ("TURBOPACK compile-time value", void 0));
+                })()
+            }, void 0, false, {
+                fileName: "[project]/src/app/(user)/components/ProductCard.jsx",
+                lineNumber: 51,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -547,18 +604,18 @@ const ProductCard = (param)=>{
                     onClick: ()=>{}
                 }, void 0, false, {
                     fileName: "[project]/src/app/(user)/components/ProductCard.jsx",
-                    lineNumber: 49,
+                    lineNumber: 77,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0))
             }, void 0, false, {
                 fileName: "[project]/src/app/(user)/components/ProductCard.jsx",
-                lineNumber: 39,
+                lineNumber: 67,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/(user)/components/ProductCard.jsx",
-        lineNumber: 30,
+        lineNumber: 33,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
@@ -649,7 +706,8 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f28$user$292f$components$2f$Filters$2e$jsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/app/(user)/components/Filters.jsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f28$user$292f$components$2f$ProductGrid$2e$jsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/app/(user)/components/ProductGrid.jsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f28$user$292f$utils$2f$price$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/app/(user)/utils/price.js [app-client] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$store$2f$productsStore$2e$jsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/store/productsStore.jsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$redux$2f$dist$2f$react$2d$redux$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/react-redux/dist/react-redux.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$store$2f$features$2f$couter$2f$fechDataSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/store/features/couter/fechDataSlice.js [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature();
 "use client";
@@ -658,20 +716,22 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
+;
 const parsePrice = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f28$user$292f$utils$2f$price$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toIntegerVND"];
 const Page = ()=>{
     _s();
-    const { products, status, error, fetchProducts } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$store$2f$productsStore$2e$jsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useProducts"])();
+    const dispatch = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$redux$2f$dist$2f$react$2d$redux$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useDispatch"])();
+    const { products, status, error } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$redux$2f$dist$2f$react$2d$redux$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSelector"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$store$2f$features$2f$couter$2f$fechDataSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["selectProductsState"]);
     const [favorites, setFavorites] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].useState([]);
     __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].useEffect({
         "Page.useEffect": ()=>{
             if (status === "idle") {
-                fetchProducts();
+                dispatch((0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$store$2f$features$2f$couter$2f$fechDataSlice$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["fetchProducts"])());
             }
         }
     }["Page.useEffect"], [
         status,
-        fetchProducts
+        dispatch
     ]);
     // Filter & sort state
     const [priceRange, setPriceRange] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].useState(""); // "2"|"2"|"3"|"4"
@@ -783,12 +843,12 @@ const Page = ()=>{
                     children: "Nhẫn"
                 }, void 0, false, {
                     fileName: "[project]/src/app/(user)/ring/page.jsx",
-                    lineNumber: 114,
+                    lineNumber: 116,
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0))
             }, void 0, false, {
                 fileName: "[project]/src/app/(user)/ring/page.jsx",
-                lineNumber: 113,
+                lineNumber: 115,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -805,7 +865,7 @@ const Page = ()=>{
                         onSortChange: handleSortChange
                     }, void 0, false, {
                         fileName: "[project]/src/app/(user)/ring/page.jsx",
-                        lineNumber: 118,
+                        lineNumber: 120,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -816,7 +876,7 @@ const Page = ()=>{
                                 children: "Đang tải sản phẩm…"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(user)/ring/page.jsx",
-                                lineNumber: 132,
+                                lineNumber: 134,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             status === "failed" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -827,7 +887,7 @@ const Page = ()=>{
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/(user)/ring/page.jsx",
-                                lineNumber: 135,
+                                lineNumber: 137,
                                 columnNumber: 13
                             }, ("TURBOPACK compile-time value", void 0)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f28$user$292f$components$2f$ProductGrid$2e$jsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -836,31 +896,32 @@ const Page = ()=>{
                                 onToggleFavorite: toggleFavorite
                             }, void 0, false, {
                                 fileName: "[project]/src/app/(user)/ring/page.jsx",
-                                lineNumber: 137,
+                                lineNumber: 139,
                                 columnNumber: 11
                             }, ("TURBOPACK compile-time value", void 0))
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/(user)/ring/page.jsx",
-                        lineNumber: 130,
+                        lineNumber: 132,
                         columnNumber: 9
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/(user)/ring/page.jsx",
-                lineNumber: 116,
+                lineNumber: 118,
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/(user)/ring/page.jsx",
-        lineNumber: 112,
+        lineNumber: 114,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 };
-_s(Page, "y6SlITK3+dhaMfj2q2wP2ELJXTg=", false, function() {
+_s(Page, "swmXDX3YFui0lTqK7S7XwZyKDi4=", false, function() {
     return [
-        __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$store$2f$productsStore$2e$jsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useProducts"]
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$redux$2f$dist$2f$react$2d$redux$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useDispatch"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$redux$2f$dist$2f$react$2d$redux$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSelector"]
     ];
 });
 _c = Page;

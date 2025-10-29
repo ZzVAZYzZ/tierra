@@ -1,8 +1,7 @@
 {
-  "/(user)/bracelet/page": "app/(user)/bracelet/page.js",
   "/(user)/earring/[earringId]/page": "app/(user)/earring/[earringId]/page.js",
   "/(user)/earring/page": "app/(user)/earring/page.js",
   "/(user)/home/page": "app/(user)/home/page.js",
-  "/(user)/necklace/page": "app/(user)/necklace/page.js",
-  "/(user)/page": "app/(user)/page.js"
+  "/(user)/page": "app/(user)/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js"
 }
