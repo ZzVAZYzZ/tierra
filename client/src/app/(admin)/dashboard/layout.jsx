@@ -1,4 +1,3 @@
-import { ReduxProvider } from "../../../redux/provider";
 import "../../globals.css";
 import Nav from "../components/nav";
 export const metadata = {
@@ -10,7 +9,7 @@ export default function Layout({ children }) {
   return (
     <div className="  w-screen h-screen flex flex-row bg-[#9B8D6F] p-[15px]">
       <Nav />
-      <ReduxProvider>{children}</ReduxProvider>
+      <div className=" w-full ">{children}</div>
     </div>
   );
 }
