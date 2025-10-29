@@ -6,7 +6,6 @@ const validateRefreshToken = asyncHandler(async(req,res,next) =>{
     
     const cookie = req.cookies.refreshToken;
     let checkRefreshToken = false;
-    
     const ipAddress = req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     let decodedData;
     try {

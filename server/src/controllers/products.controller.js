@@ -108,6 +108,7 @@ const updateProduct = asyncHandler(async (req, res) => {
     stock_quantity,
     status,
     material,
+    main_index,
   } = req.body;
 
   const product = await Product.findByPk(productId);
@@ -136,6 +137,61 @@ const updateProduct = asyncHandler(async (req, res) => {
   product.updated_at = nowVN();
 
   await product.save();
+
+  // 4️⃣ Nếu có ảnh mới được upload
+  if (req.files && req.files.length > 0) {
+    try {
+      // 🧹 Xóa ảnh cũ khỏi Cloudinary
+      const oldImages = await ProductImage.findAll({ where: { product_id: productId } });
+
+      for (const img of oldImages) {
+        if (img.image_url) {
+          try {
+            const imageName = img.image_url.split('/').pop();
+            const publicId = `doana/product_images/${imageName.substring(0, imageName.lastIndexOf('.'))}`;
+            await cloudinary.uploader.destroy(publicId, { resource_type: 'image' });
+            console.log(`🗑️ Deleted old image: ${publicId}`);
+          } catch (err) {
+            console.error('❌ Cloudinary delete error:', err.message);
+          }
+        }
+      }
+
+      // ❌ Xóa record ảnh cũ trong DB
+      await ProductImage.destroy({ where: { product_id: productId } });
+
+      // 🆕 Upload ảnh mới lên Cloudinary
+      const uploadResults = [];
+      for (let i = 0; i < req.files.length; i++) {
+        const file = req.files[i];
+        const result = await cloudinary.uploader.upload(file.path, {
+          folder: 'doana/product_images',
+        });
+
+        // Xóa file tạm
+        fs.unlinkSync(file.path);
+
+        uploadResults.push({
+          product_id: product.product_id,
+          image_url: result.secure_url,
+          is_main: Number(main_index) === i,
+        });
+      }
+
+      // Nếu không có ảnh nào là main → chọn ảnh đầu tiên
+      const hasMain = uploadResults.some((img) => img.is_main === true);
+      if (!hasMain && uploadResults.length > 0) {
+        uploadResults[0].is_main = true;
+      }
+
+      await ProductImage.bulkCreate(uploadResults);
+      console.log(`✅ Updated ${uploadResults.length} new images`);
+    } catch (error) {
+      console.error('❌ Cloudinary upload error:', error);
+      res.status(500);
+      throw new Error('Image update failed');
+    }
+  }
 
   res.status(200).json({
     message: 'Product updated successfully',
