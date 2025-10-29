@@ -78,7 +78,6 @@
     --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     --color-red-500: #fb2c36;
-    --color-gray-50: #f9fafb;
     --color-gray-500: #6a7282;
     --color-gray-800: #1e2939;
     --color-black: #000;
@@ -97,7 +96,6 @@
     --font-weight-bold: 700;
     --font-weight-extrabold: 800;
     --radius-md: .375rem;
-    --radius-lg: .5rem;
     --radius-xl: .75rem;
     --default-transition-duration: .15s;
     --default-transition-timing-function: cubic-bezier(.4, 0, .2, 1);
@@ -108,7 +106,6 @@
   @supports (color: color(display-p3 0 0 0)) {
     :root, :host {
       --color-red-500: color(display-p3 .903738 .262579 .253307);
-      --color-gray-50: color(display-p3 .977213 .98084 .985102);
       --color-gray-500: color(display-p3 .421287 .446085 .504784);
       --color-gray-800: color(display-p3 .125854 .159497 .216835);
     }
@@ -117,7 +114,6 @@
   @supports (color: lab(0% 0 0)) {
     :root, :host {
       --color-red-500: lab(55.4814% 75.0732 48.8528);
-      --color-gray-50: lab(98.2596% -.247031 -.706708);
       --color-gray-500: lab(47.7841% -.393212 -10.0268);
       --color-gray-800: lab(16.1051% -1.18239 -11.7533);
     }
@@ -504,10 +500,6 @@
     right: 10px;
   }
 
-  .z-50 {
-    z-index: 50;
-  }
-
   .z-\[200\] {
     z-index: 200;
   }
@@ -538,10 +530,6 @@
 
   .mt-1 {
     margin-top: calc(var(--spacing) * 1);
-  }
-
-  .mt-2 {
-    margin-top: calc(var(--spacing) * 2);
   }
 
   .mt-6 {
@@ -660,10 +648,6 @@
     max-height: 70vh;
   }
 
-  .max-h-\[320px\] {
-    max-height: 320px;
-  }
-
   .w-10 {
     width: calc(var(--spacing) * 10);
   }
@@ -706,14 +690,6 @@
 
   .w-\[900px\] {
     width: 900px;
-  }
-
-  .w-\[930px\] {
-    width: 930px;
-  }
-
-  .w-\[1030px\] {
-    width: 1030px;
   }
 
   .w-full {
@@ -854,10 +830,6 @@
     border-radius: 3.40282e38px;
   }
 
-  .rounded-lg {
-    border-radius: var(--radius-lg);
-  }
-
   .rounded-md {
     border-radius: var(--radius-md);
   }
@@ -931,16 +903,8 @@
     object-fit: cover;
   }
 
-  .p-3 {
-    padding: calc(var(--spacing) * 3);
-  }
-
   .p-4 {
     padding: calc(var(--spacing) * 4);
-  }
-
-  .px-4 {
-    padding-inline: calc(var(--spacing) * 4);
   }
 
   .px-5 {
@@ -958,10 +922,6 @@
 
   .py-2 {
     padding-block: calc(var(--spacing) * 2);
-  }
-
-  .py-3 {
-    padding-block: calc(var(--spacing) * 3);
   }
 
   .pt-16 {
@@ -1098,11 +1058,6 @@
     opacity: .7;
   }
 
-  .shadow-md {
-    --tw-shadow: 0 4px 6px -1px var(--tw-shadow-color, rgba(0, 0, 0, .1)), 0 2px 4px -2px var(--tw-shadow-color, rgba(0, 0, 0, .1));
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-  }
-
   .ring {
     --tw-ring-shadow: var(--tw-ring-inset, ) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
@@ -1144,12 +1099,6 @@
 
   .checked\:bg-\[\#F2BAA8\]:checked {
     background-color: #f2baa8;
-  }
-
-  @media (hover: hover) {
-    .hover\:bg-gray-50:hover {
-      background-color: var(--color-gray-50);
-    }
   }
 
   @media (hover: hover) {
