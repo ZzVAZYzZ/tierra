@@ -1,9 +1,7 @@
 {
-  "/(user)/cart/page": "app/(user)/cart/page.js",
+  "/(user)/earring/page": "app/(user)/earring/page.js",
   "/(user)/home/page": "app/(user)/home/page.js",
-  "/(user)/orderinfo/page": "app/(user)/orderinfo/page.js",
-  "/(user)/page": "app/(user)/page.js",
-  "/(user)/ring/[ringId]/page": "app/(user)/ring/[ringId]/page.js",
-  "/(user)/ring/page": "app/(user)/ring/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js"
+  "/(user)/necklace/[necklaceId]/page": "app/(user)/necklace/[necklaceId]/page.js",
+  "/(user)/necklace/page": "app/(user)/necklace/page.js",
+  "/(user)/page": "app/(user)/page.js"
 }
