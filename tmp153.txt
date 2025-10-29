@@ -1,1 +1,0 @@
-              <button className="mt-4 w-[850px] h-[44px] rounded-full bg-[#9B8D6F] text-white cursor-pointer">Tiếp tục</button>
