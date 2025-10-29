@@ -203,7 +203,7 @@ export default function Page() {
                 </div>
               </div>
               
-              <button onClick={() => router.push("/bill")} className="mt-6 w-[90%] h-[44px] rounded-full bg-[#9B8D6F] text-white font-medium cursor-pointer hover:opacity-90 transition">
+              <button onClick={() => router.push("/orderinfo")} className="mt-6 w-[90%] h-[44px] rounded-full bg-[#9B8D6F] text-white font-medium cursor-pointer hover:opacity-90 transition">
                 Tiếp tục
               </button>
             </div>

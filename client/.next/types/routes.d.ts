@@ -3,7 +3,7 @@
 
 type AppRoutes = never
 type PageRoutes = never
-type LayoutRoutes = "/" | "/bill" | "/bracelet" | "/bracelet/[braceletId]" | "/cart" | "/earring" | "/earring/[earringId]" | "/home" | "/necklace" | "/necklace/[necklaceId]" | "/ring" | "/ring/[ringId]"
+type LayoutRoutes = "/" | "/bracelet" | "/bracelet/[braceletId]" | "/cart" | "/earring" | "/earring/[earringId]" | "/home" | "/necklace" | "/necklace/[necklaceId]" | "/orderinfo" | "/ring" | "/ring/[ringId]"
 type RedirectRoutes = never
 type RewriteRoutes = never
 type Routes = AppRoutes | PageRoutes | LayoutRoutes | RedirectRoutes | RewriteRoutes
@@ -11,7 +11,6 @@ type Routes = AppRoutes | PageRoutes | LayoutRoutes | RedirectRoutes | RewriteRo
 
 interface ParamMap {
   "/": {}
-  "/bill": {}
   "/bracelet": {}
   "/bracelet/[braceletId]": { "braceletId": string; }
   "/cart": {}
@@ -20,6 +19,7 @@ interface ParamMap {
   "/home": {}
   "/necklace": {}
   "/necklace/[necklaceId]": { "necklaceId": string; }
+  "/orderinfo": {}
   "/ring": {}
   "/ring/[ringId]": { "ringId": string; }
 }
@@ -29,7 +29,6 @@ export type ParamsOf<Route extends Routes> = ParamMap[Route]
 
 interface LayoutSlotMap {
   "/": never
-  "/bill": never
   "/bracelet": never
   "/bracelet/[braceletId]": never
   "/cart": never
@@ -38,6 +37,7 @@ interface LayoutSlotMap {
   "/home": never
   "/necklace": never
   "/necklace/[necklaceId]": never
+  "/orderinfo": never
   "/ring": never
   "/ring/[ringId]": never
 }
