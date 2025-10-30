@@ -33,6 +33,7 @@ export default function Page() {
     },
   ]);
   const router = useRouter();
+  
   return (
     <div className="flex flex-col justify-center items-center gap-[200px]">
       {/* banner */}

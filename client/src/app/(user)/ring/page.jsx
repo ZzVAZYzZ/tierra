@@ -3,21 +3,14 @@ import React from "react";
 import Filters from "../components/Filters";
 import ProductGrid from "../components/ProductGrid";
 import { toIntegerVND } from "../utils/price";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchProducts, selectProductsState } from "../../../store/features/couter/fechDataSlice.js";
+import { useFetchProducts } from "../../../hook/useFetchProducts";
+
 
 const parsePrice = toIntegerVND;
 
 const Page = () => {
-  const dispatch = useDispatch();
-  const { products, status, error } = useSelector(selectProductsState);
+  const { products, loading, error } = useFetchProducts()
   const [favorites, setFavorites] = React.useState([]);
-
-  React.useEffect(() => {
-    if (status === "idle") {
-      dispatch(fetchProducts());
-    }
-  }, [status, dispatch]);
 
   // Filter & sort state
   const [priceRange, setPriceRange] = React.useState(""); // "2"|"2"|"3"|"4"

@@ -1,24 +1,19 @@
 "use client";
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "next/navigation";
-import { fetchProducts, selectProductsState } from "../../../../store/features/couter/fechDataSlice.js";
 import { toIntegerVND } from "../../utils/price";
 import CheckIcon from "../../../../assets/icons/check_icon.js";
+import { useFetchProducts } from "../../../../hook/useFetchProducts";
 
-const formatPriceVND = (input) => new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 }).format(toIntegerVND(input));
+const formatPriceVND = (input) =>
+  new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 }).format(
+    toIntegerVND(input)
+  );
 
 export default function Page() {
-  const dispatch = useDispatch();
-  const { products, status, error } = useSelector(selectProductsState);
+  const { products, status, error } = useFetchProducts();
   const params = useParams();
   const ringId = params?.ringId;
-
-  React.useEffect(() => {
-    if (status === "idle") {
-      dispatch(fetchProducts());
-    }
-  }, [status, dispatch]);
 
   const product = React.useMemo(() => {
     return Array.isArray(products)
@@ -26,7 +21,9 @@ export default function Page() {
       : undefined;
   }, [products, ringId]);
 
-  const images = Array.isArray(product?.ProductImages) ? product.ProductImages : [];
+  const images = Array.isArray(product?.ProductImages)
+    ? product.ProductImages
+    : [];
   const mainImage = images.find((im) => im?.is_main) || images[0];
 
   const addToCart = () => {
@@ -38,7 +35,7 @@ export default function Page() {
       discount_price: product.discount_price,
       quantity: 1,
       selected: true,
-      image_url: mainImage?.image_url || (images[0]?.image_url || ""),
+      image_url: mainImage?.image_url || images[0]?.image_url || "",
     };
     try {
       const raw = localStorage.getItem("cart_items");
@@ -48,14 +45,18 @@ export default function Page() {
         ? list.map((it) => {
             if (String(it.product_id) === String(item.product_id)) {
               found = true;
-              return { ...it, quantity: (Number(it.quantity) || 1) + 1, selected: true };
+              return {
+                ...it,
+                quantity: (Number(it.quantity) || 1) + 1,
+                selected: true,
+              };
             }
             return it;
           })
         : [];
       const next = found ? updated : [...updated, item];
       localStorage.setItem("cart_items", JSON.stringify(next));
-    alert("da them vao gio")
+      alert("da them vao gio");
     } catch {}
   };
 
@@ -63,14 +64,16 @@ export default function Page() {
     <div className="w-full flex justify-center mt-6 mb-12">
       <div className="w-[90%] max-w-[1200px]">
         {status === "failed" && (
-          <div className="p-4 text-sm text-red-500">Lỗi tải dữ liệu: {String(error)}</div>
+          <div className="p-4 text-sm text-red-500">
+            Lỗi tải dữ liệu: {String(error)}
+          </div>
         )}
 
         {(status === "loading" || status === "idle") && (
           <div className="p-4 text-sm text-gray-500">Đang tải sản phẩm...</div>
         )}
 
-        {status === "succeeded" && product && (
+        {(status === "successed" || status === "successed") && product && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               {mainImage?.image_url && (
@@ -88,7 +91,9 @@ export default function Page() {
                       src={img.image_url}
                       alt={product.name}
                       className={`h-[80px] w-full object-cover rounded border ${
-                        img.image_id === mainImage?.image_id ? "ring-2 ring-[#9B8D6F]" : ""
+                        img.image_id === mainImage?.image_id
+                          ? "ring-2 ring-[#9B8D6F]"
+                          : ""
                       }`}
                     />
                   ))}
@@ -97,19 +102,33 @@ export default function Page() {
             </div>
 
             <div className="flex flex-col gap-4">
-              <h1 className="text-2xl font-semibold text-[#3A3A3A]">{product.name}</h1>
+              <h1 className="text-2xl font-semibold text-[#3A3A3A]">
+                {product.name}
+              </h1>
               {(() => {
                 const priceInt = toIntegerVND(product.price);
                 const discountInt = toIntegerVND(product.discount_price);
-                const hasDiscount = Number.isFinite(priceInt) && Number.isFinite(discountInt) && discountInt > 0 && discountInt < priceInt;
-                const finalPrice = hasDiscount ? Math.max(priceInt - discountInt, 0) : priceInt;
+                const hasDiscount =
+                  Number.isFinite(priceInt) &&
+                  Number.isFinite(discountInt) &&
+                  discountInt > 0 &&
+                  discountInt < priceInt;
+                const finalPrice = hasDiscount
+                  ? Math.max(priceInt - discountInt, 0)
+                  : priceInt;
                 return hasDiscount ? (
                   <div className="flex items-baseline gap-2">
-                    <span className="text-xl font-semibold text-[#9B8D6F]">{formatPriceVND(finalPrice)} ₫</span>
-                    <span className="text-base text-gray-400 line-through">{formatPriceVND(priceInt)} ₫</span>
+                    <span className="text-xl font-semibold text-[#9B8D6F]">
+                      {formatPriceVND(finalPrice)} ₫
+                    </span>
+                    <span className="text-base text-gray-400 line-through">
+                      {formatPriceVND(priceInt)} ₫
+                    </span>
                   </div>
                 ) : (
-                  <div className="text-xl text-[#9B8D6F]">{formatPriceVND(priceInt)} ₫</div>
+                  <div className="text-xl text-[#9B8D6F]">
+                    {formatPriceVND(priceInt)} ₫
+                  </div>
                 );
               })()}
               <div className=" w-[80px] text-sm font-bold">
@@ -129,8 +148,14 @@ export default function Page() {
                       { key: "hong", hex: "#F2BAA8" },
                     ];
                     return colors.map((color) => (
-                      <div key={color.key} className="w-[40px] h-[40px] rounded-[8px] border border-gray-300 relative" style={{ backgroundColor: color.hex }}>
-                        {(current === color.key || (color.key === "hong" && current.includes("hong"))) && (
+                      <div
+                        key={color.key}
+                        className="w-[40px] h-[40px] rounded-[8px] border border-gray-300 relative"
+                        style={{ backgroundColor: color.hex }}
+                      >
+                        {(current === color.key ||
+                          (color.key === "hong" &&
+                            current.includes("hong"))) && (
                           <div className="absolute inset-0 flex items-center justify-center">
                             <CheckIcon />
                           </div>
@@ -142,27 +167,44 @@ export default function Page() {
               </div>
 
               <div className=" text-sm font-bold">
-                Tồn kho: {Number.isFinite(product.stock_quantity) ? product.stock_quantity : "?"}
+                Tồn kho:{" "}
+                {Number.isFinite(product.stock_quantity)
+                  ? product.stock_quantity
+                  : "?"}
               </div>
 
               <div className="mt-2 flex gap-4">
-                <button onClick={addToCart} className=" w-[260px] h-[60px] text-[24px] rounded bg-white border border-black cursor-pointer">Thêm vào giỏ</button>
-                <button className=" w-[260px] h-[60px] text-[24px] rounded border border-[#9B8D6F] text-white bg-[#9B8D6F]">Mua ngay</button>
+                <button
+                  onClick={addToCart}
+                  className=" w-[260px] h-[60px] text-[24px] rounded bg-white border border-black cursor-pointer"
+                >
+                  Thêm vào giỏ
+                </button>
+                <button className=" w-[260px] h-[60px] text-[24px] rounded border border-[#9B8D6F] text-white bg-[#9B8D6F]">
+                  Mua ngay
+                </button>
               </div>
             </div>
             <div className=" flex flex-col gap-[20px]">
-              <div className=" text-[32px] font-medium">Giới thiệu về sản phẩm</div>
-              <div className=" text-[24px] font-extralight">{product.description}</div>
+              <div className=" text-[32px] font-medium">
+                Giới thiệu về sản phẩm
+              </div>
+              <div className=" text-[24px] font-extralight">
+                {product.description}
+              </div>
             </div>
           </div>
         )}
 
-        {status === "succeeded" && !product && (
-          <div className="p-4 text-sm text-gray-500">Không tìm thấy sản phẩm</div>
+        {(status === "succeeded" || status === "successed") && !product && (
+          <div className="p-4 text-sm text-gray-500">
+            Không tìm thấy sản phẩm
+          </div>
         )}
       </div>
     </div>
   );
 }
+
 
 

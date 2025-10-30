@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///D:/web-nu%20trang/tierra/client/src/app/%28user%29/earring/%5BearringId%5D/page.js"],"sourcesContent":["\"use client\";\r\nimport React from \"react\";\r\nimport { useParams } from \"next/navigation\";\r\n\r\nexport default function Page() {\r\n  const params = useParams();\r\n\r\n  return <div>{params?.earringId}\r\n  <div className=\" w-10 h-10 bg-black\"></div></div>;\r\n}\r\n"],"names":[],"mappings":";;;;;AACA;AACA;AAFA;;;;AAIe,SAAS;IACtB,MAAM,SAAS,IAAA,+IAAS;IAExB,qBAAO,8OAAC;;YAAK,QAAQ;0BACrB,8OAAC;gBAAI,WAAU;;;;;;;;;;;;AACjB","debugId":null}},
-    {"offset": {"line": 37, "column": 0}, "map": {"version":3,"sources":["file:///D:/web-nu%20trang/tierra/client/node_modules/next/navigation.js"],"sourcesContent":["module.exports = require('./dist/client/components/navigation')\n"],"names":[],"mappings":"AAAA,OAAO,OAAO","ignoreList":[0],"debugId":null}}]
-}

@@ -8,7 +8,7 @@ import {
   setField,
   initFromLocal,
   saveToLocal,
-} from "../../../store/features/order/orderInfoSlice.js";
+} from "../../../redux/features/orderInfoSlice.js";
 
 export default function Page() {
   const router = useRouter();
