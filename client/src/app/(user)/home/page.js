@@ -9,7 +9,6 @@ import nhan4 from "../../../assets/images/RI-9215-RO010-SET-YELLOW-1MAIN 1.png";
 import nhan5 from "../../../assets/images/Rectangle 16.png";
 import Arrow from "../../../assets/icons/arrow";
 
-
 export default function Page() {
   const [data] = React.useState([
     {

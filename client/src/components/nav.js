@@ -127,10 +127,10 @@ const Nav = () => {
             <a href="#">
               <HeartIcon />
             </a>
-            <a href="#">
+            <a href="/cart">
               <CartIcon />
             </a>
-            <a href="#">
+            <a href="/orderinfo">
               <BillIcon />
             </a>
 
@@ -308,3 +308,4 @@ const Nav = () => {
 };
 
 export default Nav;
+
