@@ -1,7 +1,6 @@
 import "../globals.css";
 import Nav from "../../components/nav";
 import Footer from "../../components/footer";
-import Providers from "../../store/Providers";
 
 export const metadata = {
   title: "web trang suc nu",
@@ -10,14 +9,11 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body>
-        <Providers>
-          <Nav />
-          {children}
-          <Footer />
-        </Providers>
-      </body>
-    </html>
+    <div>
+      <Nav />
+      {children}
+      <Footer />
+    </div>
+
   )
 }

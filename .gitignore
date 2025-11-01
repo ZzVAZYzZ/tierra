@@ -47,4 +47,11 @@ next-env.d.ts
 # client
 /client/node_modules
 /client/.env
+<<<<<<< HEAD
 /client/.next
+=======
+/client/.next/
+/client/out
+/client/build
+
+>>>>>>> 20bed889dcd355d45ba3aa900ab87978831bb76f

@@ -21,7 +21,7 @@ require('express-async-handler');
 require('../middlewares/passport');
 // init middlewares
 app.use(cors({
-    origin: ['http://localhost:3000','https://localhost:8000'],
+    origin: ['http://localhost:3000','http://localhost:8000'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],

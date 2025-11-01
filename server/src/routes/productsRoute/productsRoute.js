@@ -8,7 +8,7 @@ const upload = require('../../middlewares/uploadImage');
 router.route('/products/add').post(validateAccessToken,auth(["admin"]),upload.array('images', 5),addProduct);
 router.route('/products/:id').put(validateAccessToken,auth(["admin"]),upload.array('images', 5),updateProduct);
 router.route('/products/:id').delete(validateAccessToken,auth(["admin"]),deleteProduct);
-router.route('/products/:id').get(validateAccessToken,auth(["admin"]),getProductById);
+router.route('/products/:id').get(getProductById);
 router.get('/products', getAllProducts);
 
 module.exports = router;

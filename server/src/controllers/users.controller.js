@@ -10,11 +10,11 @@ const { nowVN } = require("../utils/time");
 //@access public
 const register = asyncHandler(async (req, res) => {
   const { name, email, password, phone, address, role } = req.body;
-
+  
   // input validation
-  if (!name || !email || !password) {
+  if (!email || !password) {
     res.status(400);
-    throw new Error("Name, email, and password are required.")
+    throw new Error("Email, and password are required.")
   }
   // exist validation
   const existingUser = await User.findOne({ where: { email } });
@@ -27,11 +27,11 @@ const register = asyncHandler(async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const newUser = await User.create({
-    name,
+    name: name || 'User',
     email,
     password: hashedPassword,
-    phone,
-    address,
+    phone: phone || '',
+    address: address || '',
     role: role || 'user',
   });
 
@@ -107,13 +107,25 @@ const login = asyncHandler(async (req, res) => {
       maxAge: 30 * 24 * 60 * 60 * 1000,
       httpOnly: true,
       secure: true,
-      sameSite: "None",
+      // sameSite: "None",
       // path: "/"
     });
+
+    const info = {
+    user_id: user.user_id,
+    google_id: user.google_id,
+    name: user.name,
+    avatar: user.avatar,
+    email: user.email,
+    phone: user.phone,
+    address: user.address,
+    role: user.role
+  }
 
     return res.status(200).json({
       accessToken,
       message: 'Login successful',
+      user: info
     });
   } else {
     res.status(401);
@@ -137,7 +149,7 @@ const current = (req, res) => {
     address: req.user.address,
     role: req.user.role
   }
-  res.status(200).json(info);
+  res.status(200).json({user:info});
 };
 
 //@desc Logout User
@@ -154,13 +166,14 @@ const logout = asyncHandler(async (req, res) => {
 //@access private
 const refresh = asyncHandler((req, res) => {
   // generate access token
+  
   const accessToken = jwt.sign(
     {
       user: {
-        id: req.user_id,
-        name: req.name,
-        email: req.email,
-        role: req.role,
+        id: req.user.user_id,
+        name: req.user.name,
+        email: req.user.email,
+        role: req.user.role,
       },
     }, process.env.JWT_SECRET_KEY,
     {
@@ -232,7 +245,7 @@ const googleAuthCallback = async (req, res) => {
       sameSite: "None",
       // path: "/"
     });
-
+    res.redirect('http://localhost:3000/login');
     return res.status(200).json({
       message: "Login with Google successful",
       token,
