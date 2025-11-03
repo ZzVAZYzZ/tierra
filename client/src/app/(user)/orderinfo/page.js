@@ -25,6 +25,10 @@ export default function Page() {
   const [errors, setErrors] = React.useState({});
   const [showModal, setShowModal] = React.useState(false);
 
+  // React.useEffect(()=>{
+  //   console.log(user);
+  // }, [user])
+
   React.useEffect(() => {
     dispatch(initFromLocal());
   }, [dispatch]);
@@ -112,11 +116,21 @@ export default function Page() {
         typeof window !== "undefined"
           ? localStorage.getItem("access_token")
           : "";
+      // Tính tổng tiền theo model server từ orderDetails
+      const totalAmount = orderDetails.reduce((sum, d) => {
+        const unit = Number(d.unit_price || 0);
+        const discount = Math.max(0, Number(d.discount || 0));
+        const price = Math.max(0, unit - discount);
+        const qty = Math.max(1, Number(d.quantity || 1));
+        return sum + price * qty;
+      }, 0);
+
       const resp = await axios.post(
         "http://localhost:8000/api/orders/makeOrder",
         {
           shipping_address: String(form.address || "").trim(),
-          total_amount: localTotal || cartTotal,
+          total_amount: totalAmount || localTotal || cartTotal,
+          user_id: (user && (user._id || user.id)) || undefined,
           orderDetails,
         },
         {
@@ -130,8 +144,16 @@ export default function Page() {
       if (resp && resp.status >= 200 && resp.status < 300) {
         try {
           localStorage.setItem("cart_items", JSON.stringify([]));
-          localStorage.removeItem("cart_total"); // 🧹 Xóa tổng tiền sau khi đặt hàng
+          localStorage.removeItem("cart_total");
         } catch {}
+        if (form.payment === "card") {
+          router.push("/payment/creditCard");
+          return;
+        }
+        if (form.payment === "bank") {
+          router.push("/payment/QRCode");
+          return;
+        }
         setShowModal(true);
       }
     } catch (err) {
@@ -252,9 +274,6 @@ export default function Page() {
                   </label>
                   <label
                     className="flex items-center gap-3"
-                    onClick={() => {
-                      router.push("#");
-                    }}
                   >
                     <input
                       type="radio"
@@ -276,6 +295,7 @@ export default function Page() {
               <button
                 type="submit"
                 className="w-full h-[56px] rounded-full bg-[#9B8D6F] text-white font-semibold cursor-pointer hover:opacity-90 transition"
+
               >
                 Đặt hàng
               </button>

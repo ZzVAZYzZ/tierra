@@ -149,7 +149,7 @@ const Nav = () => {
             <a href="/cart">
               <CartIcon />
             </a>
-            <a href="/orderinfo">
+            <a href="#">
               <BillIcon />
             </a>
 

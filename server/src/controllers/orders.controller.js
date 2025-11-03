@@ -1,7 +1,9 @@
 const asyncHandler = require('express-async-handler');
 const Order = require('../models/orders');
 const Product = require('../models/products');
-const { sequelize } = require('../databases/mysql/mysqlConnect');
+const Stripe = require("stripe");
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // @desc Create a new order
 // @route POST /api/orders/create

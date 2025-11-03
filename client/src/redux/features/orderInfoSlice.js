@@ -1,63 +1,69 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-
-const blank = {
-  fullName: "",
-  phone: "",
-  email: "",
-  address: "",
-  payment: "cod",
-  cartTotal: 0,
-  cart: { items: [] },
-};
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
 const STORAGE_KEY = "order_info";
 
+const initialState = {
+  orderInfo: {
+    fullName: "",
+    phone: "",
+    email: "",
+    address: "",
+    payment: "cod",
+    cartTotal: 0,
+    cart: { items: [] },
+  },
+  status: "idle", // loading | succeeded | failed
+  error: "",
+  message: "",
+};
+
+//
+// ============ ASYNC THUNKS ============
+//
+
+// ✅ Khởi tạo từ localStorage
 export const initFromLocal = createAsyncThunk(
-  "orderInfo/initFromLocal",
-  async () => {
-    if (typeof window === "undefined") return blank;
+  "order/initFromLocal",
+  async (_, { rejectWithValue }) => {
+    if (typeof window === "undefined") return initialState.orderInfo;
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       const parsed = JSON.parse(raw || "null");
+
       if (parsed && typeof parsed === "object") {
-        // 👇 Dọn giá trị birthday không hợp lệ
-        if (
-          parsed.birthday === "00/00" ||
-          parsed.birthday === "00/00/0000" ||
-          parsed.birthday === "00/00/" ||
-          parsed.birthday === "0" ||
-          parsed.birthday === "00"
-        ) {
-          parsed.birthday = "";
-        }
-        // Đảm bảo có cấu trúc giỏ hàng
-        if (!parsed.cart || typeof parsed.cart !== "object") {
-          parsed.cart = { items: [] };
-        } else if (!Array.isArray(parsed.cart.items)) {
-          parsed.cart.items = [];
-        }
-        // Đồng bộ giỏ hàng với key cart_items (nếu có)
+        // Chuẩn hóa cấu trúc giỏ hàng
+        if (!parsed.cart || typeof parsed.cart !== "object") parsed.cart = { items: [] };
+        if (!Array.isArray(parsed.cart.items)) parsed.cart.items = [];
+
+        // Đồng bộ với "cart_items"
         try {
           const rawCart = localStorage.getItem("cart_items");
           const cartList = rawCart ? JSON.parse(rawCart) : [];
-          if (Array.isArray(cartList)) {
-            parsed.cart.items = cartList;
-          }
+          if (Array.isArray(cartList)) parsed.cart.items = cartList;
         } catch {}
-        return { ...blank, ...parsed };
+
+        return { ...initialState.orderInfo, ...parsed };
       }
-    } catch {}
-    return blank;
+    } catch (err) {
+      return rejectWithValue("Không thể đọc dữ liệu đơn hàng từ localStorage.");
+    }
+
+    return initialState.orderInfo;
   }
 );
 
+// ✅ Lưu thông tin đơn hàng vào localStorage
 export const saveToLocal = createAsyncThunk(
-  "orderInfo/saveToLocal",
-  async (data) => {
-    if (typeof window === "undefined") return data || blank;
+  "order/saveToLocal",
+  async (data, { rejectWithValue }) => {
+    if (typeof window === "undefined") return data;
     try {
-      const payload = data && typeof data === "object" ? { ...blank, ...data } : { ...blank };
-      // Đảm bảo cart tồn tại và có items; nếu thiếu thì lấy từ cart_items
+      const payload = data && typeof data === "object"
+        ? { ...initialState.orderInfo, ...data }
+        : { ...initialState.orderInfo };
+
+      // Nếu chưa có giỏ hàng → lấy từ cart_items
       if (!payload.cart || typeof payload.cart !== "object") payload.cart = { items: [] };
       if (!Array.isArray(payload.cart.items) || payload.cart.items.length === 0) {
         try {
@@ -66,88 +72,137 @@ export const saveToLocal = createAsyncThunk(
           if (Array.isArray(cartList)) payload.cart.items = cartList;
         } catch {}
       }
+
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    } catch {}
-    return data || blank;
+      return payload;
+    } catch (err) {
+      return rejectWithValue("Lỗi khi lưu thông tin đơn hàng.");
+    }
   }
 );
 
-const orderInfoSlice = createSlice({
-  name: "orderInfo",
-  initialState: blank,
+// ✅ Gọi API tạo đơn hàng thật (POST /api/orders/makeOrder)
+export const makeOrder = createAsyncThunk(
+  "order/makeOrder",
+  async (_, { getState, rejectWithValue }) => {
+    const root = getState();
+    const orderInfo = root.orderInfo?.orderInfo || {};
+    const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+
+    try {
+      const rawCart = localStorage.getItem("cart_items");
+      const list = rawCart ? JSON.parse(rawCart) : [];
+      const selected = Array.isArray(list) ? list.filter((it) => it.selected) : [];
+
+      if (selected.length === 0) {
+        return rejectWithValue("Vui lòng chọn ít nhất 1 sản phẩm trong giỏ hàng.");
+      }
+
+      const orderDetails = selected.map((it) => ({
+        product_id: it.product_id,
+        product_name: it.product_name || it.name || "",
+        quantity: Math.max(1, Number(it.quantity) || 1),
+        unit_price: Number(it.unit_price ?? it.price ?? 0) || 0,
+        discount: Math.max(0, Number(it.discount ?? it.discount_price ?? 0) || 0),
+      }));
+
+      const total_amount = orderDetails.reduce((sum, d) => {
+        const price = Math.max(0, (Number(d.unit_price) || 0) - (Number(d.discount) || 0));
+        return sum + price * d.quantity;
+      }, 0);
+
+      const resp = await axios.post(
+        "http://localhost:8000/api/orders/makeOrder",
+        {
+          shipping_address: String(orderInfo.address || "").trim(),
+          total_amount,
+          orderDetails,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        }
+      );
+
+      if (resp.status >= 200 && resp.status < 300) {
+        localStorage.setItem("cart_items", JSON.stringify([]));
+        return resp.data;
+      }
+    } catch (err) {
+      return rejectWithValue(err?.response?.data?.message || "Đặt hàng thất bại.");
+    }
+  }
+);
+
+//
+// ============ SLICE ============
+//
+export const orderSlice = createSlice({
+  name: "order",
+  initialState,
   reducers: {
     setField: (state, action) => {
-      const { key, value } = action.payload || {};
-      if (key in state) state[key] = value;
+      const { key, value } = action.payload;
+      if (key in state.orderInfo) state.orderInfo[key] = value;
     },
     setAll: (state, action) => {
-      const src = action.payload || {};
-      Object.assign(state, { ...blank, ...src });
+      state.orderInfo = { ...initialState.orderInfo, ...action.payload };
     },
-    clear: () => ({ ...blank }),
-    // --- Cart reducers ---
-    addItem: (state, action) => {
-      const it = action.payload || {};
-      const product_id = String(it.product_id || "").trim();
-      if (!product_id) return;
-      const existing = state.cart.items.find((x) => x.product_id === product_id);
-      const qty = Number(it.quantity || 1);
-      const unit = Number(it.unit_price || 0);
-      const discount = Number(it.discount || 0);
-      if (existing) {
-        existing.quantity = Math.max(1, (Number(existing.quantity) || 1) + qty);
-      } else {
-        state.cart.items.push({
-          product_id,
-          product_name: it.product_name || "",
-          quantity: Math.max(1, qty),
-          unit_price: unit,
-          discount: Math.max(0, discount),
-          selected: it.selected ?? true,
-        });
-      }
-    },
-    removeItem: (state, action) => {
-      const id = String(action.payload || "").trim();
-      if (!id) return;
-      state.cart.items = state.cart.items.filter((x) => x.product_id !== id);
-    },
-    updateQuantity: (state, action) => {
-      const { product_id, quantity } = action.payload || {};
-      const id = String(product_id || "").trim();
-      if (!id) return;
-      const found = state.cart.items.find((x) => x.product_id === id);
-      if (found) {
-        const q = Math.max(1, Number(quantity || 1));
-        found.quantity = q;
-      }
-    },
-    toggleSelect: (state, action) => {
-      const { product_id, selected } = action.payload || {};
-      const id = String(product_id || "").trim();
-      if (!id) return;
-      const found = state.cart.items.find((x) => x.product_id === id);
-      if (found) {
-        found.selected = selected ?? !found.selected;
-      }
-    },
-    clearCart: (state) => {
-      state.cart.items = [];
+    clearOrder: (state) => {
+      state.orderInfo = { ...initialState.orderInfo };
+      state.status = "idle";
+      state.error = "";
+      state.message = "";
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(initFromLocal.fulfilled, (state, action) => {
-      return { ...state, ...action.payload };
-    });
+    builder
+      // --- initFromLocal ---
+      .addCase(initFromLocal.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(initFromLocal.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.orderInfo = action.payload;
+      })
+      .addCase(initFromLocal.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+      // --- saveToLocal ---
+      .addCase(saveToLocal.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.orderInfo = action.payload;
+      })
+      .addCase(saveToLocal.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+      // --- makeOrder ---
+      .addCase(makeOrder.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(makeOrder.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.message = action.payload?.message || "Đặt hàng thành công!";
+      })
+      .addCase(makeOrder.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      });
   },
 });
 
-export const { setField, setAll, clear, addItem, removeItem, updateQuantity, toggleSelect, clearCart } = orderInfoSlice.actions;
-export const selectOrderInfo = (state) => state.orderInfo;
-export const selectCart = (state) => state.orderInfo.cart;
-export const selectCartItems = (state) => state.orderInfo.cart.items;
+//
+// ============ SELECTORS ============
+//
+export const { setField, setAll, clearOrder } = orderSlice.actions;
+export const selectOrderInfo = (state) => state.orderInfo.orderInfo;
+export const selectCartItems = (state) => state.orderInfo.orderInfo.cart.items;
 export const selectCartTotal = (state) => {
-  const items = state.orderInfo.cart.items || [];
+  const items = state.orderInfo.orderInfo.cart.items || [];
   return items.reduce((sum, it) => {
     const unit = Number(it.unit_price || 0);
     const discount = Math.max(0, Number(it.discount || 0));
@@ -156,5 +211,5 @@ export const selectCartTotal = (state) => {
     return sum + price * qty;
   }, 0);
 };
-export default orderInfoSlice.reducer;
 
+export default orderSlice.reducer;
