@@ -72,7 +72,7 @@ const Page = () => {
                 <input
                   type="radio"
                   name="material"
-                  value="Vàng"
+                  value="vang"
                   onChange={handleChange}
                 />{" "}
                 Vàng
@@ -81,7 +81,7 @@ const Page = () => {
                 <input
                   type="radio"
                   name="material"
-                  value="Kim cương"
+                  value="kim cuong"
                   onChange={handleChange}
                 />{" "}
                 Kim cương
@@ -96,7 +96,7 @@ const Page = () => {
                 <input
                   type="radio"
                   name="color"
-                  value="Trắng"
+                  value="Trang"
                   onChange={handleChange}
                 />{" "}
                 Trắng
@@ -105,7 +105,7 @@ const Page = () => {
                 <input
                   type="radio"
                   name="color"
-                  value="Vàng"
+                  value="Vang"
                   onChange={handleChange}
                 />{" "}
                 Vàng
@@ -114,7 +114,7 @@ const Page = () => {
                 <input
                   type="radio"
                   name="color"
-                  value="Vàng Hồng"
+                  value="Vang hong"
                   onChange={handleChange}
                 />{" "}
                 Vàng Hồng
@@ -224,3 +224,4 @@ const Page = () => {
 };
 
 export default Page;
+

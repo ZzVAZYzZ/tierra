@@ -2,37 +2,52 @@
 import React from "react";
 import { useRouter } from 'next/navigation';
 import Picture from "../../../assets/images/NKC-2160X900-2-2048x853 1.png";
-import nhan1 from "../../../assets/images/RI-4945-OV125-SET-YELLOW-1MAIN 1.png";
-import nhan2 from "../../../assets/images/RI-6632-RO200-SET-WHITE-1MAIN 1.png";
-import nhan3 from "../../../assets/images/RI-6713-RO020-SET-YELLOW-1MAIN 1.png";
-import nhan4 from "../../../assets/images/RI-9215-RO010-SET-YELLOW-1MAIN 1.png";
 import nhan5 from "../../../assets/images/Rectangle 16.png";
 import Arrow from "../../../assets/icons/arrow";
+import { useFetchProducts } from "../../../hook/useFetchProducts";
+import { toIntegerVND } from "../utils/price";
 
 export default function Page() {
-  const [data] = React.useState([
-    {
-      hinh: nhan1,
-      mieuta: "18K Yellow Accented Solitaire Ring",
-      gia: "4.990.000",
-    },
-    {
-      hinh: nhan2,
-      mieuta: "18K White Accented Solitaire Ring",
-      gia: "5.990.000",
-    },
-    {
-      hinh: nhan3,
-      mieuta: "18K Yellow Three Stone Ring",
-      gia: "7.990.000",
-    },
-    {
-      hinh: nhan4,
-      mieuta: "18K Yellow Three Stone Ring",
-      gia: "3.990.000",
-    },
-  ]);
   const router = useRouter();
+  const { products } = useFetchProducts();
+
+  const formatPriceVND = (input) =>
+    new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 }).format(
+      toIntegerVND(input)
+    );
+
+  const getMainImage = (item) => {
+    const imgs = Array.isArray(item?.ProductImages) ? item.ProductImages : [];
+    const main = imgs.find((im) => im?.is_main) || imgs[0];
+    return main?.image_url || null;
+  };
+
+  const goToProduct = (item) => {
+    if (!item) return;
+    const id = item?.product_id;
+    const cat = String(item?.Category?.name || "").trim().toLowerCase();
+    const map = {
+      "nhan": "ring",
+      "bong tai": "earring",
+      "day chuyen": "necklace",
+      "vong tay": "bracelet",
+    };
+    const segment = map[cat] || "ring";
+    if (id) router.push(`/${segment}/${id}`);
+  };
+
+  const newArrivals = React.useMemo(() => {
+    const list = Array.isArray(products) ? [...products] : [];
+    list.sort((a, b) => {
+      const ta = Date.parse(a?.created_at || 0) || 0;
+      const tb = Date.parse(b?.created_at || 0) || 0;
+      if (tb !== ta) return tb - ta;
+      const ida = Number(a?.product_id) || 0;
+      const idb = Number(b?.product_id) || 0;
+      return idb - ida;
+    });
+    return list.slice(0, 4);
+  }, [products]);
   
   return (
     <div className="flex flex-col justify-center items-center gap-[200px]">
@@ -42,21 +57,36 @@ export default function Page() {
       <div className="flex flex-col gap-[50px]">
         <a className="text-[40px] font-semibold">Browse New Arrivals</a>
         <div className="h-[400px] flex flex-row justify-around gap-[20px]">
-          {data.map((item, index) => (
+          {newArrivals.map((item) => (
             <div
-              key={index}
+              key={item.product_id}
+              onClick={() => goToProduct(item)}
               className="w-[300px] flex flex-col gap-[10px] items-center border border-[#D6D6D6] hover:shadow-xl transition-shadow duration-300 rounded-md cursor-pointer"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter') goToProduct(item); }}
             >
               <img
-                src={item.hinh.src}
-                alt={item.mieuta}
-                className="w-[250px] h-[250px] mt-[18px]"
+                src={getMainImage(item)}
+                alt={item?.name}
+                className="w-[250px] h-[250px] mt-[18px] object-cover rounded"
               />
               <div className="w-full px-[20px] text-left h-[120px] flex flex-col justify-between">
-                <p className="text-[20px] font-medium">{item.mieuta}</p>
-                <p className="text-[16px] text-[#C0C0C0] mt-[28px]">
-                  {item.gia}₫
-                </p>
+                <p className="text-[20px] font-medium">{item?.name}</p>
+                {(() => {
+  const priceInt = toIntegerVND(item?.price);
+  const discountInt = toIntegerVND(item?.discount_price);
+  const hasDiscount = Number.isFinite(priceInt) && Number.isFinite(discountInt) && discountInt > 0 && discountInt < priceInt;
+  const finalPrice = hasDiscount ? Math.max(priceInt - discountInt, 0) : priceInt;
+  return hasDiscount ? (
+    <div className="flex items-baseline gap-2">
+      <span className="text-[16px] font-semibold text-[#9B8D6F]">{formatPriceVND(finalPrice)} ₫</span>
+      <span className="text-[14px] text-gray-400 line-through">{formatPriceVND(priceInt)} ₫</span>
+    </div>
+  ) : (
+    <div className="text-[16px] text-[#9B8D6F]">{formatPriceVND(priceInt)} ₫</div>
+  );
+})()}
               </div>
             </div>
           ))}
@@ -82,3 +112,5 @@ export default function Page() {
     </div>
   );
 }
+
+

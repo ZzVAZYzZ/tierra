@@ -92,6 +92,25 @@ const Nav = () => {
     return main?.image_url || "";
   };
 
+  // Navigate to product detail based on category name
+  const goToProduct = (item) => {
+    if (!item) return;
+    const id = item?.product_id;
+    const cat = String(item?.Category?.name || "").trim().toLowerCase();
+    const map = {
+      "nhan": "ring",
+      "bong tai": "earring",
+      "day chuyen": "necklace",
+      "vong tay": "bracelet",
+    };
+    const segment = map[cat] || "ring";
+    if (id) {
+      router.push(`/${segment}/${id}`);
+      setOpen(false);
+      setQuery("");
+    }
+  };
+
   const handleLogout = () => {
     console.log("Đăng xuất");
     // TODO: gọi API logout, clear token ở đây
@@ -276,7 +295,13 @@ const Nav = () => {
                 {results.map((item) => (
                   <div
                     key={item.product_id}
-                    className="w-[850px] h-[100px] mx-auto flex items-center gap-[20px] py-2"
+                    onClick={() => goToProduct(item)}
+                    className="w-[850px] h-[100px] mx-auto flex items-center gap-[20px] py-2 cursor-pointer hover:bg-gray-50"
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") goToProduct(item);
+                    }}
                   >
                     {getMainImage(item) && (
                       <img

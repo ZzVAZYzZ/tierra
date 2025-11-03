@@ -2,7 +2,6 @@
 import React from "react";
 import { useParams } from "next/navigation";
 import { toIntegerVND } from "../../utils/price";
-import CheckIcon from "../../../../assets/icons/check_icon.js";
 import { useFetchProducts } from "../../../../hook/useFetchProducts";
 
 const formatPriceVND = (input) =>
@@ -25,6 +24,16 @@ export default function Page() {
     ? product.ProductImages
     : [];
   const mainImage = images.find((im) => im?.is_main) || images[0];
+  const orderedImages = React.useMemo(() => {
+    if (!Array.isArray(images) || images.length === 0) return [];
+    const main = images.find((im) => im?.is_main) || images[0];
+    if (!main) return images;
+    return [main, ...images.filter((im) => im?.image_id !== main?.image_id)];
+  }, [images]);
+  const [selectedImage, setSelectedImage] = React.useState(mainImage);
+  React.useEffect(() => {
+    setSelectedImage(mainImage);
+  }, [mainImage?.image_id]);
 
   const addToCart = () => {
     if (!product) return;
@@ -35,7 +44,7 @@ export default function Page() {
       discount_price: product.discount_price,
       quantity: 1,
       selected: true,
-      image_url: mainImage?.image_url || images[0]?.image_url || "",
+      image_url: selectedImage?.image_url || images[0]?.image_url || "",
     };
     try {
       const raw = localStorage.getItem("cart_items");
@@ -76,22 +85,23 @@ export default function Page() {
         {(status === "successed" || status === "successed") && product && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-              {mainImage?.image_url && (
+              {selectedImage?.image_url && (
                 <img
-                  src={mainImage.image_url}
+                  src={selectedImage.image_url}
                   alt={product.name}
                   className="w-full h-[420px] object-cover rounded-md border"
                 />
               )}
-              {images.length > 1 && (
+              {orderedImages.length > 1 && (
                 <div className="mt-4 grid grid-cols-4 gap-3">
-                  {images.map((img) => (
+                  {orderedImages.map((img) => (
                     <img
                       key={img.image_id}
                       src={img.image_url}
                       alt={product.name}
-                      className={`h-[80px] w-full object-cover rounded border ${
-                        img.image_id === mainImage?.image_id
+                      onClick={() => setSelectedImage(img)}
+                      className={`h-[80px] w-full object-cover rounded border cursor-pointer ${
+                        img.image_id === selectedImage?.image_id
                           ? "ring-2 ring-[#9B8D6F]"
                           : ""
                       }`}
@@ -147,20 +157,17 @@ export default function Page() {
                       { key: "vang", hex: "#F1DC87" },
                       { key: "hong", hex: "#F2BAA8" },
                     ];
-                    return colors.map((color) => (
+                    const shown = colors.filter(
+                      (c) =>
+                        current === c.key ||
+                        (c.key === "hong" && current.includes("hong"))
+                    );
+                    return shown.map((color) => (
                       <div
                         key={color.key}
-                        className="w-[40px] h-[40px] rounded-[8px] border border-gray-300 relative"
+                        className="w-[40px] h-[40px] rounded-[8px] border border-gray-300"
                         style={{ backgroundColor: color.hex }}
-                      >
-                        {(current === color.key ||
-                          (color.key === "hong" &&
-                            current.includes("hong"))) && (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <CheckIcon />
-                          </div>
-                        )}
-                      </div>
+                      />
                     ));
                   })()}
                 </div>
@@ -205,6 +212,7 @@ export default function Page() {
     </div>
   );
 }
+
 
 
 
