@@ -4,10 +4,12 @@ const usersRoute = require('./usersRoute/usersRoute');
 const productsRoute = require('./productsRoute/productsRoute');
 const categoriresRoute = require('./categoriesRoute/categoriesRoute');
 const ordersRoute = require('./ordersRoute/ordersRoute');
+const paymentRoute = require('./paymentRoute/paymentRoute');
 
 router.use('/api',usersRoute);
 router.use('/api',productsRoute);
 router.use('/api',categoriresRoute);
 router.use('/api',ordersRoute);
+router.use('/api',paymentRoute);
 
 module.exports = router;

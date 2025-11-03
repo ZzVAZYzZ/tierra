@@ -12,6 +12,7 @@ const errorHandler = require('../middlewares/errorHandler');
 const passport = require('passport');
 const cookieParser = require('cookie-parser');
 const useragent = require('express-useragent');
+
 // test
 
 
@@ -19,6 +20,8 @@ const useragent = require('express-useragent');
 require("dotenv").config();
 require('express-async-handler');
 require('../middlewares/passport');
+
+
 // init middlewares
 app.use(cors({
     origin: ['http://localhost:3000','http://localhost:8000'],
