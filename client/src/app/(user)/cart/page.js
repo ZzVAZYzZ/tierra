@@ -90,6 +90,13 @@ export default function Page() {
     0
   );
   const total = Math.max(subtotal - discountTotal, 0);
+  React.useEffect(() => {
+  try {
+    localStorage.setItem("cart_total", JSON.stringify(total));
+  } catch (e) {
+    console.error("Không thể lưu tổng tiền:", e);
+  }
+}, [total]);
 
   const allChecked = items.length > 0 && items.every((it) => it.selected);
 

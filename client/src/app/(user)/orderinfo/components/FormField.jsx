@@ -27,18 +27,21 @@ export default React.memo(function FormField({
         {textarea ? (
           <textarea {...props} required={required} className={cls} />
         ) : (
-          <input {...props} required={required} className={cls} />
+          <input
+            {...props}
+            value={props.value ?? ""} // ✅ ép rỗng đúng chuẩn
+            required={required}
+            className={cls}
+          />
         )}
         {/* Dấu * đỏ hiển thị bên phải placeholder */}
-        {required && (
+        {/* {required && (
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500 pointer-events-none select-none">
             *
           </span>
-        )}
+        )} */}
       </div>
-      {error && (
-        <span className="text-[12px] text-red-500">{error}</span>
-      )}
+      {error && <span className="text-[12px] text-red-500">{error}</span>}
     </div>
   );
 });
