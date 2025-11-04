@@ -3,6 +3,7 @@ const Product = require('../models/products');
 const Category = require('../models/categories');
 const ProductImage = require('../models/prodcutImages');
 const cloudinary = require('../databases/cloudinary/cloudinaryConnect');
+const Review = require('../models/review');
 
 const fs = require('fs');
 const {nowVN} = require('../utils/time');
@@ -238,10 +239,13 @@ const deleteProduct = asyncHandler(async (req, res) => {
 
   await ProductImage.destroy({ where: { product_id: id } }).then(()=>{console.log("xoa record thanh cong!")});
 
+  const deletedReviews = await Review.deleteMany({ product_id: id });
+  console.log(`🧹 Deleted ${deletedReviews.deletedCount} reviews from MongoDB`);
+
   await product.destroy().then(()=>{console.log("xoa product thanh cong!")});
 
   res.status(200).json({
-    message: '✅ Product and its images deleted successfully',
+    message: '✅ Product, its reviews and its images deleted successfully',
     productId: id,
     deletedAt: nowVN(),
   });
