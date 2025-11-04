@@ -49,7 +49,7 @@ export default function Page() {
   }
 
   return (
-    <div className="relative  w-full h-full flex flex-col ml-2.5 gap-[12px]">
+    <div className="relative  w-full h-full flex flex-col ml-2.5 gap-3">
       {deletingProduct && (
         <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] z-20 flex justify-center items-center">
           <div className="w-14 h-14 border-4 border-[#9B8D6F] border-t-transparent rounded-full animate-spin"></div>
@@ -78,7 +78,7 @@ export default function Page() {
                 return (
                   <div
                     key={index}
-                    className="product-row relative flex flex-row w-full bg-[#EDEDED] min-h-[80px] rounded-[8px] items-center pl-[16px] pr-[40px]"
+                    className="product-row relative flex flex-row w-full bg-[#EDEDED] min-h-20 rounded-lg items-center pl-4 pr-10"
                   >
                     <div className="w-[5%]">{index + 1}</div>
                     <div
@@ -106,7 +106,7 @@ export default function Page() {
 
                       {/* Menu thả xuống */}
                       {openMenuIndex === index && (
-                        <div className="absolute right-0 top-[100%] mt-2 w-[200px] bg-white shadow-lg rounded-[6px] border border-gray-200 z-10">
+                        <div className="absolute right-0 top-full mt-2 w-[200px] bg-white shadow-lg rounded-md border border-gray-200 z-10">
                           <Link href={`/dashboard/update/${item.product_id}`}>
                             <button
                               onClick={() => fetchProductById(item.product_id)}

@@ -25,7 +25,7 @@ const NavPage = () => {
   const monthText = months[today.getMonth()];
   return (
     <header className="w-full h-[70px] bg-white rounded-[10px] flex flex-row justify-between items-center px-[25px] py-3">
-      <div className="w-[100px] h-[45px] bg-[#9B8D6F] shadow-[0px_4px_15px_rgba(0,0,0,0.4)] rounded-[8px] flex justify-center items-center text-white  text-[15px] gap-[2px]">
+      <div className="w-[100px] h-[45px] bg-[#9B8D6F] shadow-[0px_4px_15px_rgba(0,0,0,0.4)] rounded-lg flex justify-center items-center text-white  text-[15px] gap-0.5">
         <div className=" cursor-context-menu">
           {day},{monthText}
         </div>
