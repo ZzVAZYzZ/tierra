@@ -5,6 +5,7 @@ const STORAGE_KEY = "order_info";
 
 const initialState = {
   orderInfo: {
+    order_id: "",
     fullName: "",
     phone: "",
     email: "",

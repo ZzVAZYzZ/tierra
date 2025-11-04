@@ -21,7 +21,7 @@ export default function Page() {
   const { user } = useSelector((state) => state.user);
   const cartTotal = useSelector(selectCartTotal);
   const [localTotal, setLocalTotal] = React.useState(0);
-
+  const orderInfo = useSelector((state) => state.orderInfo.orderInfo);
   const [errors, setErrors] = React.useState({});
   const [showModal, setShowModal] = React.useState(false);
 
@@ -65,6 +65,33 @@ export default function Page() {
       console.error("Không thể đọc tổng tiền:", e);
     }
   }, [dispatch]);
+
+  const objNew = React.useMemo(() => {
+      if (!orderInfo) return null;
+  
+      const items = orderInfo.cart?.items || [];
+  
+      const orderDetails = items
+        .filter((it) => it.selected !== false) // chỉ lấy sp đã chọn
+        .map((it) => ({
+          product_id: it.product_id,
+          product_name: it.product_name || it.name || "",
+          quantity: Math.max(1, Number(it.quantity) || 1),
+          unit_price: Number(it.unit_price ?? it.price ?? 0),
+          discount: Math.max(0, Number(it.discount ?? it.discount_price ?? 0)),
+        }));
+  
+      // const total_amount = orderDetails.reduce((sum, d) => {
+      //   const price = Math.max(0, (d.unit_price || 0) - (d.discount || 0));
+      //   return sum + price * d.quantity;
+      // }, 0);
+  
+      return {
+        shipping_address: String(orderInfo.address || "").trim(),
+        orderDetails,
+        payment_method: form.payment
+      };
+    }, [orderInfo]);
 
   const onChange = (key) => (e) => {
     const value = e.target?.value ?? "";
@@ -125,13 +152,14 @@ export default function Page() {
         return sum + price * qty;
       }, 0);
 
+
+
       const resp = await axios.post(
         "http://localhost:8000/api/orders/makeOrder",
         {
-          shipping_address: String(form.address || "").trim(),
-          total_amount: totalAmount || localTotal || cartTotal,
-          user_id: (user && (user._id || user.id)) || undefined,
-          orderDetails,
+          shipping_address:objNew.shipping_address,
+          orderDetails: objNew.orderDetails,
+          payment_method: objNew.payment_method
         },
         {
           headers: {
@@ -145,12 +173,14 @@ export default function Page() {
         try {
           localStorage.setItem("cart_items", JSON.stringify([]));
           localStorage.removeItem("cart_total");
+          dispatch(setField({ key: "order_id", value: resp.data.order_id }))
+          
         } catch {}
-        if (form.payment === "card") {
+        if (form.payment === "CreditCard") {
           router.push("/payment/creditCard");
           return;
         }
-        if (form.payment === "bank") {
+        if (form.payment === "QRCode") {
           router.push("/payment/QRCode");
           return;
         }
@@ -251,8 +281,8 @@ export default function Page() {
                     <input
                       type="radio"
                       name="payment"
-                      value="cod"
-                      checked={form.payment === "cod"}
+                      value="COD"
+                      checked={form.payment === "COD"}
                       onChange={onChange("payment")}
                     />
                     Thanh toán khi nhận hàng (COD)
@@ -266,8 +296,8 @@ export default function Page() {
                     <input
                       type="radio"
                       name="payment"
-                      value="card"
-                      checked={form.payment === "card"}
+                      value="CreditCard"
+                      checked={form.payment === "CreditCard"}
                       onChange={onChange("payment")}
                     />
                     Thanh toán thẻ
@@ -278,8 +308,8 @@ export default function Page() {
                     <input
                       type="radio"
                       name="payment"
-                      value="bank"
-                      checked={form.payment === "bank"}
+                      value="QRCode"
+                      checked={form.payment === "QRCode"}
                       onChange={onChange("payment")}
                     />
                     Thanh toán chuyển khoản

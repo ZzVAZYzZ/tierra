@@ -9,7 +9,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 // @route POST /api/orders/create
 // @access Private
 const createOrder = asyncHandler(async (req, res) => {
-    const { shipping_address, orderDetails } = req.body;
+    const { shipping_address, orderDetails, payment_method } = req.body;
     const user = req.user;
 
     if (!user || !user.user_id) {
@@ -19,7 +19,7 @@ const createOrder = asyncHandler(async (req, res) => {
 
     const user_id = user.user_id;
 
-    if (!shipping_address || !orderDetails || !Array.isArray(orderDetails) || orderDetails.length === 0) {
+    if (!shipping_address || !orderDetails || !Array.isArray(orderDetails) || orderDetails.length === 0 || !payment_method) {
         res.status(400);
         throw new Error('Missing required fields or invalid orderDetails.');
     }
@@ -92,6 +92,7 @@ const createOrder = asyncHandler(async (req, res) => {
             shipping_address,
             total_amount,
             orderDetails: validatedOrderDetails,
+            payment_method
         });
 
         await order.validate();
@@ -100,7 +101,7 @@ const createOrder = asyncHandler(async (req, res) => {
         const newOrder = await order.save();
         console.log("✅ Order lưu thành công:", newOrder);
 
-        res.status(201).json({ message: "Order successfully!", order: newOrder });
+        res.status(201).json({ message: "Order successfully!", order: newOrder, order_id: newOrder.order_id});
     } catch (err) {
         console.error("❌ Lỗi khi tạo Order:", err);
         res.status(500).json({ message: err.message });

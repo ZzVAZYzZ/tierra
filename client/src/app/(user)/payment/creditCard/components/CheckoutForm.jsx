@@ -1,20 +1,24 @@
 import React, { useState } from "react";
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
+import { useDispatch } from "react-redux";
+import { clearOrder } from "../../../../../redux/features/orderInfoSlice";
+import { useRouter } from "next/navigation";
 
-const CheckoutForm = () => {
+const CheckoutForm = ({paymentInfo}) => {
     const stripe = useStripe();
     const elements = useElements();
-
+    const dispatch = useDispatch();
+    const router = useRouter();
     // 1. STATE THÔNG TIN
-    const [amount, setAmount] = useState(150000);
+    const [amount, setAmount] = useState(paymentInfo.total_amount);
     const [isProcessing, setIsProcessing] = useState(false);
-    const [name, setName] = useState("Vazy J");
-    const [email, setEmail] = useState("vazyj@example.com");
-    const [addressLine1, setAddressLine1] = useState("123 Lê Lợi");
-    const [city, setCity] = useState("Hồ Chí Minh");
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [addressLine1, setAddressLine1] = useState("");
+    const [city, setCity] = useState("");
     // Country code cho VN, không cần trường nhập liệu nếu chỉ hỗ trợ VN
     const country = "VN";
-
+    
     // 2. HÀM XỬ LÝ THANH TOÁN
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -33,7 +37,8 @@ const CheckoutForm = () => {
                     name,
                     email,
                     addressLine1,
-                    city
+                    city,
+                    order_id: paymentInfo.order_id
                 }),
             });
             const { clientSecret } = await res.json();
@@ -65,6 +70,9 @@ const CheckoutForm = () => {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ paymentIntent }),
                 });
+
+                dispatch(clearOrder());
+                router.push("/payment/success");
             }
         } catch (fetchError) {
             alert("⚠️ Lỗi kết nối server: " + fetchError.message);
@@ -132,7 +140,7 @@ const CheckoutForm = () => {
                 />
                 <input
                     type="text"
-                    placeholder="Địa chỉ (Dòng 1)"
+                    placeholder="Địa chỉ"
                     value={addressLine1}
                     onChange={(e) => setAddressLine1(e.target.value)}
                     style={inputStyle}

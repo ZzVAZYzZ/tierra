@@ -39,6 +39,7 @@ export default function PaymentPage() {
       total_amount,
       shipping_address: String(orderInfo.address || "").trim(),
       orderDetails,
+      order_id: orderInfo.order_id
     };
   }, [user, orderInfo]);
 
@@ -50,7 +51,7 @@ export default function PaymentPage() {
 
   return (
     <Elements stripe={stripePromise}>
-      <CheckoutForm />
+      <CheckoutForm paymentInfo={objNew}/>
     </Elements>
   );
 }
