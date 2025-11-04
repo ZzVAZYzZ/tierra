@@ -10,7 +10,7 @@ const CheckoutForm = ({ paymentInfo }) => {
     const dispatch = useDispatch();
     const router = useRouter();
     // 1. STATE THÔNG TIN
-    const [amount, setAmount] = useState(paymentInfo.total_amount);
+    const [amount, setAmount] = useState(paymentInfo?.total_amount);
     const [isProcessing, setIsProcessing] = useState(false);
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
@@ -69,11 +69,23 @@ const CheckoutForm = ({ paymentInfo }) => {
             });
 
             if (error) {
-                alert("❌ Lỗi thanh toán: " + error.message);
+                console.error("❌ Lỗi thanh toán:", error.message);
+
+                // ✅ Lưu kết quả thất bại vào session
+                sessionStorage.setItem(
+                    "paymentResult",
+                    JSON.stringify({
+                        orderId: paymentInfo.order_id,
+                        success: false,
+                    })
+                );
+
+                alert("❌ Thanh toán thất bại: " + error.message);
+                router.push("/payment/result");
             } else if (paymentIntent && paymentIntent.status === "succeeded") {
                 alert("✅ Thanh toán thành công! Mã giao dịch: " + paymentIntent.id);
 
-                // Bước 3: Gửi kết quả thanh toán về server để cập nhật đơn hàng
+                // Gửi kết quả thanh toán về server
                 await fetch("http://localhost:8000/api/payment-result", {
                     method: "POST",
                     headers: {
@@ -83,11 +95,30 @@ const CheckoutForm = ({ paymentInfo }) => {
                     body: JSON.stringify({ paymentIntent }),
                 });
 
+                // ✅ Lưu session chỉ với orderId và success
+                sessionStorage.setItem(
+                    "paymentResult",
+                    JSON.stringify({
+                        orderId: paymentInfo.order_id,
+                        success: true,
+                    })
+                );
+
+                // Xóa order Redux và chuyển trang
                 dispatch(clearOrder());
                 router.push("/payment/result");
             }
+
         } catch (fetchError) {
             alert("⚠️ Lỗi kết nối server: " + fetchError.message);
+            sessionStorage.setItem(
+                "paymentResult",
+                JSON.stringify({
+                    orderId: paymentInfo.order_id,
+                    success: false,
+                })
+            );
+            router.push("/payment/result");
         }
 
         setIsProcessing(false);
@@ -129,7 +160,7 @@ const CheckoutForm = ({ paymentInfo }) => {
             <form onSubmit={handleSubmit} autoComplete="off">
                 <h2 style={{ textAlign: "center", color: "#2d3748" }}>🛒 Hoàn tất Đơn hàng</h2>
                 <h3 style={{ textAlign: "center", color: "#4c51bf", marginBottom: "20px" }}>
-                    Tổng cộng: **{amount.toLocaleString()} VND**
+                    Tổng cộng: **{amount?.toLocaleString()} VND**
                 </h3>
 
                 {/* THÔNG TIN KHÁCH HÀNG */}
@@ -194,7 +225,7 @@ const CheckoutForm = ({ paymentInfo }) => {
                         backgroundColor: isProcessing ? "#2c3175" : buttonStyle.backgroundColor
                     }}
                 >
-                    {isProcessing ? "Đang xử lý..." : `Thanh toán ${amount.toLocaleString()} VND`}
+                    {isProcessing ? "Đang xử lý..." : `Thanh toán ${amount?.toLocaleString()} VND`}
                 </button>
 
                 <p style={{ fontSize: "12px", color: "#718096", textAlign: "center", marginTop: "15px" }}>
