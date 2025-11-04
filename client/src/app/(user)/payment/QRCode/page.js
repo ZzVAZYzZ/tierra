@@ -39,14 +39,14 @@ export default function Page() {
       total_amount,
       shipping_address: String(orderInfo.address || "").trim(),
       orderDetails,
-      order_id: orderInfo.order_id || "ORD-" + Date.now(),
+      order_id: orderInfo.order_id || undefined,
     };
   }, [user, orderInfo]);
 
   React.useEffect(() => {
     if (!objNew) return;
     console.log(objNew.order_id);
-    
+
     console.log("🧠 Connecting to socket server...");
     const socket = io(`http://${backendIp}:8000`, {
       transports: ["websocket"],
@@ -54,25 +54,43 @@ export default function Page() {
 
     socket.on("connect", () => {
       console.log("🔌 Socket connected:", socket.id);
-      socket.emit("joinRoom", objNew.order_id);
+      socket.emit("joinOrderRoom", objNew.order_id);
       console.log("📤 Joined room:", objNew.order_id);
+      socket.on("paymentStatus", (data) => {
+        console.log("📩 Received paymentStatus:", data);
+
+        if (data.success) {
+          console.log("✅ Status changed to: success");
+          setStatus("success");
+
+          // ✅ Lưu trạng thái vào sessionStorage
+          sessionStorage.setItem("paymentResult", JSON.stringify(data));
+
+          setTimeout(() => {
+            console.log("➡️ Redirecting to success page...");
+            router.push("/payment/result");
+          }, 2000);
+        } else {
+          console.log("❌ Status changed to: failed");
+          setStatus("failed");
+
+          // ❌ Lưu lỗi vào sessionStorage
+          sessionStorage.setItem("paymentResult", JSON.stringify({
+            success: false,
+            error: data.error || "Thanh toán thất bại",
+            orderId: data.orderId || null,
+          }));
+
+          setTimeout(() => {
+            console.log("➡️ Redirecting to failure page...");
+            router.push("/payment/result");
+          }, 2000);
+        }
+      });
+
     });
 
-    socket.on("paymentStatus", (data) => {
-      console.log("📩 Received paymentStatus:", data);
 
-      if (data.success) {
-        console.log("✅ Status changed to: success");
-        setStatus("success");
-        setTimeout(() => {
-          console.log("➡️ Redirecting to success page...");
-          router.push("/order/success");
-        }, 2000);
-      } else {
-        console.log("❌ Status changed to: failed");
-        setStatus("failed");
-      }
-    });
 
     socket.on("disconnect", (reason) => {
       console.log("🔴 Socket disconnected:", reason);
@@ -149,112 +167,91 @@ export default function Page() {
   // 👇 Giao diện test trạng thái
 
 
-  if (status === "success") {
-    return (
-      <div style={{ textAlign: "center", marginTop: "100px" }}>
-        <h1 style={{ color: "green" }}>✅ Thanh toán thành công!</h1>
-        <p>Đơn hàng của bạn đang được xử lý...</p>
+  return (
+    <div style={containerStyle}>
+      <h2 style={{ color: "#4c51bf", marginBottom: "10px", fontSize: "26px" }}>
+        💰 Thanh toán bằng Mã QR {status}
+      </h2>
+      <p
+        style={{
+          color: "#718096",
+          marginBottom: "25px",
+          borderBottom: "1px solid #e2e8f0",
+          paddingBottom: "15px",
+          fontSize: "15px",
+        }}
+      >
+        Quét mã dưới đây bằng điện thoại để hoàn tất đơn hàng.
+      </p>
+
+      {/* QR CODE */}
+      <div style={qrWrapperStyle}>
+        <QRCodeSVG
+          value={dataToEncode}
+          size={280} // 🔥 tăng kích thước QR
+          level="H"
+          fgColor="#1a202c"
+          bgColor="#ffffff"
+        />
       </div>
-    );
-  }
 
-  if (status === "failed") {
-    return (
-      <div style={{ textAlign: "center", marginTop: "100px" }}>
-        <h1 style={{ color: "red" }}>❌ Thanh toán thất bại!</h1>
-        <p>Vui lòng thử lại hoặc liên hệ hỗ trợ.</p>
-      </div>
-    );
-  }
-
-  if (status === "waiting") {
-
-    return (
-      <div style={containerStyle}>
-        <h2 style={{ color: "#4c51bf", marginBottom: "10px", fontSize: "26px" }}>
-          💰 Thanh toán bằng Mã QR {status}
-        </h2>
-        <p
+      {/* DỮ LIỆU ĐƠN HÀNG */}
+      <div style={dataSectionStyle}>
+        <h4 style={{ color: "#2d3748", marginBottom: "10px" }}>
+          Chi tiết đơn hàng
+        </h4>
+        <ul
           style={{
-            color: "#718096",
-            marginBottom: "25px",
-            borderBottom: "1px solid #e2e8f0",
-            paddingBottom: "15px",
+            listStyle: "none",
+            padding: 0,
+            margin: 0,
             fontSize: "15px",
+            lineHeight: "1.6",
           }}
         >
-          Quét mã dưới đây bằng điện thoại để hoàn tất đơn hàng.
-        </p>
-
-        {/* QR CODE */}
-        <div style={qrWrapperStyle}>
-          <QRCodeSVG
-            value={dataToEncode}
-            size={280} // 🔥 tăng kích thước QR
-            level="H"
-            fgColor="#1a202c"
-            bgColor="#ffffff"
-          />
-        </div>
-
-        {/* DỮ LIỆU ĐƠN HÀNG */}
-        <div style={dataSectionStyle}>
-          <h4 style={{ color: "#2d3748", marginBottom: "10px" }}>
-            Chi tiết đơn hàng
-          </h4>
-          <ul
-            style={{
-              listStyle: "none",
-              padding: 0,
-              margin: 0,
-              fontSize: "15px",
-              lineHeight: "1.6",
-            }}
-          >
-            <li>
-              <b>Mã đơn hàng:</b>{" "}
-              <span style={{ float: "right", color: "#38a169" }}>
-                {objNew.order_id}
-              </span>
-            </li>
-            <li>
-              <b>Tổng tiền:</b>{" "}
-              <span style={{ float: "right" }}>
-                {objNew.total_amount.toLocaleString()} VND
-              </span>
-            </li>
-            <li>
-              <b>Người dùng:</b>{" "}
-              <span style={{ float: "right" }}>{user.name || "Ẩn danh"}</span>
-            </li>
-            <li>
-              <b>Địa chỉ:</b>{" "}
-              <span
-                style={{
-                  float: "right",
-                  maxWidth: "300px",
-                  textAlign: "right",
-                  display: "inline-block",
-                  whiteSpace: "normal",
-                }}
-              >
-                {objNew.shipping_address}
-              </span>
-            </li>
-          </ul>
-        </div>
-
-        <p
-          style={{
-            fontSize: "12px",
-            color: "#a0aec0",
-            marginTop: "20px",
-            wordBreak: "break-all",
-          }}
-        >
-          *Dữ liệu mã hóa:* {dataToEncode.substring(0, 90)}...
-        </p>
+          <li>
+            <b>Mã đơn hàng:</b>{" "}
+            <span style={{ float: "right", color: "#38a169" }}>
+              {objNew.order_id}
+            </span>
+          </li>
+          <li>
+            <b>Tổng tiền:</b>{" "}
+            <span style={{ float: "right" }}>
+              {objNew.total_amount.toLocaleString()} VND
+            </span>
+          </li>
+          <li>
+            <b>Người dùng:</b>{" "}
+            <span style={{ float: "right" }}>{user.name || "Ẩn danh"}</span>
+          </li>
+          <li>
+            <b>Địa chỉ:</b>{" "}
+            <span
+              style={{
+                float: "right",
+                maxWidth: "300px",
+                textAlign: "right",
+                display: "inline-block",
+                whiteSpace: "normal",
+              }}
+            >
+              {objNew.shipping_address}
+            </span>
+          </li>
+        </ul>
       </div>
-    );
-  }
+
+      <p
+        style={{
+          fontSize: "12px",
+          color: "#a0aec0",
+          marginTop: "20px",
+          wordBreak: "break-all",
+        }}
+      >
+        *Dữ liệu mã hóa:* {dataToEncode.substring(0, 90)}...
+      </p>
+    </div>
+  );
 }
