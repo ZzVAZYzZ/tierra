@@ -116,7 +116,7 @@ const createOrder = asyncHandler(async (req, res) => {
 const getOrdersByStatus = asyncHandler(async (req, res) => {
     const { status } = req.params;
 
-    const validStatuses = ['pending', 'shipping', 'delivered', 'cancelled'];
+    const validStatuses = ["created", "paid", "shipping", "completed", "cancelled"];
     if (!validStatuses.includes(status)) {
         res.status(400);
         throw new Error('Invalid order status');
@@ -149,7 +149,7 @@ const getOrdersByUserId = asyncHandler(async (req, res) => {
 const getOrderById = asyncHandler(async (req, res) => {
     const { order_id } = req.params;
 
-    const order = await Order.findById(order_id);
+    const order = await Order.findOne({ order_id: order_id });
 
     if (!order) {
         res.status(404);
