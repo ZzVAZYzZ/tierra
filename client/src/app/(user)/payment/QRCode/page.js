@@ -105,10 +105,6 @@ export default function Page() {
       socket.disconnect();
     };
   }, [objNew]);
-
-
-
-
   if (!objNew) {
     return (
       <div
