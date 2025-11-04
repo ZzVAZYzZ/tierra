@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { clearOrder } from "../../../../../redux/features/orderInfoSlice";
 import { useRouter } from "next/navigation";
 
-const CheckoutForm = ({paymentInfo}) => {
+const CheckoutForm = ({ paymentInfo }) => {
     const stripe = useStripe();
     const elements = useElements();
     const dispatch = useDispatch();
@@ -18,7 +18,12 @@ const CheckoutForm = ({paymentInfo}) => {
     const [city, setCity] = useState("");
     // Country code cho VN, không cần trường nhập liệu nếu chỉ hỗ trợ VN
     const country = "VN";
-    
+
+    const token =
+        typeof window !== "undefined"
+            ? localStorage.getItem("access_token")
+            : "";
+
     // 2. HÀM XỬ LÝ THANH TOÁN
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -30,7 +35,11 @@ const CheckoutForm = ({paymentInfo}) => {
         try {
             const res = await fetch("http://localhost:8000/api/create-payment-intent", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+
+                },
                 // 💡 CẬP NHẬT: GỬI THÊM THÔNG TIN KHÁCH HÀNG
                 body: JSON.stringify({
                     amount,
@@ -67,12 +76,15 @@ const CheckoutForm = ({paymentInfo}) => {
                 // Bước 3: Gửi kết quả thanh toán về server để cập nhật đơn hàng
                 await fetch("http://localhost:8000/api/payment-result", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json",
+                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                    },
                     body: JSON.stringify({ paymentIntent }),
                 });
 
                 dispatch(clearOrder());
-                router.push("/payment/success");
+                router.push("/payment/result");
             }
         } catch (fetchError) {
             alert("⚠️ Lỗi kết nối server: " + fetchError.message);
