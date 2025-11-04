@@ -11,12 +11,13 @@ import UserIcon from "../assets/icons/user_icon";
 import SearchIcon from "../assets/icons/search_icon";
 import { useFetchProducts } from "../hook/useFetchProducts";
 import { toIntegerVND } from "../app/(user)/utils/price";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import logouticon from "../assets/images/logouticon.png";
 import profileicon from "../assets/images/infoIcon.png";
 import { useAuth } from "../hook/useAuth";
+import { resetUserState } from "../redux/features/userSlice";
 
 const Nav = () => {
   const { products } = useFetchProducts();
@@ -32,6 +33,7 @@ const Nav = () => {
   const router = useRouter();
 
   const { user } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   useAuth();
   // 🕓 debounce tìm kiếm
   React.useEffect(() => {
@@ -111,11 +113,33 @@ const Nav = () => {
     }
   };
 
-  const handleLogout = () => {
-    console.log("Đăng xuất");
-    // TODO: gọi API logout, clear token ở đây
-    setIsUserMenuOpen(false);
-    router.push("/login");
+  const handleLogout = async () => {
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+
+      // 🧠 Gọi API logout để xoá refreshToken trong DB + cookie
+      await fetch(`${backendUrl}/api/users/logout`, {
+        method: "POST",
+        credentials: "include", // gửi cookie
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      // 🧹 Xóa token phía client (nếu bạn lưu ở localStorage / sessionStorage)
+      localStorage.removeItem("access_token");
+      sessionStorage.removeItem("access_token");
+
+      // 🧹 Xóa state user trong Redux (nếu bạn có reducer)
+      // dispatch(logoutUser()); // nếu có action logout
+
+      setIsUserMenuOpen(false);
+      dispatch(resetUserState());
+      router.push("/home");
+    } catch (error) {
+      console.error("❌ Lỗi khi đăng xuất:", error);
+      alert("Đăng xuất thất bại!");
+    }
   };
 
   return (

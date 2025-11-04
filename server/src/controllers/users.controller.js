@@ -157,6 +157,23 @@ const current = (req, res) => {
 //@access public
 const logout = asyncHandler(async (req, res) => {
   const { email, token } = req.body;
+  const cookie = req.cookies.refreshToken;
+
+  if (!cookie) {
+    return res.status(204).json({ message: "No content - already logged out" });
+  }
+
+  const deletedToken = await Refresh.findOneAndDelete({token:cookie});
+  
+  if (!deletedToken) {
+    console.warn("⚠️ Refresh token không tồn tại trong DB");
+  }
+
+  res.clearCookie('refreshToken',{
+    httpOnly: true,
+    secure: true,
+  });
+
 
   res.status(200).json({ message: "Log out successful" });
 });
