@@ -132,16 +132,46 @@ const QRScan = asyncHandler(async (req, res) => {
       return res.status(400).render("missingOrderId");
     }
 
-    // 🟢 Nếu hợp lệ
+    // 🟢 Ghi log xác nhận
     console.log("📲 Order confirmed for:", orderData.order_id);
+
+    // ✅ Tạo dữ liệu thanh toán mới trong MongoDB
+    const newPayment = new Payment({
+      order_id: orderData.order_id,
+      amount: orderData.total_amount,
+      currency: "vnd",
+      status: "succeeded", // vì QR đã quét thành công
+      paymentType: "QRCode",
+      payment_method: "QR",
+      description: "Thanh toán bằng mã QR",
+      customer_name: orderData.user_id, // hoặc thay bằng tên user nếu có
+      customer_email: "N/A", // nếu chưa có email
+      customer_address: orderData.shipping_address,
+    });
+
+    await newPayment.save();
+    console.log(`✅ Payment saved for order ${orderData.order_id}`);
+
+    // ✅ Cập nhật Order thành "paid"
+    const updatedOrder = await Order.findOneAndUpdate(
+      { order_id: orderData.order_id },
+      { status: "paid" },
+      { new: true }
+    );
+
+    if (updatedOrder) {
+      console.log(`✅ Order ${updatedOrder.order_id} updated to "paid"`);
+    } else {
+      console.warn(`⚠️ Không tìm thấy Order với order_id = ${orderData.order_id}`);
+    }
+
+    // ✅ Bắn socket báo thành công cho FE
     io.to(orderData.order_id).emit("paymentStatus", {
       success: true,
       orderId: orderData.order_id,
     });
 
-    console.log("📤 Emitted paymentStatus success to room:", orderData.order_id);
-
-    // ✅ Render view success
+    // ✅ Render giao diện thành công
     res.status(200).render("success", { orderId: orderData.order_id });
 
   } catch (err) {
@@ -153,6 +183,7 @@ const QRScan = asyncHandler(async (req, res) => {
       orderData = req.query.data ? JSON.parse(req.query.data) : null;
     } catch {}
 
+    // ❌ Nếu lỗi, emit thất bại về client
     if (orderData?.order_id) {
       io.to(orderData.order_id).emit("paymentStatus", {
         success: false,
@@ -167,5 +198,6 @@ const QRScan = asyncHandler(async (req, res) => {
     res.status(400).render("failed", { error: err.message });
   }
 });
+
 
 module.exports = { createPaymentIntent, paymentResult, QRScan }
