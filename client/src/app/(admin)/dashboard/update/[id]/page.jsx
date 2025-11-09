@@ -89,7 +89,7 @@ const Page = () => {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     console.log(form);
-  };
+};
 
   const handleSubmit = async () => {
     await updateProduct(productDetail.product_id, form, images);
@@ -107,7 +107,7 @@ const Page = () => {
         <div>
           <h2 className="text-lg font-semibold mb-2">Tên sản phẩm</h2>
           <input
-            className="border rounded-[8px] px-4 py-2 w-full outline-none focus:border-[#9B8D6F]"
+            className="border rounded-lg px-4 py-2 w-full outline-none focus:border-[#9B8D6F]"
             placeholder="Nhẫn Kim cương"
             type="text"
             name="name"
@@ -120,7 +120,7 @@ const Page = () => {
         <div className="flex flex-row gap-6">
           <div className="flex-1">
             <h3 className="font-medium mb-2">Chất liệu</h3>
-            <div className="border rounded-[8px] p-4 flex flex-col gap-2">
+            <div className="border rounded-lg p-4 flex flex-col gap-2">
               <label>
                 <input
                   type="radio"
@@ -146,7 +146,7 @@ const Page = () => {
 
           <div className="flex-1">
             <h3 className="font-medium mb-2">Màu sắc</h3>
-            <div className="border rounded-[8px] p-4 flex flex-col gap-2">
+            <div className="border rounded-lg p-4 flex flex-col gap-2">
               <label>
                 <input
                   type="radio"
@@ -183,9 +183,9 @@ const Page = () => {
 
         {/* Mô tả sản phẩm */}
         <div>
-          <h3 className="font-medium mb-2">Mô tả sản phẩm</h3>
+<h3 className="font-medium mb-2">Mô tả sản phẩm</h3>
           <textarea
-            className="border rounded-[8px] p-4 w-full h-[300px] outline-none focus:border-[#9B8D6F]"
+            className="border rounded-lg p-4 w-full h-[300px] outline-none focus:border-[#9B8D6F]"
             placeholder="Nhập mô tả sản phẩm..."
             name="description"
             onChange={handleChange}
@@ -203,7 +203,7 @@ const Page = () => {
             {images.map((img, index) => (
               <label
                 key={index}
-                className="w-[100px] h-[100px] flex justify-center items-center border rounded-[8px] cursor-pointer overflow-hidden hover:border-[#9B8D6F]"
+                className="w-[100px] h-[100px] flex justify-center items-center border rounded-lg cursor-pointer overflow-hidden hover:border-[#9B8D6F]"
               >
                 {img ? (
                   typeof img === "string" ? (
@@ -231,7 +231,7 @@ const Page = () => {
         {/*Phân loại sản phẩm */}
         <div className="flex flex-col h-[30%]">
           <h3 className="font-medium mb-2">Phân loại sản phẩm</h3>
-          <div className="border rounded-[8px] p-4 flex flex-col gap-2">
+          <div className="border rounded-lg p-4 flex flex-col gap-2">
             <label>
               <input
                 type="radio"
@@ -262,7 +262,11 @@ const Page = () => {
                 name="category_id"
                 value="4c032dd3-1384-46e4-85f6-c29bbe303605"
                 checked={
+<<<<<<< HEAD
                   form.category_id === "4c032dd3-1384-46e4-85f6-c29bbe303605"
+=======
+form.category_id === "4c032dd3-1384-46e4-85f6-c29bbe303605"
+>>>>>>> origin/main
                 }
                 onChange={handleChange}
               />{" "}
@@ -287,7 +291,7 @@ const Page = () => {
         <div className="flex ">
           <button
             onClick={handleSubmit}
-            className="w-full bg-[#9B8D6F] cursor-pointer text-white py-3 rounded-[8px] font-semibold shadow-md hover:opacity-90"
+            className="w-full bg-[#9B8D6F] cursor-pointer text-white py-3 rounded-lg font-semibold shadow-md hover:opacity-90"
             disabled={loading}
           >
             {loading ? "Đang xử lý..." : "Cập nhật sản phẩm"}

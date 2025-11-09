@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { register, login, current, googleAuthCallback, updatePassword, refresh } = require("../../controllers/users.controller");
+const { register, login,logout , current, googleAuthCallback, updatePassword, refresh } = require("../../controllers/users.controller");
 const { validateAccessToken } = require("../../middlewares/validateAccesstoken");
 const passport = require("passport");
 const { validateRefreshToken } = require("../../middlewares/validateRefreshToken");
@@ -11,6 +11,7 @@ const { validateRefreshToken } = require("../../middlewares/validateRefreshToken
 // basic authentication
 router.route('/users/register').post(register);
 router.route('/users/login').post(login);
+router.route('/users/logout').post(logout);
 router.route('/users/current').get(validateAccessToken,current);
 router.route('/users/refresh').get(validateRefreshToken,refresh);
 

@@ -12,6 +12,8 @@ const errorHandler = require('../middlewares/errorHandler');
 const passport = require('passport');
 const cookieParser = require('cookie-parser');
 const useragent = require('express-useragent');
+const path = require("path");
+
 // test
 
 
@@ -19,6 +21,8 @@ const useragent = require('express-useragent');
 require("dotenv").config();
 require('express-async-handler');
 require('../middlewares/passport');
+
+
 // init middlewares
 app.use(cors({
     origin: ['http://localhost:3000','http://localhost:8000'],
@@ -45,5 +49,8 @@ app.use('/',router);
 // init error handler
 app.use(errorHandler);
 
+// init views
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "../views"));
 
 module.exports = app;

@@ -3,6 +3,7 @@ import axios from "axios";
 
 const initialState = {
   products: [],
+  product: null,
   status: "idle",
   error: "",
   productDetail: {},
@@ -37,6 +38,27 @@ export const addProduct = createAsyncThunk(
     }
   }
 );
+
+export const deleteProduct = createAsyncThunk(
+  "products/deleteProduct",
+  async ({ id, token }, { rejectWithValue }) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:8000/api/products/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Delete product failed"
+      );
+    }
+  }
+);
+
 export const fetchProductsById = createAsyncThunk(
   "products/fetchProductsById",
   async ({ id, token }, { rejectWithValue }) => {
@@ -100,7 +122,7 @@ export const productsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchProducts.pending, (state, action) => {
+.addCase(fetchProducts.pending, (state, action) => {
         state.status = "loading";
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
@@ -176,6 +198,23 @@ export const productsSlice = createSlice({
       .addCase(updateProduct.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
+<<<<<<< HEAD
+=======
+      })
+      .addCase(deleteProduct.fulfilled, (state, action) => {
+        state.status = "successed";
+        const deletedId = action.payload.productId;
+state.products = state.products.filter(
+          (p) => p.product_id !== deletedId
+        );
+      })
+      .addCase(deleteProduct.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(deleteProduct.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+>>>>>>> origin/main
       });
   },
 });

@@ -32,9 +32,11 @@ const orderDetailSchema = new mongoose.Schema(
 
 const orderSchema = new mongoose.Schema(
   {
-    _id: {
+    order_id: {
       type: String,
       default: uuidv4,
+      unique: true,
+      index: true,
     },
     user_id: {
       type: String,
@@ -46,8 +48,13 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "shipping", "delivered", "cancelled"],
-      default: "pending",
+      enum: ["created", "paid", "shipping", "completed", "cancelled"],
+      default: "created",
+    },
+    payment_method: {
+      type: String,
+      enum: ["COD", "QRCode", "CreditCard"],
+      required: true,
     },
     total_amount: {
       type: Number,
@@ -65,14 +72,14 @@ const orderSchema = new mongoose.Schema(
     },
   },
   {
-    _id: false,
+    // _id: false,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
 );
 
-orderSchema.virtual("order_id").get(function () {
-  return this._id;
-});
+// orderSchema.virtual("order_id").get(function () {
+//   return this.order_id;
+// });
 
 module.exports = mongoose.model("Order", orderSchema);

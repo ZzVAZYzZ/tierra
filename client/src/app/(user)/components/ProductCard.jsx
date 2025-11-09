@@ -26,16 +26,44 @@ const ProductCard = ({ item, isFavorite, onToggleFavorite }) => {
     router.push(`/${segment}/${id}`);
   };
 
+  const images = Array.isArray(item?.ProductImages) ? item.ProductImages : [];
+  const mainImage = images.find((img) => img?.is_main) || images[0];
+
   return (
     <div
       className="w-[250px] h-[350px] flex flex-col justify-around border border-[#D6D6D6] hover:shadow-xl transition-shadow duration-300 rounded-md cursor-pointer relative"
       onClick={goToDetail}
     >
-      {item?.ProductImages?.map((img, idx) => (
-        <div key={idx}>{img.is_main === true && <img src={img.image_url} />}</div>
-      ))}
+      <div className="w-[248px] h-[250px] overflow-hidden rounded-t-md">
+        {mainImage?.image_url ? (
+          <img
+            src={mainImage.image_url}
+            alt={item?.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
+            Không có hình ảnh
+          </div>
+        )}
+      </div>
       <div className="text-[20px] font-medium ml-[15px]">{item?.name}</div>
-      <div className="text-[16px] text-[#C0C0C0] mt-[20px] mb-[10px] ml-[15px]">{formatPriceVND(item?.price)}</div>
+      <div className="mt-[20px] mb-[10px] ml-[15px]">
+        {(() => {
+          const priceInt = toIntegerVND(item?.price);
+          const discountInt = toIntegerVND(item?.discount_price);
+          const hasDiscount = Number.isFinite(priceInt) && Number.isFinite(discountInt) && discountInt > 0 && discountInt < priceInt;
+          const finalPrice = hasDiscount ? Math.max(priceInt - discountInt, 0) : priceInt;
+          return hasDiscount ? (
+            <div className="flex items-baseline gap-2">
+              <span className="text-[16px] font-semibold text-[#9B8D6F]">{formatPriceVND(finalPrice)} ₫</span>
+              <span className="text-[14px] text-gray-400 line-through">{formatPriceVND(priceInt)} ₫</span>
+            </div>
+          ) : (
+            <div className="text-[16px] text-[#9B8D6F]">{formatPriceVND(priceInt)} ₫</div>
+          );
+        })()}
+      </div>
       <button
         type="button"
         aria-label="Yêu thích"
@@ -53,4 +81,3 @@ const ProductCard = ({ item, isFavorite, onToggleFavorite }) => {
 };
 
 export default ProductCard;
-

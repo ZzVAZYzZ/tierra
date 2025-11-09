@@ -1,13 +1,15 @@
 const asyncHandler = require('express-async-handler');
 const Order = require('../models/orders');
 const Product = require('../models/products');
-const { sequelize } = require('../databases/mysql/mysqlConnect');
+const Stripe = require("stripe");
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // @desc Create a new order
 // @route POST /api/orders/create
 // @access Private
 const createOrder = asyncHandler(async (req, res) => {
-    const { shipping_address, orderDetails } = req.body;
+    const { shipping_address, orderDetails, payment_method } = req.body;
     const user = req.user;
 
     if (!user || !user.user_id) {
@@ -17,7 +19,7 @@ const createOrder = asyncHandler(async (req, res) => {
 
     const user_id = user.user_id;
 
-    if (!shipping_address || !orderDetails || !Array.isArray(orderDetails) || orderDetails.length === 0) {
+    if (!shipping_address || !orderDetails || !Array.isArray(orderDetails) || orderDetails.length === 0 || !payment_method) {
         res.status(400);
         throw new Error('Missing required fields or invalid orderDetails.');
     }
@@ -90,6 +92,7 @@ const createOrder = asyncHandler(async (req, res) => {
             shipping_address,
             total_amount,
             orderDetails: validatedOrderDetails,
+            payment_method
         });
 
         await order.validate();
@@ -98,7 +101,7 @@ const createOrder = asyncHandler(async (req, res) => {
         const newOrder = await order.save();
         console.log("✅ Order lưu thành công:", newOrder);
 
-        res.status(201).json({ message: "Order successfully!", order: newOrder });
+        res.status(201).json({ message: "Order successfully!", order: newOrder, order_id: newOrder.order_id});
     } catch (err) {
         console.error("❌ Lỗi khi tạo Order:", err);
         res.status(500).json({ message: err.message });
@@ -113,7 +116,7 @@ const createOrder = asyncHandler(async (req, res) => {
 const getOrdersByStatus = asyncHandler(async (req, res) => {
     const { status } = req.params;
 
-    const validStatuses = ['pending', 'shipping', 'delivered', 'cancelled'];
+    const validStatuses = ["created", "paid", "shipping", "completed", "cancelled"];
     if (!validStatuses.includes(status)) {
         res.status(400);
         throw new Error('Invalid order status');
@@ -146,7 +149,7 @@ const getOrdersByUserId = asyncHandler(async (req, res) => {
 const getOrderById = asyncHandler(async (req, res) => {
     const { order_id } = req.params;
 
-    const order = await Order.findById(order_id);
+    const order = await Order.findOne({ order_id: order_id });
 
     if (!order) {
         res.status(404);

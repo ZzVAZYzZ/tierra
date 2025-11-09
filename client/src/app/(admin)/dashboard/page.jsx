@@ -6,12 +6,14 @@ import NavPage from "../components/navPage";
 import BachamIcon from "../../../assets/icons/admin/bacham_icon";
 import Link from "next/link";
 import useFetchProductById from "../../../hook/useGetProductById";
+import useDeleteProduct from "../../../hook/useDeleteProduct";
 
 export default function Page() {
   const { products, status, error } = useFetchProducts();
   const [openMenuIndex, setOpenMenuIndex] = useState(null);
   const { fetchProductById, detailProduct, loadingDetailProduct } =
     useFetchProductById();
+  const { deleteProductById, deletingProduct } = useDeleteProduct();
 
   // Hàm định dạng ngày kiểu Việt Nam
   function formatDateVN(dateString) {
@@ -47,7 +49,12 @@ export default function Page() {
   }
 
   return (
-    <div className="w-full h-full flex flex-col ml-2.5 gap-[12px]">
+    <div className="relative  w-full h-full flex flex-col ml-2.5 gap-3">
+      {deletingProduct && (
+        <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] z-20 flex justify-center items-center">
+          <div className="w-14 h-14 border-4 border-[#9B8D6F] border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      )}
       <NavPage />
       <div className="w-full h-full bg-white rounded-[10px] flex flex-col px-[72px] pt-[52px] pb-[47px]">
         {/* Wrapper có thể cuộn */}
@@ -60,7 +67,7 @@ export default function Page() {
             <div className="w-[15%]">Lượt mua</div>
             <div className="w-[20%]">Lượt bình luận/đánh giá</div>
             <div className="w-[20%]">Trạng thái tạo sản phẩm</div>
-            <button className="h-[40px] w-[40px] bg-[#9B8D6F] shadow-[0px_4px_15px_rgba(0,0,0,0.2)] cursor-pointer rounded-[8px] flex justify-center items-center"></button>
+            {/* <button className="h-[40px] w-[40px] bg-[#9B8D6F] shadow-[0px_4px_15px_rgba(0,0,0,0.2)] cursor-pointer rounded-[8px] flex justify-center items-center"></button> */}
           </div>
 
           {/* Danh sách sản phẩm */}
@@ -71,7 +78,7 @@ export default function Page() {
                 return (
                   <div
                     key={index}
-                    className="product-row relative flex flex-row w-full bg-[#EDEDED] min-h-[80px] rounded-[8px] items-center pl-[16px] pr-[40px]"
+                    className="product-row relative flex flex-row w-full bg-[#EDEDED] min-h-20 rounded-lg items-center pl-4 pr-10"
                   >
                     <div className="w-[5%]">{index + 1}</div>
                     <div
@@ -99,7 +106,7 @@ export default function Page() {
 
                       {/* Menu thả xuống */}
                       {openMenuIndex === index && (
-                        <div className="absolute right-0 top-[100%] mt-2 w-[200px] bg-white shadow-lg rounded-[6px] border border-gray-200 z-10">
+                        <div className="absolute right-0 top-full mt-2 w-[200px] bg-white shadow-lg rounded-md border border-gray-200 z-10">
                           <Link href={`/dashboard/update/${item.product_id}`}>
                             <button
                               onClick={() => fetchProductById(item.product_id)}
@@ -109,7 +116,7 @@ export default function Page() {
                             </button>
                           </Link>
                           <button
-                            onClick={() => console.log("Xóa:", item.name)}
+                            onClick={() => deleteProductById(item.product_id)}
                             className="flex items-center gap-2 w-full px-4 py-2 hover:bg-gray-100 text-left text-sm text-red-600"
                           >
                             🗑️ Xóa sản phẩm
@@ -132,9 +139,9 @@ export default function Page() {
         </div>
 
         {/* Xem tất cả */}
-        <div className="w-full h-[15%] cursor-pointer flex justify-center items-center">
+        {/* <div className="w-full h-[15%] cursor-pointer flex justify-center items-center">
           See all
-        </div>
+        </div> */}
       </div>
     </div>
   );

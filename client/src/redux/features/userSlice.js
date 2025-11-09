@@ -96,6 +96,7 @@ export const current = createAsyncThunk(
       const response = await axios.get('http://localhost:8000/api/users/current', {
         headers: { Authorization: `Bearer ${token}` },
       })
+      
       return response.data.user
     } catch (error) {
       
