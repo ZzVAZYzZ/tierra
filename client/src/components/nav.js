@@ -11,12 +11,13 @@ import UserIcon from "../assets/icons/user_icon";
 import SearchIcon from "../assets/icons/search_icon";
 import { useFetchProducts } from "../hook/useFetchProducts";
 import { toIntegerVND } from "../app/(user)/utils/price";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import logouticon from "../assets/images/logouticon.png";
 import profileicon from "../assets/images/infoIcon.png";
 import { useAuth } from "../hook/useAuth";
+import { resetUserState } from "../redux/features/userSlice";
 
 const Nav = () => {
   const { products } = useFetchProducts();
@@ -32,6 +33,7 @@ const Nav = () => {
   const router = useRouter();
 
   const { user } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   useAuth();
   // 🕓 debounce tìm kiếm
   React.useEffect(() => {
@@ -111,11 +113,33 @@ const Nav = () => {
     }
   };
 
-  const handleLogout = () => {
-    console.log("Đăng xuất");
-    // TODO: gọi API logout, clear token ở đây
-    setIsUserMenuOpen(false);
-    router.push("/login");
+  const handleLogout = async () => {
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+
+      // 🧠 Gọi API logout để xoá refreshToken trong DB + cookie
+      await fetch(`${backendUrl}/api/users/logout`, {
+        method: "POST",
+        credentials: "include", // gửi cookie
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      // 🧹 Xóa token phía client (nếu bạn lưu ở localStorage / sessionStorage)
+      localStorage.removeItem("access_token");
+      sessionStorage.removeItem("access_token");
+
+      // 🧹 Xóa state user trong Redux (nếu bạn có reducer)
+      // dispatch(logoutUser()); // nếu có action logout
+
+      setIsUserMenuOpen(false);
+      dispatch(resetUserState());
+      router.push("/home");
+    } catch (error) {
+      console.error("❌ Lỗi khi đăng xuất:", error);
+      alert("Đăng xuất thất bại!");
+    }
   };
 
   return (
@@ -217,11 +241,11 @@ const Nav = () => {
             )}
           </div>
 
-          <div className="h-[20px] flex flex-row justify-center gap-[24px]">
+          <div className="h-5 flex flex-row justify-center gap-6">
             <div>
               <a href="#">Về chúng tôi</a>
             </div>
-            <div className="flex flex-row items-center gap-[7px] leading-[20px]">
+            <div className="flex flex-row items-center gap-[7px] leading-5">
               <button className="cursor-pointer">EN</button>
               <hr className="h-[80%] border"></hr>
               <button className="cursor-pointer">VI</button>
@@ -231,7 +255,7 @@ const Nav = () => {
       </div>
 
       {/* hr */}
-      <hr className="h-[2px] bg-[#9B8D6F] border-[white]"></hr>
+      <hr className="h-0.5 bg-[#9B8D6F] border-[white]"></hr>
 
       {/* menubar */}
       <div className="h-[100px] flex flex-row justify-between items-center mx-[70px]">
@@ -259,21 +283,21 @@ const Nav = () => {
         </div>
       </div>
 
-      <hr className="h-[2px] bg-[#9B8D6F] border-[white]"></hr>
+      <hr className="h-0.5 bg-[#9B8D6F] border-[white]"></hr>
 
       {/* overlay search */}
       {open && (
-        <div className="fixed inset-0 z-[200]">
+        <div className="fixed inset-0 z-200">
           <div
             className="absolute inset-0 bg-black/50"
             onClick={() => setOpen(false)}
           />
           <div
             ref={panelRef}
-            className="relative z-[201] h-full w-full flex flex-col items-center pt-16 overflow-hidden pointer-events-none"
+            className="relative z-201 h-full w-full flex flex-col items-center pt-16 overflow-hidden pointer-events-none"
           >
             <div className="w-[900px] pointer-events-auto">
-              <div className="w-full h-[80px] border rounded-full flex items-center px-8 bg-white">
+              <div className="w-full h-20 border rounded-full flex items-center px-8 bg-white">
                 <input
                   ref={overlayInputRef}
                   value={query}
@@ -296,7 +320,7 @@ const Nav = () => {
                   <div
                     key={item.product_id}
                     onClick={() => goToProduct(item)}
-                    className="w-[850px] h-[100px] mx-auto flex items-center gap-[20px] py-2 cursor-pointer hover:bg-gray-50"
+                    className="w-[850px] h-[100px] mx-auto flex items-center gap-5 py-2 cursor-pointer hover:bg-gray-50"
                     role="button"
                     tabIndex={0}
                     onKeyDown={(e) => {
@@ -307,7 +331,7 @@ const Nav = () => {
                       <img
                         src={getMainImage(item)}
                         alt={item.name}
-                        className="w-[80px] h-[80px] object-cover rounded"
+                        className="w-20 h-20 object-cover rounded"
                       />
                     )}
                     <div className="flex-1 h-full flex flex-col justify-center">

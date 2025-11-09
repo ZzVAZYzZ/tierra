@@ -9,6 +9,6 @@ router.route('/products/add').post(validateAccessToken,auth(["admin"]),upload.ar
 router.route('/products/:id').put(validateAccessToken,auth(["admin"]),upload.array('images', 5),updateProduct);
 router.route('/products/:id').delete(validateAccessToken,auth(["admin"]),deleteProduct);
 router.route('/products/:id').get(getProductById);
-router.get('/products', getAllProducts);
+router.route('/products').get(getAllProducts);
 
 module.exports = router;

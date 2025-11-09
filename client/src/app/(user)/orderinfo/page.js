@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,7 @@ import {
   initFromLocal,
   saveToLocal,
   selectCartTotal,
+  clearOrder,
 } from "../../../redux/features/orderInfoSlice.js";
 
 export default function Page() {
@@ -20,8 +21,8 @@ export default function Page() {
   const form = useSelector(selectOrderInfo);
   const { user } = useSelector((state) => state.user);
   const cartTotal = useSelector(selectCartTotal);
-  const [localTotal, setLocalTotal] = React.useState(0);
-
+  // const [localTotal, setLocalTotal] = React.useState(0);
+  const orderInfo = useSelector((state) => state.orderInfo.orderInfo);
   const [errors, setErrors] = React.useState({});
   const [showModal, setShowModal] = React.useState(false);
 
@@ -30,41 +31,81 @@ export default function Page() {
   // }, [user])
 
   React.useEffect(() => {
+    try {
+      localStorage.removeItem("order_info");
+    } catch {}
+    dispatch(clearOrder());
+  }, []);
+
+  React.useEffect(() => {
     dispatch(initFromLocal());
   }, [dispatch]);
-  const formatVND = (n) =>
-    new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(Math.max(0, Number(n || 0)));
 
   // Prefill form từ thông tin user nếu có
   React.useEffect(() => {
-    if (!user) return;
-    const updates = {};
-    if (user.name && !form.fullName) updates.fullName = user.name;
-    if (user.email && !form.email) updates.email = user.email;
-    if (user.phone && !form.phone) updates.phone = user.phone;
-    if (user.address && !form.address) updates.address = user.address;
-    if (Object.keys(updates).length) {
-      dispatch(setAll({ ...form, ...updates }));
-    }
-  }, [user, form.fullName, form.email, form.phone, form.address, dispatch]);
+    if (!user || !user.name) return; // Đợi Redux user có dữ liệu
 
-  React.useEffect(() => {
-    try {
-      const raw = localStorage.getItem("cart_total");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (!isNaN(parsed)) {
-          setLocalTotal(parsed);
-          dispatch(setField({ key: "cartTotal", value: parsed })); // lưu luôn vào redux
-        }
+    // Chỉ tự động prefill khi form chưa có dữ liệu người dùng nhập tay
+    const hasEmptyForm =
+      !form.fullName && !form.email && !form.phone && !form.address;
+
+    if (hasEmptyForm) {
+      const updates = {};
+
+      // ✅ Chỉ gán nếu có dữ liệu thật (tránh hiện null)
+      if (user.name) updates.fullName = user.name;
+      if (user.email) updates.email = user.email;
+      if (user.phone) updates.phone = user.phone;
+      if (user.address) updates.address = user.address;
+
+      if (Object.keys(updates).length > 0) {
+        dispatch(setAll({ ...form, ...updates }));
       }
-    } catch (e) {
-      console.error("Không thể đọc tổng tiền:", e);
     }
-  }, [dispatch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, form]);
+
+  // React.useEffect(() => {
+  //   try {
+  //     const raw = localStorage.getItem("cart_total");
+  //     if (raw) {
+  //       const parsed = JSON.parse(raw);
+  //       if (!isNaN(parsed)) {
+  //         setLocalTotal(parsed);
+  //         dispatch(setField({ key: "cartTotal", value: parsed })); // lưu luôn vào redux
+  //       }
+  //     }
+  //   } catch (e) {
+  //     console.error("Không thể đọc tổng tiền:", e);
+  //   }
+  // }, [dispatch]);
+
+  const objNew = React.useMemo(() => {
+    if (!orderInfo) return null;
+
+    const items = orderInfo.cart?.items || [];
+
+    const orderDetails = items
+      .filter((it) => it.selected !== false) // chỉ lấy sp đã chọn
+      .map((it) => ({
+        product_id: it.product_id,
+        product_name: it.product_name || it.name || "",
+        quantity: Math.max(1, Number(it.quantity) || 1),
+        unit_price: Number(it.unit_price ?? it.price ?? 0),
+        discount: Math.max(0, Number(it.discount ?? it.discount_price ?? 0)),
+      }));
+
+    // const total_amount = orderDetails.reduce((sum, d) => {
+    //   const price = Math.max(0, (d.unit_price || 0) - (d.discount || 0));
+    //   return sum + price * d.quantity;
+    // }, 0);
+
+    return {
+      shipping_address: String(orderInfo.address || "").trim(),
+      orderDetails,
+      payment_method: form.payment,
+    };
+  }, [orderInfo]);
 
   const onChange = (key) => (e) => {
     const value = e.target?.value ?? "";
@@ -94,7 +135,7 @@ export default function Page() {
           : "[]";
       const list = raw ? JSON.parse(raw) : [];
       const selected = Array.isArray(list)
-        ? list.filter((it) => it.selected)
+        ? list.filter((it) => it.selected !== false)
         : [];
       if (selected.length === 0) {
         setErrors((prev) => ({
@@ -104,34 +145,17 @@ export default function Page() {
         return;
       }
 
-      const orderDetails = selected.map((it) => ({
-        product_id: it.product_id,
-        product_name: it.name || it.product_name || "Sản phẩm",
-        quantity: Number(it.quantity) || 1,
-        unit_price: Number(it.price) || Number(it.unit_price) || 0,
-        discount: Number(it.discount_price) || Number(it.discount) || 0,
-      }));
-
       const token =
         typeof window !== "undefined"
           ? localStorage.getItem("access_token")
           : "";
-      // Tính tổng tiền theo model server từ orderDetails
-      const totalAmount = orderDetails.reduce((sum, d) => {
-        const unit = Number(d.unit_price || 0);
-        const discount = Math.max(0, Number(d.discount || 0));
-        const price = Math.max(0, unit - discount);
-        const qty = Math.max(1, Number(d.quantity || 1));
-        return sum + price * qty;
-      }, 0);
 
       const resp = await axios.post(
         "http://localhost:8000/api/orders/makeOrder",
         {
-          shipping_address: String(form.address || "").trim(),
-          total_amount: totalAmount || localTotal || cartTotal,
-          user_id: (user && (user._id || user.id)) || undefined,
-          orderDetails,
+          shipping_address: objNew.shipping_address,
+          orderDetails: objNew.orderDetails,
+          payment_method: objNew.payment_method,
         },
         {
           headers: {
@@ -145,16 +169,28 @@ export default function Page() {
         try {
           localStorage.setItem("cart_items", JSON.stringify([]));
           localStorage.removeItem("cart_total");
+          dispatch(setField({ key: "order_id", value: resp.data.order_id }));
         } catch {}
-        if (form.payment === "card") {
+        if (form.payment === "CreditCard") {
           router.push("/payment/creditCard");
           return;
         }
-        if (form.payment === "bank") {
+        if (form.payment === "QRCode") {
           router.push("/payment/QRCode");
           return;
         }
-        setShowModal(true);
+        if (form.payment === "COD") {
+          const paymentResult = {
+            success: true,
+            orderId: resp?.data?.order_id || "unknown",
+          };
+          sessionStorage.setItem(
+            "paymentResult",
+            JSON.stringify(paymentResult)
+          );
+          router.push("/payment/result");
+          return;
+        }
       }
     } catch (err) {
       const msg =
@@ -251,8 +287,8 @@ export default function Page() {
                     <input
                       type="radio"
                       name="payment"
-                      value="cod"
-                      checked={form.payment === "cod"}
+                      value="COD"
+                      checked={form.payment === "COD"}
                       onChange={onChange("payment")}
                     />
                     Thanh toán khi nhận hàng (COD)
@@ -266,20 +302,18 @@ export default function Page() {
                     <input
                       type="radio"
                       name="payment"
-                      value="card"
-                      checked={form.payment === "card"}
+                      value="CreditCard"
+                      checked={form.payment === "CreditCard"}
                       onChange={onChange("payment")}
                     />
                     Thanh toán thẻ
                   </label>
-                  <label
-                    className="flex items-center gap-3"
-                  >
+                  <label className="flex items-center gap-3">
                     <input
                       type="radio"
                       name="payment"
-                      value="bank"
-                      checked={form.payment === "bank"}
+                      value="QRCode"
+                      checked={form.payment === "QRCode"}
                       onChange={onChange("payment")}
                     />
                     Thanh toán chuyển khoản
@@ -295,7 +329,6 @@ export default function Page() {
               <button
                 type="submit"
                 className="w-full h-[56px] rounded-full bg-[#9B8D6F] text-white font-semibold cursor-pointer hover:opacity-90 transition"
-
               >
                 Đặt hàng
               </button>

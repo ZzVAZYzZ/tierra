@@ -18,7 +18,7 @@ const validateAccessToken = asyncHandler(async (req, res, next) => {
       res.status(401);
       throw new Error("User is not authorized or token is missing!");
     }
-
+    
     const decoded = await verifyJwt(token, process.env.JWT_SECRET_KEY);
     const email = decoded.user.email;
 

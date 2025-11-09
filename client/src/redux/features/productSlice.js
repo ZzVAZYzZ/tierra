@@ -3,6 +3,7 @@ import axios from "axios";
 
 const initialState = {
   products: [],
+  product: null,
   status: "idle",
   error: "",
   productDetail: {},
@@ -37,6 +38,27 @@ export const addProduct = createAsyncThunk(
     }
   }
 );
+
+export const deleteProduct = createAsyncThunk(
+  "products/deleteProduct",
+  async ({ id, token }, { rejectWithValue }) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:8000/api/products/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Delete product failed"
+      );
+    }
+  }
+);
+
 export const fetchProductsById = createAsyncThunk(
   "products/fetchProductsById",
   async ({ id, token }, { rejectWithValue }) => {
@@ -52,6 +74,29 @@ export const fetchProductsById = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Fetch product failed"
+      );
+    }
+  }
+);
+
+export const updateProduct = createAsyncThunk(
+  "products/updateProduct",
+  async ({ id, data, token }, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:8000/api/products/${id}`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Update product failed"
       );
     }
   }
@@ -77,7 +122,7 @@ export const productsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchProducts.pending, (state, action) => {
+.addCase(fetchProducts.pending, (state, action) => {
         state.status = "loading";
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
@@ -123,6 +168,50 @@ export const productsSlice = createSlice({
         state.status = "failed";
         state.error = action.payload || action.error.message;
         state.productDetail = {};
+      })
+      .addCase(updateProduct.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(updateProduct.fulfilled, (state, action) => {
+        state.status = "succeeded";
+
+        // 🔄 Cập nhật sản phẩm trong mảng `products`
+        const updatedProduct = action.payload.product || action.payload;
+        const index = state.products.findIndex(
+          (item) => item.product_id === updatedProduct.product_id
+        );
+        if (index !== -1) {
+          state.products[index] = {
+            ...state.products[index],
+            ...updatedProduct,
+          };
+        }
+
+        // 🔄 Cập nhật luôn productDetail nếu đang xem chi tiết
+        if (state.productDetail?.product_id === updatedProduct.product_id) {
+          state.productDetail = {
+            ...state.productDetail,
+            ...updatedProduct,
+          };
+        }
+      })
+      .addCase(updateProduct.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+      .addCase(deleteProduct.fulfilled, (state, action) => {
+        state.status = "successed";
+        const deletedId = action.payload.productId;
+state.products = state.products.filter(
+          (p) => p.product_id !== deletedId
+        );
+      })
+      .addCase(deleteProduct.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(deleteProduct.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
       });
   },
 });

@@ -1,22 +1,16 @@
 const express = require("express");
 const router = express.Router();
-const { createPaymentIntent, paymentResult } = require("../../controllers/payments.controller");
+const { createPaymentIntent, paymentResult, QRScan } = require("../../controllers/payments.controller");
+const { validateAccessToken } = require("../../middlewares/validateAccesstoken");
+const { QRValidateAccessToken } = require('../../middlewares/QRValidateAccessToken');
+router.route('/create-payment-intent').post(validateAccessToken, createPaymentIntent);
+
+router.route("/payment-result").post(validateAccessToken, paymentResult);
 
 
-router.route('/create-payment-intent').post(createPaymentIntent);
 
-router.route("/payment-result").post(paymentResult);
+router.route('/test-qr-scan').get(QRValidateAccessToken, QRScan);
 
-router.route('/test-qr-scan').get((req, res) => {
-    const data = req.query.data;
-    const timestamp = req.query.timestamp;
-    console.log(data);
 
-    // Trả lời lại cho thiết bị quét
-    res.send(`
-        <h1>✅ Thành công! Backend đã nhận dữ liệu: ${data}</h1>
-        <p>Kiểm tra console của server Express.js.</p>
-    `);
-});
 
 module.exports = router;
