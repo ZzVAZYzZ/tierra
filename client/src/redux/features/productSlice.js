@@ -122,7 +122,7 @@ export const productsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-.addCase(fetchProducts.pending, (state, action) => {
+      .addCase(fetchProducts.pending, (state, action) => {
         state.status = "loading";
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
@@ -198,13 +198,11 @@ export const productsSlice = createSlice({
       .addCase(updateProduct.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
-<<<<<<< HEAD
-=======
       })
       .addCase(deleteProduct.fulfilled, (state, action) => {
         state.status = "successed";
         const deletedId = action.payload.productId;
-state.products = state.products.filter(
+        state.products = state.products.filter(
           (p) => p.product_id !== deletedId
         );
       })
@@ -214,7 +212,6 @@ state.products = state.products.filter(
       .addCase(deleteProduct.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
->>>>>>> origin/main
       });
   },
 });
