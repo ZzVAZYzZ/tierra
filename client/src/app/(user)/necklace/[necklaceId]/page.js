@@ -1,8 +1,9 @@
 "use client";
 import React from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { toIntegerVND } from "../../utils/price";
 import { useFetchProducts } from "../../../../hook/useFetchProducts";
+import StartIcon from "../../../../assets/icons/star_icon";
 
 const formatPriceVND = (input) =>
   new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 }).format(
@@ -12,6 +13,7 @@ const formatPriceVND = (input) =>
 export default function Page() {
   const { products, status, error } = useFetchProducts();
   const params = useParams();
+  const router = useRouter();
   const ringId = params?.necklaceId;
 
   const product = React.useMemo(() => {
@@ -30,12 +32,13 @@ export default function Page() {
     if (!main) return images;
     return [main, ...images.filter((im) => im?.image_id !== main?.image_id)];
   }, [images]);
+
   const [selectedImage, setSelectedImage] = React.useState(mainImage);
   React.useEffect(() => {
     setSelectedImage(mainImage);
   }, [mainImage?.image_id]);
 
-  const addToCart = () => {
+  const addToCart = (showAlert = true) => {
     if (!product) return;
     const item = {
       product_id: product.product_id,
@@ -46,6 +49,7 @@ export default function Page() {
       selected: true,
       image_url: selectedImage?.image_url || images[0]?.image_url || "",
     };
+
     try {
       const raw = localStorage.getItem("cart_items");
       const list = raw ? JSON.parse(raw) : [];
@@ -63,10 +67,21 @@ export default function Page() {
             return it;
           })
         : [];
+
       const next = found ? updated : [...updated, item];
       localStorage.setItem("cart_items", JSON.stringify(next));
-      alert("da them vao gio");
-    } catch {}
+
+      if (showAlert) {
+        alert("Đã thêm vào giỏ hàng");
+      }
+    } catch (err) {
+      console.error("Lỗi khi thêm vào giỏ:", err);
+    }
+  };
+
+  const buyNow = () => {
+    addToCart(false);
+    router.push("/cart");
   };
 
   return (
@@ -83,124 +98,168 @@ export default function Page() {
         )}
 
         {(status === "successed" || status === "successed") && product && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              {selectedImage?.image_url && (
-                <img
-                  src={selectedImage.image_url}
-                  alt={product.name}
-                  className="w-full h-[420px] object-cover rounded-md border"
-                />
-              )}
-              {orderedImages.length > 1 && (
-                <div className="mt-4 grid grid-cols-4 gap-3">
-                  {orderedImages.map((img) => (
-                    <img
-                      key={img.image_id}
-                      src={img.image_url}
-                      alt={product.name}
-                      onClick={() => setSelectedImage(img)}
-                      className={`h-[80px] w-full object-cover rounded border cursor-pointer ${
-                        img.image_id === selectedImage?.image_id
-                          ? "ring-2 ring-[#9B8D6F]"
-                          : ""
-                      }`}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <h1 className="text-2xl font-semibold text-[#3A3A3A]">
-                {product.name}
-              </h1>
-              {(() => {
-                const priceInt = toIntegerVND(product.price);
-                const discountInt = toIntegerVND(product.discount_price);
-                const hasDiscount =
-                  Number.isFinite(priceInt) &&
-                  Number.isFinite(discountInt) &&
-                  discountInt > 0 &&
-                  discountInt < priceInt;
-                const finalPrice = hasDiscount
-                  ? Math.max(priceInt - discountInt, 0)
-                  : priceInt;
-                return hasDiscount ? (
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-xl font-semibold text-[#9B8D6F]">
-                      {formatPriceVND(finalPrice)} ₫
-                    </span>
-                    <span className="text-base text-gray-400 line-through">
-                      {formatPriceVND(priceInt)} ₫
-                    </span>
-                  </div>
-                ) : (
-                  <div className="text-xl text-[#9B8D6F]">
-                    {formatPriceVND(priceInt)} ₫
-                  </div>
-                );
-              })()}
-              <div className=" w-[80px] text-sm font-bold">
-                Chất liệu
-                <div className=" h-[30px] flex justify-center items-center border rounded-[8px] mt-[20px] font-normal">
-                  {product.material === "vang" ? <>Vàng</> : <>Kim cương</>}
-                </div>
-              </div>
-              <div className=" text-sm font-bold">
-                Màu
-                <div className="mt-[10px] flex items-center gap-3">
-                  {(() => {
-                    const current = String(product.color || "").toLowerCase();
-                    const colors = [
-                      { key: "trang", hex: "#D6D6D6" },
-                      { key: "vang", hex: "#F1DC87" },
-                      { key: "hong", hex: "#F2BAA8" },
-                    ];
-                    const shown = colors.filter(
-                      (c) =>
-                        current === c.key ||
-                        (c.key === "hong" && current.includes("hong"))
-                    );
-                    return shown.map((color) => (
-                      <div
-                        key={color.key}
-                        className="w-[40px] h-[40px] rounded-[8px] border border-gray-300"
-                        style={{ backgroundColor: color.hex }}
+          <>
+            {/* --- PHẦN 1: ẢNH + THÔNG TIN SẢN PHẨM --- */}
+            <div className="flex flex-col md:flex-row gap-8">
+              {/* Cột trái - hình ảnh */}
+              <div className="w-full md:w-1/2">
+                {selectedImage?.image_url && (
+                  <img
+                    src={selectedImage.image_url}
+                    alt={product.name}
+                    className="w-full h-[420px] object-cover rounded-md border"
+                  />
+                )}
+                {orderedImages.length > 1 && (
+                  <div className="mt-4 grid grid-cols-5 gap-3">
+                    {orderedImages.map((img) => (
+                      <img
+                        key={img.image_id}
+                        src={img.image_url}
+                        alt={product.name}
+                        onClick={() => setSelectedImage(img)}
+                        className={`h-[80px] w-full object-cover rounded border cursor-pointer ${
+                          img.image_id === selectedImage?.image_id
+                            ? "ring-2 ring-[#9B8D6F]"
+                            : ""
+                        }`}
                       />
-                    ));
-                  })()}
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Cột phải - thông tin sản phẩm */}
+              <div className="w-full md:w-1/2 flex flex-col gap-4">
+                <h1 className="text-2xl font-semibold text-[#3A3A3A]">
+                  {product.name}
+                </h1>
+
+                {/* Giá */}
+                {(() => {
+                  const priceInt = toIntegerVND(product.price);
+                  const discountInt = toIntegerVND(product.discount_price);
+                  const hasDiscount =
+                    Number.isFinite(priceInt) &&
+                    Number.isFinite(discountInt) &&
+                    discountInt > 0 &&
+                    discountInt < priceInt;
+                  const finalPrice = hasDiscount
+                    ? Math.max(priceInt - discountInt, 0)
+                    : priceInt;
+                  return hasDiscount ? (
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-xl font-semibold text-[#9B8D6F]">
+                        {formatPriceVND(finalPrice)} ₫
+                      </span>
+                      <span className="text-base text-gray-400 line-through">
+                        {formatPriceVND(priceInt)} ₫
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="text-xl text-[#9B8D6F]">
+                      {formatPriceVND(priceInt)} ₫
+                    </div>
+                  );
+                })()}
+
+                {/* Chất liệu */}
+                <div className="w-[80px] text-sm font-bold">
+                  Chất liệu
+                  <div className="h-[30px] flex justify-center items-center border rounded-[8px] mt-[20px] font-normal">
+                    {product.material === "vang" ? <>Vàng</> : <>Kim cương</>}
+                  </div>
+                </div>
+
+                {/* Màu */}
+                <div className="text-sm font-bold">
+                  Màu
+                  <div className="mt-[10px] flex items-center gap-3">
+                    {(() => {
+                      const current = String(product.color || "").toLowerCase();
+                      const colors = [
+                        { key: "trang", hex: "#D6D6D6" },
+                        { key: "vang", hex: "#F1DC87" },
+                        { key: "hong", hex: "#F2BAA8" },
+                      ];
+                      const shown = colors.filter(
+                        (c) =>
+                          current === c.key ||
+                          (c.key === "hong" && current.includes("hong"))
+                      );
+                      return shown.map((color) => (
+                        <div
+                          key={color.key}
+                          className="w-[40px] h-[40px] rounded-[8px] border border-gray-300"
+                          style={{ backgroundColor: color.hex }}
+                        />
+                      ));
+                    })()}
+                  </div>
+                </div>
+
+                {/* Tồn kho */}
+                <div className="text-sm font-bold">
+                  Tồn kho:{" "}
+                  {Number.isFinite(product.stock_quantity)
+                    ? product.stock_quantity
+                    : "?"}
+                </div>
+
+                {/* Nút hành động */}
+                <div className="mt-2 flex gap-4">
+                  <button
+                    onClick={addToCart}
+                    className="w-[260px] h-[60px] text-[24px] rounded bg-white border border-black cursor-pointer"
+                  >
+                    Thêm vào giỏ
+                  </button>
+                  <button
+                    onClick={buyNow}
+                    className="w-[260px] h-[60px] text-[24px] rounded border border-[#9B8D6F] text-white bg-[#9B8D6F]"
+                  >
+                    Mua ngay
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* --- PHẦN 2: GIỚI THIỆU & ĐÁNH GIÁ --- */}
+            <div className="flex flex-col gap-[20px] mt-[60px]">
+              {/* Giới thiệu */}
+              <div>
+                <div className="text-[32px] font-medium mb-[10px]">
+                  Giới thiệu về sản phẩm
+                </div>
+                <div className="text-[24px] font-extralight">
+                  {product.description}
                 </div>
               </div>
 
-              <div className=" text-sm font-bold">
-                Tồn kho:{" "}
-                {Number.isFinite(product.stock_quantity)
-                  ? product.stock_quantity
-                  : "?"}
-              </div>
+              {/* Đánh giá */}
+              <div className="mt-[25px] flex justify-between items-start">
+                {/* Cột trái */}
+                <div>
+                  <h2 className="text-[28px] font-semibold text-[#3A3A3A] mb-[10px]">
+                    Đánh giá từ khách hàng
+                  </h2>
+                  <div className="flex items-center gap-[10px] text-[20px] text-gray-600">
+                    <span>Chưa có đánh giá nào</span>
+                    <div className="flex">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <StartIcon key={i} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
 
-              <div className="mt-2 flex gap-4">
-                <button
-                  onClick={addToCart}
-                  className=" w-[260px] h-[60px] text-[24px] rounded bg-white border border-black cursor-pointer"
-                >
-                  Thêm vào giỏ
-                </button>
-                <button className=" w-[260px] h-[60px] text-[24px] rounded border border-[#9B8D6F] text-white bg-[#9B8D6F]">
-                  Mua ngay
+                {/* Cột phải: nút Viết đánh giá */}
+                <button className="w-[200px] h-[60px] rounded-[8px] bg-[#3771C8] text-white text-[20px] font-medium hover:opacity-90 transition">
+                  Viết đánh giá
                 </button>
               </div>
             </div>
-            <div className=" flex flex-col gap-[20px]">
-              <div className=" text-[32px] font-medium">
-                Giới thiệu về sản phẩm
-              </div>
-              <div className=" text-[24px] font-extralight">
-                {product.description}
-              </div>
-            </div>
-          </div>
+          </>
         )}
 
         {(status === "succeeded" || status === "successed") && !product && (
@@ -212,7 +271,3 @@ export default function Page() {
     </div>
   );
 }
-
-
-
-

@@ -15,19 +15,13 @@ const Nav = () => {
         <Link href={"/dashboard"}>
           <div className=" flex flex-row gap-3.5 cursor-pointer justify-center items-center">
             <MenuAdminIcon />
-            <p>Tất cả sản phẩm</p>
+            <p>Quản lý sản phẩm</p>
           </div>
         </Link>
         <div className=" flex flex-row gap-3.5 cursor-pointer  justify-center items-center">
           <DoanthuIcon />
           <p>Doanh thu</p>
         </div>
-        <Link href={"/dashboard/postProduct"}>
-          <div className=" flex flex-row gap-6 cursor-pointer justify-center items-center">
-            <AddIcon />
-            <p>Quản lý sản phẩm</p>
-          </div>
-        </Link>
         <div className=" flex flex-row gap-5 cursor-pointer  justify-center items-center">
           <QuanlyIcon />
           <p>Quản lý đơn hàng</p>

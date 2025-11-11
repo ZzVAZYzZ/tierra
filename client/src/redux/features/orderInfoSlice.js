@@ -5,11 +5,12 @@ const STORAGE_KEY = "order_info";
 
 const initialState = {
   orderInfo: {
+    order_id: "",
     fullName: "",
     phone: "",
     email: "",
     address: "",
-    payment: "cod",
+    payment: "COD",
     cartTotal: 0,
     cart: { items: [] },
   },
@@ -28,30 +29,30 @@ export const initFromLocal = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     if (typeof window === "undefined") return initialState.orderInfo;
     try {
+      // Đọc order_info nếu có
       const raw = localStorage.getItem(STORAGE_KEY);
-      const parsed = JSON.parse(raw || "null");
+      const parsed = JSON.parse(raw || "null") || {};
 
-      if (parsed && typeof parsed === "object") {
-        // Chuẩn hóa cấu trúc giỏ hàng
-        if (!parsed.cart || typeof parsed.cart !== "object") parsed.cart = { items: [] };
-        if (!Array.isArray(parsed.cart.items)) parsed.cart.items = [];
+      // Đọc cart_items riêng biệt
+      const rawCart = localStorage.getItem("cart_items");
+      const cartList = rawCart ? JSON.parse(rawCart) : [];
 
-        // Đồng bộ với "cart_items"
-        try {
-          const rawCart = localStorage.getItem("cart_items");
-          const cartList = rawCart ? JSON.parse(rawCart) : [];
-          if (Array.isArray(cartList)) parsed.cart.items = cartList;
-        } catch {}
+      // Tạo bản kết hợp an toàn
+      const merged = {
+        ...initialState.orderInfo,
+        ...parsed,
+        cart: {
+          items: Array.isArray(cartList) ? cartList : [],
+        },
+      };
 
-        return { ...initialState.orderInfo, ...parsed };
-      }
+      return merged;
     } catch (err) {
       return rejectWithValue("Không thể đọc dữ liệu đơn hàng từ localStorage.");
     }
-
-    return initialState.orderInfo;
   }
 );
+
 
 // ✅ Lưu thông tin đơn hàng vào localStorage
 export const saveToLocal = createAsyncThunk(

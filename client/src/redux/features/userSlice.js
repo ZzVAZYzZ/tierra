@@ -115,6 +115,13 @@ export const userSlice = createSlice({
       state.error = ""
       state.message = ""
     },
+    updateUser: (state, action) => {
+      if (state.user) {
+        state.user = { ...state.user, ...action.payload }
+      } else {
+        state.user = action.payload
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -177,5 +184,5 @@ export const userSlice = createSlice({
 })
 
 
-export const { resetUserState } = userSlice.actions
+export const { resetUserState, updateUser } = userSlice.actions
 export default userSlice.reducer

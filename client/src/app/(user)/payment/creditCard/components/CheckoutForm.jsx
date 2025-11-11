@@ -1,19 +1,28 @@
 import React, { useState } from "react";
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
+import { useDispatch } from "react-redux";
+import { clearOrder } from "../../../../../redux/features/orderInfoSlice";
+import { useRouter } from "next/navigation";
 
-const CheckoutForm = () => {
+const CheckoutForm = ({ paymentInfo }) => {
     const stripe = useStripe();
     const elements = useElements();
-
+    const dispatch = useDispatch();
+    const router = useRouter();
     // 1. STATE THÔNG TIN
-    const [amount, setAmount] = useState(150000);
+    const [amount, setAmount] = useState(paymentInfo?.total_amount);
     const [isProcessing, setIsProcessing] = useState(false);
-    const [name, setName] = useState("Vazy J");
-    const [email, setEmail] = useState("vazyj@example.com");
-    const [addressLine1, setAddressLine1] = useState("123 Lê Lợi");
-    const [city, setCity] = useState("Hồ Chí Minh");
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [addressLine1, setAddressLine1] = useState("");
+    const [city, setCity] = useState("");
     // Country code cho VN, không cần trường nhập liệu nếu chỉ hỗ trợ VN
     const country = "VN";
+
+    const token =
+        typeof window !== "undefined"
+            ? localStorage.getItem("access_token")
+            : "";
 
     // 2. HÀM XỬ LÝ THANH TOÁN
     const handleSubmit = async (e) => {
@@ -26,14 +35,19 @@ const CheckoutForm = () => {
         try {
             const res = await fetch("http://localhost:8000/api/create-payment-intent", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+
+                },
                 // 💡 CẬP NHẬT: GỬI THÊM THÔNG TIN KHÁCH HÀNG
                 body: JSON.stringify({
                     amount,
                     name,
                     email,
                     addressLine1,
-                    city
+                    city,
+                    order_id: paymentInfo.order_id
                 }),
             });
             const { clientSecret } = await res.json();
@@ -55,19 +69,56 @@ const CheckoutForm = () => {
             });
 
             if (error) {
-                alert("❌ Lỗi thanh toán: " + error.message);
+                console.error("❌ Lỗi thanh toán:", error.message);
+
+                // ✅ Lưu kết quả thất bại vào session
+                sessionStorage.setItem(
+                    "paymentResult",
+                    JSON.stringify({
+                        orderId: paymentInfo.order_id,
+                        success: false,
+                    })
+                );
+
+                alert("❌ Thanh toán thất bại: " + error.message);
+                router.push("/payment/result");
             } else if (paymentIntent && paymentIntent.status === "succeeded") {
                 alert("✅ Thanh toán thành công! Mã giao dịch: " + paymentIntent.id);
 
-                // Bước 3: Gửi kết quả thanh toán về server để cập nhật đơn hàng
+                // Gửi kết quả thanh toán về server
                 await fetch("http://localhost:8000/api/payment-result", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json",
+                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                    },
                     body: JSON.stringify({ paymentIntent }),
                 });
+
+                // ✅ Lưu session chỉ với orderId và success
+                sessionStorage.setItem(
+                    "paymentResult",
+                    JSON.stringify({
+                        orderId: paymentInfo.order_id,
+                        success: true,
+                    })
+                );
+
+                // Xóa order Redux và chuyển trang
+                dispatch(clearOrder());
+                router.push("/payment/result");
             }
+
         } catch (fetchError) {
             alert("⚠️ Lỗi kết nối server: " + fetchError.message);
+            sessionStorage.setItem(
+                "paymentResult",
+                JSON.stringify({
+                    orderId: paymentInfo.order_id,
+                    success: false,
+                })
+            );
+            router.push("/payment/result");
         }
 
         setIsProcessing(false);
@@ -109,7 +160,7 @@ const CheckoutForm = () => {
             <form onSubmit={handleSubmit} autoComplete="off">
                 <h2 style={{ textAlign: "center", color: "#2d3748" }}>🛒 Hoàn tất Đơn hàng</h2>
                 <h3 style={{ textAlign: "center", color: "#4c51bf", marginBottom: "20px" }}>
-                    Tổng cộng: **{amount.toLocaleString()} VND**
+                    Tổng cộng: **{amount?.toLocaleString()} VND**
                 </h3>
 
                 {/* THÔNG TIN KHÁCH HÀNG */}
@@ -132,7 +183,7 @@ const CheckoutForm = () => {
                 />
                 <input
                     type="text"
-                    placeholder="Địa chỉ (Dòng 1)"
+                    placeholder="Địa chỉ"
                     value={addressLine1}
                     onChange={(e) => setAddressLine1(e.target.value)}
                     style={inputStyle}
@@ -174,7 +225,7 @@ const CheckoutForm = () => {
                         backgroundColor: isProcessing ? "#2c3175" : buttonStyle.backgroundColor
                     }}
                 >
-                    {isProcessing ? "Đang xử lý..." : `Thanh toán ${amount.toLocaleString()} VND`}
+                    {isProcessing ? "Đang xử lý..." : `Thanh toán ${amount?.toLocaleString()} VND`}
                 </button>
 
                 <p style={{ fontSize: "12px", color: "#718096", textAlign: "center", marginTop: "15px" }}>
