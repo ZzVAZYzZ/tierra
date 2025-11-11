@@ -12,7 +12,7 @@ export default function Page() {
   const router = useRouter();
   useRefresh()
   const [status, setStatus] = React.useState("waiting"); // waiting | success | failed
-  const backendIp = "192.168.1.8";
+  const backendIp = "192.168.1.13";
   // ✅ Tạo object chứa dữ liệu order thực tế
   const objNew = React.useMemo(() => {
     if (!user || !orderInfo) return null;
@@ -33,6 +33,7 @@ export default function Page() {
       const price = Math.max(0, (d.unit_price || 0) - (d.discount || 0));
       return sum + price * d.quantity;
     }, 0);
+    
 
     return {
       user_id: user.user_id,
