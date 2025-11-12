@@ -110,19 +110,28 @@ const createOrder = asyncHandler(async (req, res) => {
 });
 
 
-// @desc Get orders by status
+// @desc Get orders by status or all
 // @route GET /api/orders/status/:status
-// @access Public
+// @access Private
 const getOrdersByStatus = asyncHandler(async (req, res) => {
     const { status } = req.params;
+    let orders;
 
-    const validStatuses = ["created", "paid", "shipping", "completed", "cancelled"];
-    if (!validStatuses.includes(status)) {
-        res.status(400);
-        throw new Error('Invalid order status');
+    // Kiểm tra nếu muốn lấy TẤT CẢ các đơn hàng
+    if (status.toLowerCase() === "all") {
+        orders = await Order.find({}); // Lấy tất cả đơn hàng
+    } else {
+        // Logic cũ để lấy đơn hàng theo status cụ thể
+
+        const validStatuses = ["created", "paid", "shipping", "completed", "cancelled"];
+        if (!validStatuses.includes(status)) {
+            res.status(400);
+            // Bạn có thể cân nhắc thay đổi thông báo lỗi để nhắc đến 'all'
+            throw new Error('Invalid order status. Status must be one of: ' + validStatuses.join(', ') + ' or "all".');
+        }
+
+        orders = await Order.find({ status });
     }
-
-    const orders = await Order.find({ status });
 
     res.status(200).json(orders);
 });
