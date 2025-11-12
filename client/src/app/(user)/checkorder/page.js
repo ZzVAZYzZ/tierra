@@ -49,7 +49,7 @@ const OrderLookupPage = () => {
             <h1 className="flex items-center text-3xl font-light text-[#333333] mb-12 uppercase tracking-wider">
                 TRA CỨU THÔNG TIN ĐƠN HÀNG
                 {/* Biểu tượng nhỏ bên cạnh tiêu đề */}
-                <span className="ml-2 mt-[-4px]">
+                <span className="ml-2 -mt-1">
                     {/* Giả định SearchIcon có thể nhận prop className để điều chỉnh kích thước */}
                     {/* Hoặc bạn có thể dùng một component icon khác của riêng bạn */}
                     <Search size={50} className=" text-[#9B8D6F]" />

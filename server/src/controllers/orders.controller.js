@@ -1,7 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const Order = require("../models/orders");
 const Product = require("../models/products");
-const Stripe = require("stripe");
 const ProductImage = require("../models/prodcutImages");
 const User = require("../models/users");
 
@@ -106,13 +105,11 @@ const createOrder = asyncHandler(async (req, res) => {
 
     const newOrder = await order.save();
     console.log("✅ Order lưu thành công:", newOrder);
-    res
-      .status(201)
-      .json({
-        message: "Order successfully!",
-        order: newOrder,
-        order_id: newOrder.order_id,
-      });
+    res.status(201).json({
+      message: "Order successfully!",
+      order: newOrder,
+      order_id: newOrder.order_id,
+    });
   } catch (err) {
     console.error("❌ Lỗi khi tạo Order:", err);
     res.status(500).json({ message: err.message });
@@ -351,6 +348,7 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
     order: updatedOrder,
   });
 });
+
 module.exports = {
   createOrder,
   getOrdersByStatus,

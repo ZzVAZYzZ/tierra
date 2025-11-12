@@ -1,22 +1,22 @@
 // utils/sendMail.js
-import nodemailer from "nodemailer";
+const nodemailer = require("nodemailer");
 
-export const sendPaymentSuccessEmail = async (to, orderId, amount, currency) => {
-    // ⚙️ Thiết lập transporter
-    const transporter = nodemailer.createTransport({
-        service: "gmail", // hoặc SMTP riêng nếu bạn có domain email
-        auth: {
-            user: process.env.EMAIL_USER, // ví dụ: 'yourshop@gmail.com'
-            pass: process.env.EMAIL_PASS, // app password hoặc token
-        },
-    });
+const sendPaymentSuccessEmail = async (to, orderId, amount, currency) => {
+  // ⚙️ Thiết lập transporter
+  const transporter = nodemailer.createTransport({
+    service: "gmail", // hoặc SMTP riêng nếu bạn có domain email
+    auth: {
+      user: process.env.EMAIL_USER, // ví dụ: 'yourshop@gmail.com'
+      pass: process.env.EMAIL_PASS, // app password hoặc token
+    },
+  });
 
-    // 💌 Nội dung email
-    const mailOptions = {
-        from: `"Doana shop" <${process.env.EMAIL_USER}>`,
-        to,
-        subject: "Xác nhận thanh toán thành công",
-        html: `
+  // 💌 Nội dung email
+  const mailOptions = {
+    from: `"Doana shop" <${process.env.EMAIL_USER}>`,
+    to,
+    subject: "Xác nhận thanh toán thành công",
+    html: `
   <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f5f7fa; padding: 40px 0;">
     <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
       
@@ -36,7 +36,9 @@ export const sendPaymentSuccessEmail = async (to, orderId, amount, currency) => 
         <div style="background: #f3f4f6; border-radius: 8px; padding: 16px; margin: 20px 0;">
           <p style="margin: 0; font-size: 15px;"><strong>Mã đơn hàng:</strong> #${orderId}</p>
           <p style="margin: 4px 0 0 0; font-size: 15px;">
-            <strong>Số tiền:</strong> ${(amount / 100).toFixed(2)} ${currency.toUpperCase()}
+            <strong>Số tiền:</strong> ${(amount / 100).toFixed(
+              2
+            )} ${currency.toUpperCase()}
           </p>
           <p style="margin: 4px 0 0 0; font-size: 15px;">
             <strong>Trạng thái:</strong> Đã thanh toán ✅
@@ -68,9 +70,10 @@ export const sendPaymentSuccessEmail = async (to, orderId, amount, currency) => 
     </div>
   </div>
   `,
+  };
 
-    };
-
-    // 🚀 Gửi mail
-    await transporter.sendMail(mailOptions);
+  // 🚀 Gửi mail
+  await transporter.sendMail(mailOptions);
 };
+
+module.exports = { sendPaymentSuccessEmail };

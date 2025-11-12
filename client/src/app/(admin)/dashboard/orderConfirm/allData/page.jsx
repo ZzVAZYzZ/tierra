@@ -125,7 +125,7 @@ export default function Page() {
                     </p>
                   </div>
 
-                  <div className="flex gap-3 items-center">
+                  <div className="flex gap-3 items-center justify-center">
                     {order.status === "created" &&
                       order.payment_method !== "COD" && (
                         <div className="bg-yellow-400 text-[#4b3e1e] font-medium px-4 py-2 rounded cursor-default">
@@ -173,16 +173,17 @@ export default function Page() {
                       </div>
                     )}
 
-                    {order.status !== "completed" && (
-                      <button
-                        className="bg-red-500 text-white font-medium px-4 py-2 rounded hover:bg-red-600 cursor-pointer"
-                        onClick={() =>
-                          handleUpdateStatus(order.order_id, "cancelled")
-                        }
-                      >
-                        Hủy
-                      </button>
-                    )}
+                    {order.status !== "completed" &&
+                      order.status !== "cancelled" && (
+                        <button
+                          className="bg-red-500 text-white font-medium px-4 py-2 rounded hover:bg-red-600 cursor-pointer"
+                          onClick={() =>
+                            handleUpdateStatus(order.order_id, "cancelled")
+                          }
+                        >
+                          Hủy
+                        </button>
+                      )}
                   </div>
                 </div>
               </div>
