@@ -1,7 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const Order = require('../models/orders');
 const Product = require('../models/products');
-const Stripe = require("stripe");
 const ProductImage = require('../models/prodcutImages');
 const User = require('../models/users');
 
@@ -274,5 +273,51 @@ const getOrderById = asyncHandler(async (req, res) => {
     res.status(200).json(orderObject);
 });
 
+// @desc update order by order_id and status
+// @route PATCH /api/orders/:order_id
+// @access Private
+const updateOrderStatus = asyncHandler(async (req, res) => {
+    // 1. Lấy order_id từ URL parameters
+    const { order_id } = req.params; 
+    
+    // 2. Lấy trạng thái mới từ request BODY
+    // Tên trường nên rõ ràng, ví dụ: 'status' hoặc 'newStatus'
+    const { newStatus } = req.body; 
 
-module.exports = { createOrder, getOrdersByStatus, getOrdersByUserId, getOrderById };
+    // Kiểm tra dữ liệu đầu vào
+    if (!newStatus) {
+        res.status(400);
+        throw new Error('Missing required field: newStatus in request body.');
+    }
+
+    // 3. Định nghĩa các trạng thái hợp lệ từ Order Schema
+    const validStatuses = ["created", "paid", "shipping", "completed", "cancelled"];
+    const statusToUpdate = newStatus.toLowerCase();
+
+    if (!validStatuses.includes(statusToUpdate)) {
+        res.status(400);
+        throw new Error(`Invalid status: "${newStatus}". Must be one of: ${validStatuses.join(', ')}.`);
+    }
+
+    // 4. Tìm và Cập nhật đơn hàng trong Mongoose
+    const updatedOrder = await Order.findOneAndUpdate(
+        { order_id: order_id }, // Điều kiện tìm kiếm (UUID)
+        { status: statusToUpdate }, // Dữ liệu cần cập nhật
+        { new: true, runValidators: true } // {new: true} trả về tài liệu sau khi cập nhật; {runValidators: true} đảm bảo kiểm tra enum
+    );
+
+    // 5. Kiểm tra kết quả
+    if (!updatedOrder) {
+        res.status(404);
+        throw new Error(`Order with ID ${order_id} not found.`);
+    }
+
+    // 6. Trả về phản hồi thành công
+    res.status(200).json({
+        message: `Order ${order_id} status updated to: ${updatedOrder.status}`,
+        order: updatedOrder
+    });
+});
+
+
+module.exports = { createOrder, getOrdersByStatus, getOrdersByUserId, getOrderById , updateOrderStatus};

@@ -19,7 +19,7 @@ import profileicon from "../assets/images/infoIcon.png";
 import { useAuth } from "../hook/useAuth";
 import { resetUserState } from "../redux/features/userSlice";
 import { useRedirect } from "../hook/useRedirect";
-import {Box} from 'lucide-react'
+import {Box, Search, History} from 'lucide-react'
 
 const Nav = () => {
   const { products } = useFetchProducts();
@@ -206,15 +206,15 @@ const Nav = () => {
 
               {/* Dropdown cho Bill */}
               {isBillMenuOpen && (
-                <div className="absolute right-0 mt-2 w-[220px] bg-white rounded-xl shadow-lg border border-gray-100 z-50 animate-fade-in">
+                <div className="absolute right-0 mt-2 w-[200px] bg-white rounded-xl shadow-lg border border-gray-100 z-50 animate-fade-in">
                   {/* Tra cứu đơn hàng */}
                   <Link
                     href="/checkorder" // Thay bằng đường dẫn thực tế
                     onClick={() => setIsBillMenuOpen(false)}
-                    className="flex justify-center items-center gap-2 px-4 py-2 text-[#9B8D6F] text-[12px] font-[bold] hover:bg-[#f3f0eb] transition-all"
+                    className="flex  items-center gap-2 px-4 py-1 text-[#9B8D6F] text-[12px] font-[bold] hover:bg-[#f3f0eb] transition-all"
                   >
                     {/* Có thể dùng icon SearchIcon hoặc một icon khác phù hợp */}
-                    <SearchIcon className="w-4 h-4" />
+                    <Search size={20} />
                     <span>Tra cứu đơn hàng</span>
                   </Link>
 
@@ -224,10 +224,10 @@ const Nav = () => {
                   <Link
                     href="/orderhistory" // Thay bằng đường dẫn thực tế
                     onClick={() => setIsBillMenuOpen(false)}
-                    className=" gap-2 px-4 py-2 text-[#9B8D6F] text-[12px] font-[bold] hover:bg-[#f3f0eb] transition-all flex items-center justify-center"
+                    className=" gap-2 px-4 py-1 text-[#9B8D6F] text-[12px] font-[bold] hover:bg-[#f3f0eb] transition-all flex items-center "
                   >
                     {/* Có thể dùng icon BillIcon hoặc một icon khác phù hợp */}
-                    <BillIcon className="w-4 h-4" />
+                    <History size={20} />
                     <span>Xem lịch sử đặt hàng</span>
                   </Link>
                 </div>
