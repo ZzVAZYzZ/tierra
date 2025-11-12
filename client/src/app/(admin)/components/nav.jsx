@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import MenuAdminIcon from "../../../assets/icons/admin/menu_admin_icon";
 import AddIcon from "../../../assets/icons/admin/add_icon";
 import DoanthuIcon from "../../../assets/icons/admin/doanthu_icon";

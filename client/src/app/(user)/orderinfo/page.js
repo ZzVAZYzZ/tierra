@@ -65,7 +65,7 @@ export default function Page() {
       if (raw) {
         const parsed = JSON.parse(raw);
         if (!isNaN(parsed)) {
-          setLocalTotal(parsed);
+          // setLocalTotal(parsed);
           dispatch(setField({ key: "cartTotal", value: parsed })); // lưu luôn vào redux
         }
       }
