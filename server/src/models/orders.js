@@ -73,8 +73,8 @@ const orderSchema = new mongoose.Schema(
   },
   {
     // _id: false,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
+    toJSON: { virtuals: false },
+    toObject: { virtuals: false },
   }
 );
 

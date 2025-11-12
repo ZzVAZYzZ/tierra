@@ -115,10 +115,10 @@ const getOrdersByStatus = asyncHandler(async (req, res) => {
     let orders;
 
     const validStatuses = ["created", "paid", "shipping", "completed", "cancelled"];
-
+    
     // 1. Tìm đơn hàng từ Mongoose
     if (status.toLowerCase() === "all") {
-        orders = await Order.find({});
+        orders = await Order.find({}); 
     } else {
         if (!validStatuses.includes(status)) {
             res.status(400);
@@ -127,32 +127,33 @@ const getOrdersByStatus = asyncHandler(async (req, res) => {
         orders = await Order.find({ status });
     }
 
-    // Nếu không tìm thấy đơn hàng, trả về mảng rỗng
     if (orders.length === 0) {
         return res.status(200).json([]);
     }
 
-    // 2. Chuẩn bị dữ liệu cho quá trình tra cứu
+    // 2. Chuyển đổi Mongoose Documents sang Plain Objects
     const ordersArray = orders.map(order => order.toObject());
 
     // --- BỔ SUNG THÔNG TIN TỔNG HỢP (USER & IMAGE) ---
 
-    // 3. Lấy danh sách duy nhất các user_id và product_id cần tra cứu
+    // 3. Lấy danh sách duy nhất các user_id và product_id cần tra cứu (Tối ưu N+1)
     const uniqueUserIds = [...new Set(ordersArray.map(o => o.user_id))];
     const allProductIds = ordersArray.flatMap(o => o.orderDetails.map(d => d.product_id));
     const uniqueProductIds = [...new Set(allProductIds)];
 
 
-    // 4. Tra cứu thông tin người dùng (Lấy một lần cho tất cả)
+    // 4. Tra cứu thông tin người dùng (Sequelize)
+    // Thực hiện 1 truy vấn SQL duy nhất để lấy tất cả người dùng liên quan
     const users = await User.findAll({
         where: { user_id: uniqueUserIds },
-        attributes: ['user_id', 'name', 'email']
+        attributes: ['user_id', 'name', 'email'] // Chỉ lấy các trường cần thiết
     });
 
     const userMap = new Map();
     users.forEach(u => userMap.set(u.user_id, { name: u.name, email: u.email }));
 
-    // 5. Tra cứu ảnh chính (Lấy một lần cho tất cả)
+    // 5. Tra cứu ảnh chính sản phẩm (Sequelize)
+    // Thực hiện 1 truy vấn SQL duy nhất để lấy tất cả ảnh chính
     const mainImages = await ProductImage.findAll({
         where: {
             product_id: uniqueProductIds,
@@ -166,11 +167,17 @@ const getOrdersByStatus = asyncHandler(async (req, res) => {
 
     // 6. Xử lý và Gắn dữ liệu vào từng đơn hàng
     const ordersWithDetails = ordersArray.map(order => {
-
-        // Gắn thông tin người dùng
-        const userInfo = userMap.get(order.user_id) || { user_name: 'N/A', user_email: 'N/A' };
-        order.user_name = userInfo.name;
-        order.user_email = userInfo.email;
+        
+        // Gắn thông tin người dùng (tên và email)
+        const userInfo = userMap.get(order.user_id);
+        if (userInfo) {
+            order.user_name = userInfo.name;
+            order.user_email = userInfo.email;
+        } else {
+            // Xử lý trường hợp user không còn tồn tại
+            order.user_name = 'Người dùng ẩn danh';
+            order.user_email = 'N/A';
+        }
 
         // Gắn ảnh vào chi tiết đơn hàng
         order.orderDetails = order.orderDetails.map(detail => ({
