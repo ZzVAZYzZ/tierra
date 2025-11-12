@@ -18,6 +18,7 @@ import logouticon from "../assets/images/logouticon.png";
 import profileicon from "../assets/images/infoIcon.png";
 import { useAuth } from "../hook/useAuth";
 import { resetUserState } from "../redux/features/userSlice";
+import { useRedirect } from "../hook/useRedirect";
 
 const Nav = () => {
   const { products } = useFetchProducts();
@@ -68,14 +69,18 @@ const Nav = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
+  useRedirect();
   // kết quả tìm kiếm
   const results = React.useMemo(() => {
     const q = debounced.toLowerCase();
     if (!q) return [];
     const list = Array.isArray(products) ? products : [];
     return list
-      .filter((p) => String(p?.name || "").toLowerCase().includes(q))
+      .filter((p) =>
+        String(p?.name || "")
+          .toLowerCase()
+          .includes(q)
+      )
       .slice(0, 8);
   }, [products, debounced]);
 
@@ -98,9 +103,11 @@ const Nav = () => {
   const goToProduct = (item) => {
     if (!item) return;
     const id = item?.product_id;
-    const cat = String(item?.Category?.name || "").trim().toLowerCase();
+    const cat = String(item?.Category?.name || "")
+      .trim()
+      .toLowerCase();
     const map = {
-      "nhan": "ring",
+      nhan: "ring",
       "bong tai": "earring",
       "day chuyen": "necklace",
       "vong tay": "bracelet",
@@ -115,7 +122,8 @@ const Nav = () => {
 
   const handleLogout = async () => {
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+      const backendUrl =
+        process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
       // 🧠 Gọi API logout để xoá refreshToken trong DB + cookie
       await fetch(`${backendUrl}/api/users/logout`, {
@@ -196,7 +204,6 @@ const Nav = () => {
                     className="object-cover rounded-full"
                     priority
                   />
-
                 </button>
 
                 {/* Dropdown */}
@@ -212,7 +219,6 @@ const Nav = () => {
                         alt="Profile Icon"
                         width={16}
                         height={16}
-
                       />
                       <span>Thông tin người dùng</span>
                     </Link>
@@ -357,4 +363,3 @@ const Nav = () => {
 };
 
 export default Nav;
-
