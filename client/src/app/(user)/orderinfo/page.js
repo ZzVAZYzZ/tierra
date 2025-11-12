@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,7 @@ import {
   initFromLocal,
   saveToLocal,
   selectCartTotal,
+  clearOrder,
 } from "../../../redux/features/orderInfoSlice.js";
 
 export default function Page() {
@@ -20,7 +21,7 @@ export default function Page() {
   const form = useSelector(selectOrderInfo);
   const { user } = useSelector((state) => state.user);
   const cartTotal = useSelector(selectCartTotal);
-  const [localTotal, setLocalTotal] = React.useState(0);
+  // const [localTotal, setLocalTotal] = React.useState(0);
   const orderInfo = useSelector((state) => state.orderInfo.orderInfo);
   const [errors, setErrors] = React.useState({});
   const [showModal, setShowModal] = React.useState(false);
@@ -28,6 +29,13 @@ export default function Page() {
   // React.useEffect(()=>{
   //   console.log(user);
   // }, [user])
+
+  React.useEffect(() => {
+    try {
+      localStorage.removeItem("order_info");
+    } catch {}
+    dispatch(clearOrder());
+  }, []);
 
   React.useEffect(() => {
     dispatch(initFromLocal());
@@ -57,7 +65,7 @@ export default function Page() {
       if (raw) {
         const parsed = JSON.parse(raw);
         if (!isNaN(parsed)) {
-          setLocalTotal(parsed);
+          // setLocalTotal(parsed);
           dispatch(setField({ key: "cartTotal", value: parsed })); // lưu luôn vào redux
         }
       }
@@ -66,32 +74,71 @@ export default function Page() {
     }
   }, [dispatch]);
 
+  // Prefill form từ thông tin user nếu có
+  React.useEffect(() => {
+    if (!user || !user.name) return; // Đợi Redux user có dữ liệu
+
+    // Chỉ tự động prefill khi form chưa có dữ liệu người dùng nhập tay
+    const hasEmptyForm =
+      !form.fullName && !form.email && !form.phone && !form.address;
+
+    if (hasEmptyForm) {
+      const updates = {};
+
+      // ✅ Chỉ gán nếu có dữ liệu thật (tránh hiện null)
+      if (user.name) updates.fullName = user.name;
+      if (user.email) updates.email = user.email;
+      if (user.phone) updates.phone = user.phone;
+      if (user.address) updates.address = user.address;
+
+      if (Object.keys(updates).length > 0) {
+        dispatch(setAll({ ...form, ...updates }));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, form]);
+
+  // React.useEffect(() => {
+  //   try {
+  //     const raw = localStorage.getItem("cart_total");
+  //     if (raw) {
+  //       const parsed = JSON.parse(raw);
+  //       if (!isNaN(parsed)) {
+  //         setLocalTotal(parsed);
+  //         dispatch(setField({ key: "cartTotal", value: parsed })); // lưu luôn vào redux
+  //       }
+  //     }
+  //   } catch (e) {
+  //     console.error("Không thể đọc tổng tiền:", e);
+  //   }
+  // }, [dispatch]);
+
   const objNew = React.useMemo(() => {
-      if (!orderInfo) return null;
-  
-      const items = orderInfo.cart?.items || [];
-  
-      const orderDetails = items
-        .filter((it) => it.selected !== false) // chỉ lấy sp đã chọn
-        .map((it) => ({
-          product_id: it.product_id,
-          product_name: it.product_name || it.name || "",
-          quantity: Math.max(1, Number(it.quantity) || 1),
-          unit_price: Number(it.unit_price ?? it.price ?? 0),
-          discount: Math.max(0, Number(it.discount ?? it.discount_price ?? 0)),
-        }));
-  
-      // const total_amount = orderDetails.reduce((sum, d) => {
-      //   const price = Math.max(0, (d.unit_price || 0) - (d.discount || 0));
-      //   return sum + price * d.quantity;
-      // }, 0);
-  
-      return {
-        shipping_address: String(orderInfo.address || "").trim(),
-        orderDetails,
-        payment_method: form.payment
-      };
-    }, [orderInfo]);
+    if (!orderInfo) return null;
+
+    const items = orderInfo.cart?.items || [];
+
+    const orderDetails = items
+      .filter((it) => it.selected !== false) // chỉ lấy sp đã chọn
+      .map((it) => ({
+        product_id: it.product_id,
+        product_name: it.product_name || it.name || "",
+        quantity: Math.max(1, Number(it.quantity) || 1),
+        unit_price: Number(it.unit_price ?? it.price ?? 0),
+        discount: Math.max(0, Number(it.discount ?? it.discount_price ?? 0)),
+      }));
+
+    // const total_amount = orderDetails.reduce((sum, d) => {
+    //   const price = Math.max(0, (d.unit_price || 0) - (d.discount || 0));
+    //   return sum + price * d.quantity;
+    // }, 0);
+
+    return {
+      shipping_address: String(orderInfo.address || "").trim(),
+      orderDetails,
+      payment_method: form.payment,
+    };
+  }, [orderInfo]);
 
   const onChange = (key) => (e) => {
     const value = e.target?.value ?? "";
@@ -121,7 +168,7 @@ export default function Page() {
           : "[]";
       const list = raw ? JSON.parse(raw) : [];
       const selected = Array.isArray(list)
-        ? list.filter((it) => it.selected)
+        ? list.filter((it) => it.selected !== false)
         : [];
       if (selected.length === 0) {
         setErrors((prev) => ({
@@ -131,35 +178,17 @@ export default function Page() {
         return;
       }
 
-      const orderDetails = selected.map((it) => ({
-        product_id: it.product_id,
-        product_name: it.name || it.product_name || "Sản phẩm",
-        quantity: Number(it.quantity) || 1,
-        unit_price: Number(it.price) || Number(it.unit_price) || 0,
-        discount: Number(it.discount_price) || Number(it.discount) || 0,
-      }));
-
       const token =
         typeof window !== "undefined"
           ? localStorage.getItem("access_token")
           : "";
-      // Tính tổng tiền theo model server từ orderDetails
-      const totalAmount = orderDetails.reduce((sum, d) => {
-        const unit = Number(d.unit_price || 0);
-        const discount = Math.max(0, Number(d.discount || 0));
-        const price = Math.max(0, unit - discount);
-        const qty = Math.max(1, Number(d.quantity || 1));
-        return sum + price * qty;
-      }, 0);
-
-
 
       const resp = await axios.post(
         "http://localhost:8000/api/orders/makeOrder",
         {
-          shipping_address:objNew.shipping_address,
+          shipping_address: objNew.shipping_address,
           orderDetails: objNew.orderDetails,
-          payment_method: objNew.payment_method
+          payment_method: objNew.payment_method,
         },
         {
           headers: {
@@ -173,8 +202,7 @@ export default function Page() {
         try {
           localStorage.setItem("cart_items", JSON.stringify([]));
           localStorage.removeItem("cart_total");
-          dispatch(setField({ key: "order_id", value: resp.data.order_id }))
-          
+          dispatch(setField({ key: "order_id", value: resp.data.order_id }));
         } catch {}
         if (form.payment === "CreditCard") {
           router.push("/payment/creditCard");
@@ -184,7 +212,18 @@ export default function Page() {
           router.push("/payment/QRCode");
           return;
         }
-        setShowModal(true);
+        if (form.payment === "COD") {
+          const paymentResult = {
+            success: true,
+            orderId: resp?.data?.order_id || "unknown",
+          };
+          sessionStorage.setItem(
+            "paymentResult",
+            JSON.stringify(paymentResult)
+          );
+          router.push("/payment/result");
+          return;
+        }
       }
     } catch (err) {
       const msg =
@@ -324,8 +363,7 @@ export default function Page() {
               {/* Nút đặt hàng */}
               <button
                 type="submit"
-                className="w-full h-[56px] rounded-full bg-[#9B8D6F] text-white font-semibold cursor-pointer hover:opacity-90 transition"
-
+                className="w-full h-14 rounded-full bg-[#9B8D6F] text-white font-semibold cursor-pointer hover:opacity-90 transition"
               >
                 Đặt hàng
               </button>
@@ -346,7 +384,7 @@ export default function Page() {
             </p>
             <button
               onClick={closeModal}
-              className="w-full h-[40px] rounded-full bg-[#9B8D6F] text-white font-medium hover:opacity-90 transition"
+              className="w-full h-10 rounded-full bg-[#9B8D6F] text-white font-medium hover:opacity-90 transition"
             >
               Về trang chủ
             </button>

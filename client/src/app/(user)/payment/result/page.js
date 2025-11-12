@@ -67,7 +67,7 @@ export default function PaymentResultPage() {
         )}
 
         <Link
-          href="/"
+          href="/home"
           className="mt-4 border border-gray-300 px-6 py-2 rounded-md text-gray-600 hover:bg-gray-100 transition"
         >
           Quay lại trang chủ
