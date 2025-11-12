@@ -3,7 +3,9 @@ import React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { toIntegerVND } from "../../utils/price";
 import { useFetchProducts } from "../../../../hook/useFetchProducts";
-import StartIcon from "../../../../assets/icons/star_icon";
+import StarIcon from "../../../../assets/icons/star_icon";
+import { useReview } from "../../../../hook/useReview";
+import ReviewList from "../../components/ReviewList";
 
 const formatPriceVND = (input) =>
   new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 }).format(
@@ -37,6 +39,52 @@ export default function Page() {
   React.useEffect(() => {
     setSelectedImage(mainImage);
   }, [mainImage?.image_id]);
+
+  const [showReviewModal, setShowReviewModal] = React.useState(false);
+  const [canReview, setCanReview] = React.useState(false);
+  const [reviewText, setReviewText] = React.useState("");
+  const [rating, setRating] = React.useState(0);
+  const [hoverRating, setHoverRating] = React.useState(0);
+
+  const { checkCanReview, postReview } = useReview();
+  const [prop, setProp] = React.useState(null);
+
+  React.useEffect(() => {
+    if (!product?.product_id) return;
+    const checkPermission = async () => {
+      try {
+        const res = await checkCanReview(product.product_id);
+        setCanReview(!!res?.success);
+      } catch (e) {
+        console.warn("Khong the kiem tra quyen danh gia:", e.message);
+        setCanReview(false);
+      }
+    };
+    checkPermission();
+  }, [product?.product_id]);
+
+  const handleOpenReview = () => {
+    if (!canReview)
+      return alert("Ban can mua san pham nay truoc khi viet danh gia.");
+    setShowReviewModal(true);
+  };
+
+  const handleSubmitReview = async () => {
+    try {
+      await postReview({
+        product_id: product.product_id,
+        rating,
+        comment: reviewText,
+      });
+      alert("Cam on ban da danh gia san pham!");
+      setShowReviewModal(false);
+      // setReviewText("");
+      // setRating(0);
+      setProp({comment: reviewText, rating})
+    } catch (err) {
+      alert(err.message);
+    }
+  };
 
   const addToCart = (showAlert = true) => {
     if (!product) return;
@@ -85,7 +133,7 @@ export default function Page() {
   };
 
   return (
-    <div className="w-full flex justify-center mt-6 mb-12">
+    <div className="w-full flex justify-center mt-6 mb-12 relative">
       <div className="w-[90%] max-w-[1200px]">
         {status === "failed" && (
           <div className="p-4 text-sm text-red-500">
@@ -237,26 +285,21 @@ export default function Page() {
               </div>
 
               {/* Đánh giá */}
-              <div className="mt-[25px] flex justify-between items-start">
-                {/* Cột trái */}
-                <div>
-                  <h2 className="text-[28px] font-semibold text-[#3A3A3A] mb-[10px]">
+              <div className="mt-[40px]">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-[28px] font-semibold text-[#3A3A3A]">
                     Đánh giá từ khách hàng
                   </h2>
-                  <div className="flex items-center gap-[10px] text-[20px] text-gray-600">
-                    <span>Chưa có đánh giá nào</span>
-                    <div className="flex">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <StartIcon key={i} />
-                      ))}
-                    </div>
-                  </div>
+                  {canReview && (
+                    <button
+                      onClick={handleOpenReview}
+                      className="w-[200px] h-[60px] rounded-[8px] bg-[#3771C8] text-white text-[20px] font-medium hover:opacity-90 transition"
+                    >
+                      Viết đánh giá
+                    </button>
+                  )}
                 </div>
-
-                {/* Cột phải: nút Viết đánh giá */}
-                <button className="w-[200px] h-[60px] rounded-[8px] bg-[#3771C8] text-white text-[20px] font-medium hover:opacity-90 transition">
-                  Viết đánh giá
-                </button>
+                <ReviewList productId={product.product_id} prop={prop} />
               </div>
             </div>
           </>
@@ -268,6 +311,82 @@ export default function Page() {
           </div>
         )}
       </div>
+      {/* ----- MODAL VIẾT ĐÁNH GIÁ ----- */}
+      {showReviewModal && (
+        <div className=" absolute w-full h-full flex justify-center items-center">
+          <div className="fixed inset-0 bg-black opacity-50 flex items-center justify-center z-50"></div>
+          <div className="bg-white w-[560px] max-w-[92vw] absolute rounded-[12px] p-6 shadow-lg z-100">
+            <button
+              onClick={() => setShowReviewModal(false)}
+              aria-label="Close"
+              className="w-[45px] h-[45px] rounded-full bg-[#E9E9E9] absolute top-3 right-3 text-gray-400 hover:text-black text-2xl leading-[45px] "
+            >
+              x
+            </button>
+
+            <div className="flex justify-center mb-4">
+              {selectedImage?.image_url && (
+                <img
+                  src={selectedImage.image_url}
+                  alt={product.name}
+                  className="w-[50px] h-[50px] object-cover border border-[#C0C0C0] shadow-sm"
+                />
+              )}
+            </div>
+
+            <h2 className="text-[16px] font-semibold text-center mb-4">
+              {product.name}
+            </h2>
+
+            <div
+              className="flex justify-center mb-4"
+              onMouseLeave={() => setHoverRating(0)}
+            >
+              {Array.from({ length: 5 }).map((_, i) => {
+                const index = i + 1;
+                const isActive = index <= (hoverRating || rating);
+                return (
+                  <span
+                    key={index}
+                    onMouseEnter={() => setHoverRating(index)}
+                    onClick={() => setRating(index)}
+                    className={`cursor-pointer transition-transform duration-200 ${
+                      isActive ? "scale-110" : "hover:scale-105"
+                    }`}
+                  >
+                    <StarIcon
+                      size={30}
+                      gradient={isActive}
+                      color={isActive ? "#FACC15" : "#D1D5DB"}
+                    />
+                  </span>
+                );
+              })}
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="text-[24px] font-medium text-[#3A3A3A]">
+                  Chia sẻ về sản phẩm
+                </label>
+                <textarea
+                  placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."
+                  value={reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                  className="border rounded-[6px] p-2 text-[16px] min-h-[100px] w-full"
+                />
+              </div>
+
+              <button
+                onClick={handleSubmitReview}
+                className="mt-2 w-full h-[48px] bg-[#3771C8] text-white text-[18px] font-medium rounded-[8px] hover:opacity-90"
+              >
+                Viết đánh giá
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
