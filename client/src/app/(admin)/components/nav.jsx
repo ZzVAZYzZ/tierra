@@ -14,6 +14,7 @@ import { useAuth } from "../../../hook/useAuth";
 import { useDispatch } from "react-redux";
 import { resetUserState } from "../../../redux/features/userSlice";
 import { useRouter } from "next/navigation";
+import { House } from "lucide-react";
 
 const Nav = () => {
   const dispatch = useDispatch();
@@ -101,6 +102,15 @@ const Nav = () => {
         <div className=" flex flex-row gap-3.5 cursor-pointer justify-center items-center">
           <ArvatarIcon />
           <p>Admin</p>
+        </div>
+        <div
+          onClick={() => {
+            router.push("/");
+          }}
+          className=" flex flex-row gap-3.5 cursor-pointer justify-center items-center"
+        >
+          <House />
+          <p>User Homepage</p>
         </div>
         <div
           className=" flex flex-row gap-6 cursor-pointer justify-center items-center ml-[3px]"
