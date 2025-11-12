@@ -18,8 +18,10 @@ import { useRouter } from "next/navigation";
 const Nav = () => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const [isShow, setIsShow] = React.useState(false);
   useAuth();
   useRedirect();
+
   const handleLogout = async () => {
     try {
       const backendUrl =
@@ -62,10 +64,38 @@ const Nav = () => {
           <DoanthuIcon />
           <p>Doanh thu</p>
         </div>
-        <div className=" flex flex-row gap-5 cursor-pointer  justify-center items-center">
+        <div
+          onClick={() => setIsShow(!isShow)}
+          className=" flex flex-row gap-5 cursor-pointer  justify-center items-center"
+        >
           <QuanlyIcon />
           <p>Quản lý đơn hàng</p>
         </div>
+        {/* Menu con (dropdown) */}
+        {isShow && (
+          <div className="ml-8 mt-2 flex flex-col gap-2 text-sm text-gray-700">
+            <Link href="/dashboard/orderConfirm/validation">
+              <p className="cursor-pointer hover:text-blue-500">
+                Xác nhận đơn hàng
+              </p>
+            </Link>
+            <Link href="#">
+              <p className="cursor-pointer hover:text-blue-500">
+                Đơn hàng đã hoàn thành
+              </p>
+            </Link>
+            <Link href="#">
+              <p className="cursor-pointer hover:text-blue-500">
+                Đơn hàng đang xử lý
+              </p>
+            </Link>
+            <Link href="/dashboard/orderConfirm/allData">
+              <p className="cursor-pointer hover:text-blue-500">
+                Xem tất cả đơn hàng
+              </p>
+            </Link>
+          </div>
+        )}
       </div>
       <div className=" flex flex-col gap-3 justify-center items-start">
         <div className=" flex flex-row gap-3.5 cursor-pointer justify-center items-center">

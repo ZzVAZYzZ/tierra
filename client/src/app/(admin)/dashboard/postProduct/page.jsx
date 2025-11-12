@@ -324,7 +324,7 @@ const Page = () => {
               <input
                 type="radio"
                 name="category_id"
-                value="2c20c725-8858-487e-9c4f-bc0fff68273d"
+                value="00382bcd-1a1c-474b-8b81-e54313502ab5"
                 onChange={handleChange}
               />{" "}
               Dây chuyền
