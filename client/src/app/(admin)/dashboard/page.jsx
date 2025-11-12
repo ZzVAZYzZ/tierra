@@ -14,6 +14,7 @@ export default function Page() {
   const { fetchProductById, detailProduct, loadingDetailProduct } =
     useFetchProductById();
   const { deleteProductById, deletingProduct } = useDeleteProduct();
+  const [showReviewModal, setShowReviewModal] = React.useState(true);
 
   // Hàm định dạng ngày kiểu Việt Nam
   function formatDateVN(dateString) {
@@ -44,9 +45,16 @@ export default function Page() {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
+  // if (status === "successed") {
+  //   console.log({ products, status });
+  // }
+
+  useEffect(() => {
   if (status === "successed") {
     console.log({ products, status });
   }
+}, [status]);
+
 
   return (
     <div className="relative  w-full h-full flex flex-col ml-2.5 gap-3">
@@ -56,7 +64,7 @@ export default function Page() {
         </div>
       )}
       <NavPage />
-      <div className="w-full h-full bg-white rounded-[10px] flex flex-col px-[72px] pt-[52px] pb-[47px]">
+      <div className="w-full h-full bg-white rounded-[10px] flex flex-col px-[72px] pt-[52px] pb-[47px] relative">
         {/* Wrapper có thể cuộn */}
         <div className="w-full flex flex-col">
           {/* Tiêu đề bảng */}
@@ -71,7 +79,7 @@ export default function Page() {
           </div>
 
           {/* Danh sách sản phẩm */}
-          <div className="flex flex-col h-[400px] overflow-y-auto gap-[7px]">
+          <div className="flex flex-col h-[500px] overflow-y-auto gap-[7px]">
             {status === "successed" &&
               products &&
               products.map((item, index) => {
@@ -120,7 +128,7 @@ export default function Page() {
                             className="flex items-center gap-2 w-full px-4 py-2 hover:bg-gray-100 text-left text-sm text-red-600"
                           >
                             🗑️ Xóa sản phẩm
-                          </button>
+                          </button>                                                        
                           <button
                             onClick={() =>
                               console.log("Xem đánh giá:", item.name)
@@ -136,13 +144,23 @@ export default function Page() {
                 );
               })}
           </div>
+          
         </div>
 
         {/* Xem tất cả */}
         {/* <div className="w-full h-[15%] cursor-pointer flex justify-center items-center">
           See all
         </div> */}
+         {/* model */}
+          {!showReviewModal && (
+            <div className=" absolute w-full h-full bg-black px-[72px] flex justify-center items-center pt-[52px] pb-[47px] z-100 top-0 left-0 opacity-50">
+                <div className=" w-full h-[85%] bg-white ">
+                  
+                </div>
+            </div>
+          )}
       </div>
+     
     </div>
   );
 }

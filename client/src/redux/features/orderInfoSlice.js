@@ -328,6 +328,7 @@ export const orderSlice = createSlice({
         state.updateLoading = false;
         state.error = action.payload;
       });
+      
   },
 });
 

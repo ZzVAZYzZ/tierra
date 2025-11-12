@@ -3,7 +3,7 @@ const nextConfig = {
     images: {
         domains: ['lh3.googleusercontent.com','upload.wikimedia.org', 'res.cloudinary.com'],
     },
-    // reactStrictMode: false
+    reactStrictMode: false
 };
 
 export default nextConfig;
