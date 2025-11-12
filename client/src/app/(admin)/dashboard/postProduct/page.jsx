@@ -324,7 +324,7 @@ const Page = () => {
               <input
                 type="radio"
                 name="category_id"
-                value="2c20c725-8858-487e-9c4f-bc0fff68273d"
+                value="00382bcd-1a1c-474b-8b81-e54313502ab5"
                 onChange={handleChange}
               />{" "}
               Dây chuyền
@@ -333,7 +333,7 @@ const Page = () => {
               <input
                 type="radio"
                 name="category_id"
-                value="1c10c725-8858-487e-9c4f-bc0fff68273d"
+                value="4c032dd3-1384-46e4-85f6-c29bbe303605"
                 onChange={handleChange}
               />{" "}
               Vòng tay
@@ -342,7 +342,7 @@ const Page = () => {
               <input
                 type="radio"
                 name="category_id"
-                value="4c50c725-8858-487e-9c4f-bc0fff68273d"
+                value="e0f055ec-3ce2-416b-8151-920a20802c0b"
                 onChange={handleChange}
               />{" "}
               Bông tai

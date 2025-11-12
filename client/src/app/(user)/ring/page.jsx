@@ -126,7 +126,7 @@ const Page = () => {
           {loading && (
             <div className="p-4 text-sm text-gray-500">Đang tải sản phẩm…</div>
           )}
-          {loading && (
+          {error && (
             <div className="p-4 text-sm text-red-500">Lỗi tải dữ liệu: {String(error)}</div>
           )}
           <ProductGrid

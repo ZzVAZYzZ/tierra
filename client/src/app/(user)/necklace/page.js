@@ -108,10 +108,10 @@ export default function Page() {
         />
 
         <div className="flex-1">
-          {status === "loading" && (
+          {loading && (
             <div className="p-4 text-sm text-gray-500">Đang tải sản phẩm…</div>
           )}
-          {status === "failed" && (
+          {error  && (
             <div className="p-4 text-sm text-red-500">Lỗi tải dữ liệu: {String(error)}</div>
           )}
           <ProductGrid
