@@ -11,9 +11,9 @@ const Page = () => {
     description: "",
     material: "",
     category_id: "",
-    price: 1000, // default
-    discount_price: 100,
-    stock_quantity: 10,
+    price: 0, // default
+    discount_price: 0,
+    stock_quantity: 0,
     status: "active",
     color: "",
   });
@@ -89,7 +89,7 @@ const Page = () => {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     console.log(form);
-};
+  };
 
   const handleSubmit = async () => {
     await updateProduct(productDetail.product_id, form, images);
@@ -181,11 +181,50 @@ const Page = () => {
           </div>
         </div>
 
+        {/* Số lượng & Giá tiền */}
+        <div className="flex flex-row gap-6">
+          <div className="flex-1">
+            <h3 className="font-medium mb-2">Số lượng</h3>
+            <input
+              className="border rounded-lg px-4 py-2 w-full outline-none focus:border-[#9B8D6F]"
+              placeholder="Số lượng"
+              type="number"
+              name="stock_quantity"
+              onChange={handleChange}
+              defaultValue={productDetail.stock_quantity}
+            />
+          </div>
+
+          <div className="flex-1">
+            <h3 className="font-medium mb-2">Giá tiền</h3>
+            <input
+              className="border rounded-lg px-4 py-2 w-full outline-none focus:border-[#9B8D6F]"
+              placeholder="Giá tiền"
+              type="number"
+              name="price"
+              onChange={handleChange}
+              defaultValue={productDetail.price}
+            />
+          </div>
+
+          <div className="flex-1">
+            <h3 className="font-medium mb-2">Giá giảm</h3>
+            <input
+              className="border rounded-lg px-4 py-2 w-full outline-none focus:border-[#9B8D6F]"
+              type="number"
+              name="discount_price"
+              onChange={handleChange}
+              placeholder="Giá giảm"
+              defaultValue={productDetail.discount_price}
+            />
+          </div>
+        </div>
+
         {/* Mô tả sản phẩm */}
         <div>
-<h3 className="font-medium mb-2">Mô tả sản phẩm</h3>
+          <h3 className="font-medium mb-2">Mô tả sản phẩm</h3>
           <textarea
-            className="border rounded-lg p-4 w-full h-[300px] outline-none focus:border-[#9B8D6F]"
+            className="border rounded-lg p-4 w-full h-[250px] outline-none focus:border-[#9B8D6F]"
             placeholder="Nhập mô tả sản phẩm..."
             name="description"
             onChange={handleChange}
@@ -262,7 +301,7 @@ const Page = () => {
                 name="category_id"
                 value="4c032dd3-1384-46e4-85f6-c29bbe303605"
                 checked={
-form.category_id === "4c032dd3-1384-46e4-85f6-c29bbe303605"
+                  form.category_id === "4c032dd3-1384-46e4-85f6-c29bbe303605"
                 }
                 onChange={handleChange}
               />{" "}

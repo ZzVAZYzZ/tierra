@@ -14,6 +14,7 @@ const initialState = {
     cartTotal: 0,
     cart: { items: [] },
   },
+  orderAll: [],
   status: "idle", // loading | succeeded | failed
   error: "",
   message: "",
@@ -60,13 +61,18 @@ export const saveToLocal = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     if (typeof window === "undefined") return data;
     try {
-      const payload = data && typeof data === "object"
-        ? { ...initialState.orderInfo, ...data }
-        : { ...initialState.orderInfo };
+      const payload =
+        data && typeof data === "object"
+          ? { ...initialState.orderInfo, ...data }
+          : { ...initialState.orderInfo };
 
       // Nếu chưa có giỏ hàng → lấy từ cart_items
-      if (!payload.cart || typeof payload.cart !== "object") payload.cart = { items: [] };
-      if (!Array.isArray(payload.cart.items) || payload.cart.items.length === 0) {
+      if (!payload.cart || typeof payload.cart !== "object")
+        payload.cart = { items: [] };
+      if (
+        !Array.isArray(payload.cart.items) ||
+        payload.cart.items.length === 0
+      ) {
         try {
           const rawCart = localStorage.getItem("cart_items");
           const cartList = rawCart ? JSON.parse(rawCart) : [];
@@ -88,15 +94,22 @@ export const makeOrder = createAsyncThunk(
   async (_, { getState, rejectWithValue }) => {
     const root = getState();
     const orderInfo = root.orderInfo?.orderInfo || {};
-    const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+    const token =
+      typeof window !== "undefined"
+        ? localStorage.getItem("access_token")
+        : null;
 
     try {
       const rawCart = localStorage.getItem("cart_items");
       const list = rawCart ? JSON.parse(rawCart) : [];
-      const selected = Array.isArray(list) ? list.filter((it) => it.selected) : [];
+      const selected = Array.isArray(list)
+        ? list.filter((it) => it.selected)
+        : [];
 
       if (selected.length === 0) {
-        return rejectWithValue("Vui lòng chọn ít nhất 1 sản phẩm trong giỏ hàng.");
+        return rejectWithValue(
+          "Vui lòng chọn ít nhất 1 sản phẩm trong giỏ hàng."
+        );
       }
 
       const orderDetails = selected.map((it) => ({
@@ -104,11 +117,17 @@ export const makeOrder = createAsyncThunk(
         product_name: it.product_name || it.name || "",
         quantity: Math.max(1, Number(it.quantity) || 1),
         unit_price: Number(it.unit_price ?? it.price ?? 0) || 0,
-        discount: Math.max(0, Number(it.discount ?? it.discount_price ?? 0) || 0),
+        discount: Math.max(
+          0,
+          Number(it.discount ?? it.discount_price ?? 0) || 0
+        ),
       }));
 
       const total_amount = orderDetails.reduce((sum, d) => {
-        const price = Math.max(0, (Number(d.unit_price) || 0) - (Number(d.discount) || 0));
+        const price = Math.max(
+          0,
+          (Number(d.unit_price) || 0) - (Number(d.discount) || 0)
+        );
         return sum + price * d.quantity;
       }, 0);
 
@@ -132,11 +151,90 @@ export const makeOrder = createAsyncThunk(
         return resp.data;
       }
     } catch (err) {
-      return rejectWithValue(err?.response?.data?.message || "Đặt hàng thất bại.");
+      return rejectWithValue(
+        err?.response?.data?.message || "Đặt hàng thất bại."
+      );
     }
   }
 );
 
+export const fetchOrdersByStatus = createAsyncThunk(
+  "orders/fetchOrdersByStatus",
+  async (status, { rejectWithValue }) => {
+    try {
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("access_token")
+          : null;
+
+      if (!token) {
+        // Token không tồn tại
+        return rejectWithValue("Bạn chưa đăng nhập hoặc token không hợp lệ.");
+      }
+
+      const response = await axios.get(
+        `http://localhost:8000/api/orders/status/${status}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Kiểm tra status code
+      if (response.status < 200 || response.status >= 300) {
+        return rejectWithValue(`API trả về lỗi: ${response.status}`);
+      }
+      console.log(response);
+
+      return response.data;
+    } catch (err) {
+      // Log chi tiết để debug
+      console.error(
+        "fetchOrdersByStatus error:",
+        err.response?.status,
+        err.response?.data
+      );
+
+      return rejectWithValue(
+        err?.response?.data?.message ||
+          `Không thể lấy danh sách đơn hàng. (${
+            err?.response?.status || "unknown"
+          })`
+      );
+    }
+  }
+);
+
+// --- Thunk: Cập nhật trạng thái đơn hàng ---
+export const updateOrderStatus = createAsyncThunk(
+  "orders/updateOrderStatus",
+  async ({ orderId, newStatus }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("access_token");
+      if (!token) throw new Error("Không tìm thấy token xác thực.");
+
+      const res = await axios.patch(
+        `http://localhost:8000/api/orders/${orderId}`,
+        { newStatus },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }
+      );
+
+      return res.data.order; // trả về đơn hàng đã cập nhật
+    } catch (err) {
+      console.error(
+        "updateOrderStatus error:",
+        err?.response?.data || err.message
+      );
+      return rejectWithValue(
+        err?.response?.data?.message || "Cập nhật trạng thái thất bại."
+      );
+    }
+  }
+);
 //
 // ============ SLICE ============
 //
@@ -191,6 +289,43 @@ export const orderSlice = createSlice({
       })
       .addCase(makeOrder.rejected, (state, action) => {
         state.status = "failed";
+        state.error = action.payload;
+      })
+      // --- fetchOrdersByStatus ---
+
+      .addCase(fetchOrdersByStatus.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchOrdersByStatus.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.orderAll = Array.isArray(action.payload) ? action.payload : [];
+      })
+      .addCase(fetchOrdersByStatus.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+      // --- updateOrderStatus ---
+      .addCase(updateOrderStatus.pending, (state) => {
+        state.updateLoading = true;
+        state.error = "";
+      })
+      .addCase(updateOrderStatus.fulfilled, (state, action) => {
+        state.updateLoading = false;
+        // Cập nhật đơn hàng trong orderAll nếu tồn tại
+        const updatedOrder = action.payload;
+        const index = state.orderAll.findIndex(
+          (o) => o._id === updatedOrder._id
+        );
+        if (index !== -1) {
+          state.orderAll[index] = updatedOrder;
+        }
+        // Nếu muốn, cũng có thể cập nhật orderInfo nếu đang hiển thị đơn này
+        if (state.orderInfo._id === updatedOrder._id) {
+          state.orderInfo = { ...state.orderInfo, ...updatedOrder };
+        }
+      })
+      .addCase(updateOrderStatus.rejected, (state, action) => {
+        state.updateLoading = false;
         state.error = action.payload;
       });
   },

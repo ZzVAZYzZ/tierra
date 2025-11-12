@@ -12,7 +12,7 @@ export default function Page() {
   const router = useRouter();
   useRefresh()
   const [status, setStatus] = React.useState("waiting"); // waiting | success | failed
-  const backendIp = "192.168.1.13";
+  const backendIp = "192.168.1.20";
   // ✅ Tạo object chứa dữ liệu order thực tế
   const objNew = React.useMemo(() => {
     if (!user || !orderInfo) return null;

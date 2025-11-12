@@ -18,6 +18,8 @@ import logouticon from "../assets/images/logouticon.png";
 import profileicon from "../assets/images/infoIcon.png";
 import { useAuth } from "../hook/useAuth";
 import { resetUserState } from "../redux/features/userSlice";
+import { useRedirect } from "../hook/useRedirect";
+import { Box, Search, History } from "lucide-react";
 
 const Nav = () => {
   const { products } = useFetchProducts();
@@ -26,10 +28,12 @@ const Nav = () => {
   const [debounced, setDebounced] = React.useState("");
   const [open, setOpen] = React.useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = React.useState(false);
+  const [isBillMenuOpen, setIsBillMenuOpen] = React.useState(false);
   const inputRef = React.useRef(null);
   const overlayInputRef = React.useRef(null);
   const panelRef = React.useRef(null);
   const menuRef = React.useRef(null);
+  const billMenuRef = React.useRef(null);
   const router = useRouter();
 
   const { user } = useSelector((state) => state.user);
@@ -64,18 +68,26 @@ const Nav = () => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setIsUserMenuOpen(false);
       }
+      // 👇 THÊM LOGIC ĐÓNG MENU HÓA ĐƠN
+      if (billMenuRef.current && !billMenuRef.current.contains(e.target)) {
+        setIsBillMenuOpen(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
+  useRedirect();
   // kết quả tìm kiếm
   const results = React.useMemo(() => {
     const q = debounced.toLowerCase();
     if (!q) return [];
     const list = Array.isArray(products) ? products : [];
     return list
-      .filter((p) => String(p?.name || "").toLowerCase().includes(q))
+      .filter((p) =>
+        String(p?.name || "")
+          .toLowerCase()
+          .includes(q)
+      )
       .slice(0, 8);
   }, [products, debounced]);
 
@@ -98,9 +110,11 @@ const Nav = () => {
   const goToProduct = (item) => {
     if (!item) return;
     const id = item?.product_id;
-    const cat = String(item?.Category?.name || "").trim().toLowerCase();
+    const cat = String(item?.Category?.name || "")
+      .trim()
+      .toLowerCase();
     const map = {
-      "nhan": "ring",
+      nhan: "ring",
       "bong tai": "earring",
       "day chuyen": "necklace",
       "vong tay": "bracelet",
@@ -115,7 +129,8 @@ const Nav = () => {
 
   const handleLogout = async () => {
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+      const backendUrl =
+        process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
       // 🧠 Gọi API logout để xoá refreshToken trong DB + cookie
       await fetch(`${backendUrl}/api/users/logout`, {
@@ -167,15 +182,57 @@ const Nav = () => {
 
         <div className="flex flex-row items-center justify-center gap-[70px]">
           <div className="flex flex-row items-center justify-center gap-[18px]">
-            <a href="#">
-              <HeartIcon />
-            </a>
-            <a href="/cart">
-              <CartIcon />
-            </a>
-            <a href="#">
-              <BillIcon />
-            </a>
+            <div className="flex items-center justify-center">
+              <a href="#" className="flex items-center justify-center">
+                <HeartIcon />
+              </a>
+            </div>
+
+            <div className="relative">
+              <a href="/cart">
+                <CartIcon />
+              </a>
+            </div>
+
+            {/* 👇 Bill/Order menu click version */}
+            <div className="relative" ref={billMenuRef}>
+              <button
+                onClick={() => setIsBillMenuOpen((prev) => !prev)}
+                aria-label="Order and History"
+                className="flex items-center justify-center cursor-pointer"
+              >
+                <BillIcon />
+              </button>
+
+              {/* Dropdown cho Bill */}
+              {isBillMenuOpen && (
+                <div className="absolute right-0 mt-2 w-[200px] bg-white rounded-xl shadow-lg border border-gray-100 z-50 animate-fade-in">
+                  {/* Tra cứu đơn hàng */}
+                  <Link
+                    href="/checkorder" // Thay bằng đường dẫn thực tế
+                    onClick={() => setIsBillMenuOpen(false)}
+                    className="flex  items-center gap-2 px-4 py-1 text-[#9B8D6F] text-[12px] font-[bold] hover:bg-[#f3f0eb] transition-all"
+                  >
+                    {/* Có thể dùng icon SearchIcon hoặc một icon khác phù hợp */}
+                    <Search size={20} />
+                    <span>Tra cứu đơn hàng</span>
+                  </Link>
+
+                  <hr className="border-[#e2dfda]" />
+
+                  {/* Xem lịch sử đặt hàng */}
+                  <Link
+                    href="/orderhistory" // Thay bằng đường dẫn thực tế
+                    onClick={() => setIsBillMenuOpen(false)}
+                    className=" gap-2 px-4 py-1 text-[#9B8D6F] text-[12px] font-[bold] hover:bg-[#f3f0eb] transition-all flex items-center "
+                  >
+                    {/* Có thể dùng icon BillIcon hoặc một icon khác phù hợp */}
+                    <History size={20} />
+                    <span>Xem lịch sử đặt hàng</span>
+                  </Link>
+                </div>
+              )}
+            </div>
 
             {/* 👇 User menu click version */}
             {user ? (
@@ -196,7 +253,6 @@ const Nav = () => {
                     className="object-cover rounded-full"
                     priority
                   />
-
                 </button>
 
                 {/* Dropdown */}
@@ -212,10 +268,24 @@ const Nav = () => {
                         alt="Profile Icon"
                         width={16}
                         height={16}
-
                       />
                       <span>Thông tin người dùng</span>
                     </Link>
+                    <hr className="border-[#e2dfda]" />
+                    {user.role === "admin" && (
+                      <>
+                        <Link
+                          href="/dashboard"
+                          onClick={() => setIsUserMenuOpen(false)}
+                          className="flex items-center gap-2 px-4 py-2 text-[#9B8D6F] text-[12px] font-bold hover:bg-[#f3f0eb] transition-all"
+                        >
+                          {/* Bạn có thể thay thế bằng một icon khác phù hợp với dashboard/admin */}
+                          <Box size={16} />
+                          <span>Quản lý cho Admin</span>
+                        </Link>
+                        <hr className="border-red-100" />
+                      </>
+                    )}
 
                     <hr className="border-[#e2dfda]" />
 
@@ -357,4 +427,3 @@ const Nav = () => {
 };
 
 export default Nav;
-
