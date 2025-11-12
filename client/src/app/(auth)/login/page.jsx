@@ -41,10 +41,13 @@ export default function Page() {
 
       {/* Container */}
       <div className="flex flex-row justify-between w-[1000px] h-[800px] bg-white absolute top-[50%] left-[50%] transform -translate-x-[50%] -translate-y-[50%] rounded-[20px] shadow-lg">
-        
+
         {/* Left side (form) */}
         <div className="flex flex-col items-center justify-center w-[464px] h-full relative">
-          <Image width={200} height={150} src={logo.src} alt="logo" />
+          <Link href="/">
+            <Image width={200} height={150} src={logo.src} alt="logo" />
+          </Link>
+
 
           <form onSubmit={handleSubmit} className="flex flex-col items-center">
             {/* Email */}
@@ -86,11 +89,10 @@ export default function Page() {
             <button
               type="submit"
               disabled={loading}
-              className={`w-[350px] h-[60px] mt-[69px] rounded-[10px] text-white cursor-pointer ${
-                loading
+              className={`w-[350px] h-[60px] mt-[69px] rounded-[10px] text-white cursor-pointer ${loading
                   ? 'bg-[#c4b89f] cursor-not-allowed'
                   : 'bg-[#9B8D6F] hover:bg-[#8b7d63]'
-              }`}
+                }`}
               onClick={() => setIsClick(true)}
             >
               {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
@@ -98,7 +100,7 @@ export default function Page() {
           </form>
 
           {/* Error message */}
-          { isClick && error && (
+          {isClick && error && (
             <p className="text-red-500 text-sm mt-3">Lỗi: {error}</p>
           )}
 

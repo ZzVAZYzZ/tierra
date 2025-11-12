@@ -10,15 +10,15 @@ export const useRedirect = () => {
   const pathname = usePathname();
   useEffect(() => {
     if (user) {
-      if (pathname === "/dashboard" && user.role === "user") {
-        router.push("/");
-      } else if (pathname === "/" && user.role === "admin") {
-        router.push("/dashboard");
+      if (user.role === 'admin') {
+        router.push('/dashboard')
+      } else if (user.role === 'user') {
+        router.push('/')
       }
     } else {
-      if (pathname === "/dashboard") {
+      if (pathname !== "/login") {
         router.push("/");
       }
     }
-  }, [user, router, pathname]);
+  }, [user]);
 };
