@@ -2,21 +2,23 @@
 
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export const useRedirect = () => {
   const router = useRouter();
   const { user } = useSelector((state) => state.user);
-
+  const pathname = usePathname();
   useEffect(() => {
     if (user) {
-      if (user.role === "admin") {
-        router.push("/dashboard");
-      } else if (user.role === "user") {
+      if (pathname === "/dashboard" && user.role === "user") {
         router.push("/");
+      } else if (pathname === "/" && user.role === "admin") {
+        router.push("/dashboard");
       }
     } else {
-      router.push("/");
+      if (pathname === "/dashboard") {
+        router.push("/");
+      }
     }
-  }, [user, router]);
+  }, [user, router, pathname]);
 };

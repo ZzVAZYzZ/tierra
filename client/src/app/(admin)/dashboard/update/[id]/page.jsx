@@ -208,7 +208,7 @@ const Page = () => {
           </div>
 
           <div className="flex-1">
-            <h3 className="font-medium mb-2">Giá tiền</h3>
+            <h3 className="font-medium mb-2">Giá giảm</h3>
             <input
               className="border rounded-lg px-4 py-2 w-full outline-none focus:border-[#9B8D6F]"
               type="number"
