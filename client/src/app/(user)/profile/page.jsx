@@ -81,7 +81,7 @@ export default function Page() {
         {/* Nút quay lại */}
         <Link
           href="/"
-          className="absolute top-[37px] left-[36px] cursor-pointer"
+          className="absolute top-[37px] left-9 cursor-pointer"
         >
           <Image priority src={backIcon} width={25} height={25} alt="back icon" />
         </Link>
@@ -113,7 +113,7 @@ export default function Page() {
           />
 
           {/* Tên người dùng */}
-          <div className="text-[32px] mt-[10px]">
+          <div className="text-[32px] mt-2.5">
             {isEditingName ? (
               <input
                 ref={nameInputRef}
@@ -128,18 +128,18 @@ export default function Page() {
           </div>
 
           {/* Các nút chỉnh sửa */}
-          <div className="flex flex-col items-center mt-[20px]">
+          <div className="flex flex-col items-center mt-5">
             {isEditing ? (
               <>
                 <button
                   onClick={handleEditName}
-                  className="flex items-center justify-center w-[100px] h-[35px] bg-[#D9D9D9] text-[15px] cursor-pointer rounded-[4px] mb-[10px]"
+                  className="flex items-center justify-center w-[100px] h-[35px] bg-[#D9D9D9] text-[15px] cursor-pointer rounded-sm mb-2.5"
                 >
                   Sửa tên
                 </button>
                 <button
                   onClick={handleAvatarClick}
-                  className="flex items-center justify-center w-[230px] h-[35px] bg-[#D9D9D9] text-[15px] cursor-pointer rounded-[4px] mb-[20px]"
+                  className="flex items-center justify-center w-[230px] h-[35px] bg-[#D9D9D9] text-[15px] cursor-pointer rounded-sm mb-5"
                 >
                   Cập nhật ảnh đại diện
                 </button>
@@ -147,7 +147,7 @@ export default function Page() {
             ) : (
               <button
                 onClick={clickEdit}
-                className="flex items-center justify-center w-[260px] h-[40px] bg-[#D9D9D9] text-[15px] cursor-pointer rounded-[4px] mb-[20px]"
+                className="flex items-center justify-center w-[260px] h-10 bg-[#D9D9D9] text-[15px] cursor-pointer rounded-sm mb-5"
               >
                 Chỉnh sửa thông tin người dùng
               </button>
@@ -230,7 +230,7 @@ export default function Page() {
           {isEditing && (
             <button
               onClick={handleSave}
-              className="flex items-center justify-center w-[180px] h-[45px] bg-[#9B8D6F] text-white mt-[50px] rounded-[6px] cursor-pointer hover:bg-[#8A7E63] transition-all"
+              className="flex items-center justify-center w-[180px] h-[45px] bg-[#9B8D6F] text-white mt-[50px] rounded-md cursor-pointer hover:bg-[#8A7E63] transition-all"
             >
               LƯU THÔNG TIN
             </button>

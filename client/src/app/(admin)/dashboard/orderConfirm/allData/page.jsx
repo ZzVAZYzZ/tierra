@@ -1,9 +1,12 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import useFetchOrderByStatus from "../../../../../hook/useOrder";
 import axios from "axios";
+import { Eye } from "lucide-react";
+import OrderDetailModal from "./components/OrderDetailModal";
 
 export default function Page() {
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const {
     fetchOrdersByStatus,
     allOrders,
@@ -12,6 +15,10 @@ export default function Page() {
     ordersUpdating,
     errorOrders,
   } = useFetchOrderByStatus();
+
+  const handleViewDetail = (order) => {
+    setSelectedOrder(order);
+  };
 
   useEffect(() => {
     fetchOrdersByStatus("all");
@@ -50,8 +57,12 @@ export default function Page() {
           return (
             <div
               key={order._id || index}
-              className="w-full h-[180px] border border-[#bfa87c] rounded-lg"
+              className="w-full h-[180px] border border-[#bfa87c] rounded-lg relative group"
             >
+              <Eye
+                className=" absolute right-1 top-1 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                onClick={() => handleViewDetail(order)}
+              ></Eye>
               {/* Header */}
               <div className="grid grid-cols-6 bg-[#f9f7f3] text-[15px] font-medium text-gray-700 px-4 py-2 border-b border-[#bfa87c]">
                 <span>Id đơn hàng</span>
@@ -190,6 +201,13 @@ export default function Page() {
             </div>
           );
         })
+      )}
+      {/* Modal hiển thị chi tiết */}
+      {selectedOrder && (
+        <OrderDetailModal
+          order={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+        />
       )}
     </div>
   );
