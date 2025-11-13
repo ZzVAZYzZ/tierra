@@ -1,6 +1,6 @@
 // components/OrderHistoryPage.js
 "use client"
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { History, Eye, CheckCircle, Clock, XCircle, Package } from 'lucide-react';
 import { useOrderHistory } from '../../../hook/useOrderHistory'; // Hook bạn đã tạo
 import OrderDetailModal from './components/OrderDetailModal'; // Import Modal
@@ -85,8 +85,12 @@ const OrderSummaryCard = ({ order, onViewDetail }) => {
 
 const OrderHistoryPage = () => {
     // Sử dụng hook của bạn
-    const { orders, isLoading, isError, error } = useOrderHistory(); 
+    const { orders, isLoading, isError, error, refetch } = useOrderHistory(); 
     const [selectedOrder, setSelectedOrder] = useState(null);
+
+    useEffect(()=>{
+        refetch()
+    },[refetch])
 
     const handleViewDetail = (order) => {
         setSelectedOrder(order);

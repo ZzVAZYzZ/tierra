@@ -77,7 +77,29 @@ const OrderDetailModal = ({ order, onClose }) => {
     const contentRef = useRef(null);
 
     const customerName = order.user_name || 'Khách hàng';
-    const statusDisplay = {
+
+    // --- 1. HÀM XÁC ĐỊNH TRẠNG THÁI THANH TOÁN ---
+    const getPaymentStatusInfo = (status, payment_method) => {
+        let isPaid = false;
+
+        if (payment_method === 'COD') {
+            isPaid = status === 'completed';
+        } else {
+            const paidStatuses = ['paid', 'shipping', 'completed','cancelled'];
+            isPaid = paidStatuses.includes(status);
+        }
+
+        if (isPaid) {
+            return { text: 'Đã thanh toán', className: 'text-green-600 font-bold' };
+        } else {
+            return { text: 'Chưa thanh toán', className: 'text-red-500 font-bold' };
+        }
+    };
+    // ---------------------------------------------
+
+
+    // --- 2. XỬ LÝ TRẠNG THÁI ---
+    const statusText = {
         'completed': 'Đã hoàn thành',
         'shipping': 'Đang giao hàng',
         'paid': 'Đã thanh toán',
@@ -85,15 +107,29 @@ const OrderDetailModal = ({ order, onClose }) => {
         'created': 'Đã đặt hàng',
     }[order.status] || 'Không rõ';
 
+    const paymentInfo = getPaymentStatusInfo(order.status, order.payment_method);
+    const isPaymentCompleted = paymentInfo.text === 'Đã thanh toán'; // Sử dụng lại biến logic cho nút PDF
+
+    // --- 3. KẾT HỢP HIỂN THỊ TRẠNG THÁI ---
+    const combinedStatusDisplay = (
+        <span className="flex items-center space-x-4">
+            {/* Trạng thái đơn hàng */}
+            <span className="text-gray-900">{statusText}</span>
+
+            {/* Trạng thái thanh toán */}
+            <span className={`text-xs ${paymentInfo.className}`}>
+                ({paymentInfo.text})
+            </span>
+        </span>
+    );
+    // ------------------------------------------
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-2xl w-full max-w-2xl overflow-hidden relative">
 
-                {/* 🎯 Gán Ref vào phần nội dung cần chụp (bao gồm Header và Body) */}
                 <div ref={contentRef} className="pb-4">
-
-                    {/* Header */}
+                    {/* ... Header giữ nguyên ... */}
                     <div className="flex justify-center items-center p-5 border-b relative">
                         <h2 className="text-xl font-bold text-gray-800">Thông tin đơn hàng</h2>
                         <button onClick={onClose} className="absolute right-5 top-5 text-gray-400 hover:text-gray-600 print:hidden">
@@ -104,18 +140,18 @@ const OrderDetailModal = ({ order, onClose }) => {
                     {/* Body */}
                     <div className="p-0">
                         <div className="bg-white overflow-hidden">
-
+                            
                             {/* THÔNG TIN CHUNG */}
                             <DetailRow label="Tên khách hàng:" value={customerName} />
-
-                            {/* ✅ ĐÃ THÊM: ID ĐƠN HÀNG */}
                             <DetailRow label="ID đơn hàng:" value={order.order_id} />
-
                             <DetailRow
                                 label="Ngày đặt hàng:"
                                 value={new Date(order.order_date).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                             />
-                            <DetailRow label="Trạng thái:" value={statusDisplay} />
+                            
+                            {/* DÒNG TRẠNG THÁI KẾT HỢP */}
+                            <DetailRow label="Trạng thái:" value={combinedStatusDisplay} />
+                            
                             <DetailRow label="Địa chỉ nhận hàng:" value={order.shipping_address} />
                             <DetailRow label="Phương thức thanh toán:" value={order.payment_method} />
 
@@ -129,22 +165,29 @@ const OrderDetailModal = ({ order, onClose }) => {
                     </div>
                 </div>
 
-                {/* Footer (Không bao gồm trong contentRef) */}
+                {/* Footer (Chỉ hiển thị nút PDF nếu thanh toán hoàn tất) */}
                 <div className="p-5 border-t flex justify-center">
-                    <PDFDownloadLink 
-                        document={<InvoiceDocument order={order} />} 
-                        fileName={`HoaDon_${order.order_id.substring(0, 8)}.pdf`}
-                    >
-                        {({ blob, url, loading, error }) => (
-                            <button 
-                                disabled={loading}
-                                className="flex items-center px-6 py-2 text-white font-semibold bg-blue-600 rounded-md hover:bg-blue-700 transition-colors shadow-lg disabled:bg-gray-400"
-                            >
-                                <FileText size={20} className="mr-2" />
-                                {loading ? 'Đang tạo...' : 'Xuất file PDF'}
-                            </button>
-                        )}
-                    </PDFDownloadLink>
+                    
+                    {isPaymentCompleted ? ( // KIỂM TRA ĐIỀU KIỆN
+                        <PDFDownloadLink
+                            document={<InvoiceDocument order={order} />}
+                            fileName={`HoaDon_${order.order_id.substring(0, 8)}.pdf`}
+                        >
+                            {({ loading }) => (
+                                <button
+                                    disabled={loading}
+                                    className="flex items-center px-6 py-2 text-white font-semibold bg-blue-600 rounded-md hover:bg-blue-700 transition-colors shadow-lg disabled:bg-gray-400"
+                                >
+                                    <FileText size={20} className="mr-2" />
+                                    {loading ? 'Đang tạo...' : 'Xuất file PDF'}
+                                </button>
+                            )}
+                        </PDFDownloadLink>
+                    ) : (
+                        <div className="text-sm text-gray-500 p-2 border border-gray-300 rounded-md bg-gray-50">
+                            Chức năng Xuất PDF sẽ hiển thị sau khi đơn hàng được **thanh toán hoàn tất**.
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

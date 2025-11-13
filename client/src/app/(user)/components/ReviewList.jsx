@@ -45,7 +45,7 @@ export default function ReviewList({ productId, prop }) {
             <>
               <div className="flex flex-col gap-6">
                 <div className="border-b pb-4 flex items-center gap-4">
-                  <div className="w-[70px] h-[70px] rounded-full bg-gray-200 flex items-center justify-center text-[20px] font-semibold text-gray-600 flex-shrink-0">
+                  <div className="w-[70px] h-[70px] rounded-full bg-gray-200 flex items-center justify-center text-[20px] font-semibold text-gray-600 shrink-0">
                     {user.name?.charAt(0)?.toUpperCase() || "?"}
                   </div>
 
@@ -91,7 +91,7 @@ export default function ReviewList({ productId, prop }) {
             <>
               <div className="flex flex-col gap-6 mb-6">
                 <div className="border-b pb-4 flex items-center gap-4">
-                  <div className="w-[70px] h-[70px] rounded-full bg-gray-200 flex items-center justify-center text-[20px] font-semibold text-gray-600 flex-shrink-0">
+                  <div className="w-[70px] h-[70px] rounded-full bg-gray-200 flex items-center justify-center text-[20px] font-semibold text-gray-600 shrink-0">
                     {user.name?.charAt(0)?.toUpperCase() || "?"}
                   </div>
 
@@ -131,7 +131,7 @@ export default function ReviewList({ productId, prop }) {
                 className="border-b pb-4 flex items-center gap-4"
               >
                 {/* 🧑 Avatar */}
-                <div className="w-[70px] h-[70px] rounded-full bg-gray-200 flex items-center justify-center text-[20px] font-semibold text-gray-600 flex-shrink-0">
+                <div className="w-[70px] h-[70px] rounded-full bg-gray-200 flex items-center justify-center text-[20px] font-semibold text-gray-600 shrink-0">
                   {item.user_name?.charAt(0)?.toUpperCase() || "?"}
                 </div>
 

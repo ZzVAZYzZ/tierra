@@ -216,14 +216,73 @@ const getOrdersByStatus = asyncHandler(async (req, res) => {
 const getOrdersByUserId = asyncHandler(async (req, res) => {
   const { user_id } = req.params;
 
-  if (!user_id) {
-    res.status(400);
-    throw new Error("User ID is required");
-  }
+    if (!user_id) {
+        res.status(400);
+        throw new new Error("User ID is required");
+    }
 
-  const orders = await Order.find({ user_id });
+    // 1. Tìm tất cả đơn hàng cho User ID
+    const orders = await Order.find({ user_id });
 
-  res.status(200).json(orders);
+    if (orders.length === 0) {
+        return res.status(200).json([]);
+    }
+
+    // --- BỔ SUNG: TRA CỨU THÔNG TIN NGƯỜI DÙNG (Bước 2) ---
+    // Vì tất cả đơn hàng đều có cùng user_id, ta chỉ cần tìm 1 lần
+    const user = await User.findOne({
+        where: { user_id: user_id },
+        attributes: ["name", "email"], // Chỉ lấy các trường cần thiết
+    });
+
+    const userName = user ? user.name : "Người dùng không tồn tại";
+    const userEmail = user ? user.email : null;
+    // -----------------------------------------------------------------
+
+    // 3. Chuẩn bị Map cho tất cả product IDs trong TẤT CẢ đơn hàng
+    const allProductIds = new Set();
+    orders.forEach(order => {
+        // Chuyển Mongoose Document thành Plain JS Object
+        const orderObject = order.toObject(); 
+        orderObject.orderDetails.forEach(detail => {
+            allProductIds.add(detail.product_id);
+        });
+    });
+
+    // 4. Tìm tất cả ảnh chính (is_main: true) cho TẤT CẢ các sản phẩm này
+    const mainImages = await ProductImage.findAll({
+        where: {
+            product_id: Array.from(allProductIds),
+            is_main: true,
+        },
+        attributes: ["product_id", "image_url"],
+    });
+
+    // 5. Tạo Image Map để tra cứu nhanh
+    const imageMap = new Map();
+    mainImages.forEach((img) => {
+        imageMap.set(img.product_id, img.image_url);
+    });
+
+    // 6. Lặp qua từng đơn hàng và bổ sung dữ liệu
+    const ordersWithDetails = orders.map(order => {
+        let orderObject = order.toObject();
+
+        // Gắn thông tin người dùng
+        orderObject.user_name = userName;
+        orderObject.user_email = userEmail;
+
+        // Gắn image_url vào orderDetails
+        orderObject.orderDetails = orderObject.orderDetails.map(detail => ({
+            ...detail,
+            product_image: imageMap.get(detail.product_id) || null,
+        }));
+
+        return orderObject;
+    });
+
+    // 7. Trả về mảng các đơn hàng đã được bổ sung thông tin
+    res.status(200).json(ordersWithDetails);
 });
 
 // @desc Get order by order_id
