@@ -1,26 +1,28 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 
-// --- 1. Đăng ký Font (CẦN THIẾT cho tiếng Việt) ---
-// Bạn có thể cần tải một font hỗ trợ tiếng Việt (ví dụ: Tinos, Roboto, Open Sans).
-// Giả sử bạn có font 'Tinos-Regular.ttf' trong thư mục public/fonts
-// Font.register({
-//     family: 'Tinos', 
-//     src: '/fonts/Tinos-Regular.ttf'
-// });
-// Vì lý do đơn giản, tôi sẽ dùng font mặc định. Nếu tiếng Việt bị lỗi, bạn phải thêm bước này.
+// --- 1. Đăng ký Font tiếng Việt ---
+// Đảm bảo đường dẫn này TRUY CẬP ĐƯỢC TỪ CLIENT-SIDE (tức là từ thư mục public)
+Font.register({ 
+    family: 'Tinos', 
+    fonts: [
+        { src: '/fonts/Tinos-Regular.ttf', fontWeight: 'normal' },
+        { src: '/fonts/Tinos-Bold.ttf', fontWeight: 'bold' },
+    ],
+});
 
-// --- 2. Định nghĩa Styles (Bắt buộc) ---
+// --- 2. Định nghĩa Styles (Sử dụng font 'Tinos') ---
 const styles = StyleSheet.create({
     page: {
         padding: 30,
-        fontFamily: 'Helvetica', // Dùng font mặc định (có thể bị lỗi tiếng Việt)
+        fontFamily: 'Tinos', // SỬ DỤNG FONT ĐÃ ĐĂNG KÝ
     },
     header: {
         fontSize: 10,
         marginBottom: 5,
         textAlign: 'left',
         color: '#000000',
+        fontWeight: 'normal', // Đặt lại trọng lượng font để tránh lỗi
     },
     title: {
         fontSize: 18,
@@ -32,39 +34,39 @@ const styles = StyleSheet.create({
     section: {
         marginBottom: 8,
         padding: 5,
-        border: '1pt solid #000000', // Box chứa thông tin khách hàng
+        border: '1pt solid #000000',
         fontSize: 10,
     },
     text: {
         fontSize: 10,
         marginBottom: 3,
+        fontWeight: 'normal', // Đặt lại trọng lượng font để tránh lỗi
     },
     tableContainer: {
         marginTop: 15,
         marginBottom: 15,
     },
-    // Styles cho Bảng
     tableHeader: {
         flexDirection: 'row',
         backgroundColor: '#F0F0F0',
         borderBottom: '1pt solid #000000',
         padding: 4,
         fontSize: 9,
-        fontWeight: 'bold',
+        fontWeight: 'bold', // Chỉ định FontWeight của font Tinos đã đăng ký
     },
     tableRow: {
         flexDirection: 'row',
         borderBottom: '1pt solid #E0E0E0',
         padding: 4,
         fontSize: 9,
+        fontWeight: 'normal', // Chỉ định FontWeight của font Tinos đã đăng ký
     },
-    colSTT: { width: '8%' },
+    colSTT: { width: '8%', textAlign: 'center' }, // Thêm căn giữa cho STT
     colName: { width: '40%' },
     colSL: { width: '10%', textAlign: 'center' },
     colPrice: { width: '21%', textAlign: 'right' },
-    colTotal: { width: '21%', textAlign: 'right', fontWeight: 'bold' },
+    colTotal: { width: '21%', textAlign: 'right', fontWeight: 'bold' }, // Chỉ định FontWeight
     
-    // Styles cho Footer
     totalContainer: {
         flexDirection: 'row',
         justifyContent: 'flex-end',
@@ -75,7 +77,7 @@ const styles = StyleSheet.create({
     },
     totalText: {
         fontSize: 10,
-        fontWeight: 'bold',
+        fontWeight: 'bold', // Chỉ định FontWeight
     },
     signSection: {
         flexDirection: 'row',
@@ -88,9 +90,10 @@ const styles = StyleSheet.create({
         width: '40%',
     },
     signatureName: {
-        marginTop: 20,
+        marginTop: 100,
         fontSize: 10,
         textAlign: 'center',
+        fontWeight: 'bold', // Tên khách hàng in đậm
     }
 });
 
@@ -105,10 +108,10 @@ const formatCurrencyPDF = (amount) => {
     }).format(safeAmount) + 'đ';
 };
 
-// --- 3. Component Tài liệu chính ---
+// ... (Component InvoiceDocument giữ nguyên logic) ...
 const InvoiceDocument = ({ order }) => {
     const customerName = order.user_name || 'Khách hàng';
-    const statusDisplay = order.status === 'paid' ? 'ĐÃ THANH TOÁN' : 'CHƯA THANH TOÁN';
+    const statusDisplay = order.status === 'paid'||'shipping'||'completed' ? 'ĐÃ THANH TOÁN' : 'CHƯA THANH TOÁN';
     
     // Tạo data cho bảng
     const tableData = order.orderDetails.map((detail) => {
@@ -127,8 +130,8 @@ const InvoiceDocument = ({ order }) => {
                 
                 {/* 1. Header Công ty */}
                 <View>
-                    <Text style={{ ...styles.header, fontWeight: 'bold' }}>Công ty TNHH Đá quý SSS</Text>
-                    <Text style={styles.header}>Địa chỉ: 3 Quang trung, phường An Hội Tây, Tp Hcm</Text>
+                    <Text style={{ ...styles.header, fontWeight: 'bold' }}>Công ty TNHH Đá quý Tieera, Đồ án chuyên ngành A</Text>
+                    <Text style={styles.header}>Địa chỉ: Cơ sở Quang Trung trường đại học Hoa Sen, quận Gò Vấp TP.HCM</Text>
                 </View>
 
                 {/* 2. Tiêu đề Hóa đơn */}
