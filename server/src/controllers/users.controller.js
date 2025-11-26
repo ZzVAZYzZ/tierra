@@ -4,6 +4,8 @@ const User = require('../models/users');
 const jwt = require("jsonwebtoken");
 const Refresh = require('../models/refresh');
 const { nowVN } = require("../utils/time");
+const cloudinary = require("../databases/cloudinary/cloudinaryConnect");
+const fs = require("fs");
 
 //@desc Register User
 //@route POST /api/users/register
@@ -151,6 +153,76 @@ const current = (req, res) => {
   }
   res.status(200).json({user:info});
 };
+
+const updateProfile = asyncHandler(async (req, res) => {
+  const userId = req.user?.user_id;
+  const { name, email, phone, address } = req.body;
+
+  const user = await User.findByPk(userId);
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  if (email && email !== user.email) {
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser && existingUser.user_id !== userId) {
+      res.status(400);
+      throw new Error("Email is already registered.");
+    }
+    user.email = email;
+  }
+
+  if (name !== undefined) user.name = name;
+  if (phone !== undefined) user.phone = phone;
+  if (address !== undefined) user.address = address;
+
+  await user.save();
+
+  const { password: _, ...userData } = user.get({ plain: true });
+
+  res.status(200).json({
+    message: "Profile updated successfully.",
+    user: userData,
+  });
+});
+
+const uploadAvatar = asyncHandler(async (req, res) => {
+  const userId = req.user?.user_id;
+  const file = req.file;
+
+  if (!file) {
+    res.status(400);
+    throw new Error("Avatar file is required.");
+  }
+
+  const user = await User.findByPk(userId);
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  const uploadResult = await cloudinary.uploader.upload(file.path, {
+    folder: "tierra/avatars",
+    transformation: [{ width: 600, height: 600, crop: "limit" }],
+  });
+
+  user.avatar = uploadResult.secure_url;
+  await user.save();
+
+  try {
+    await fs.promises.unlink(file.path);
+  } catch (err) {
+    console.warn("Failed to remove temp file:", err.message);
+  }
+
+  const { password: _, ...userData } = user.get({ plain: true });
+
+  res.status(200).json({
+    message: "Avatar updated successfully.",
+    user: userData,
+  });
+});
 
 //@desc Logout User
 //@route POST /api/users/logout
@@ -311,4 +383,4 @@ const updatePassword = asyncHandler(async (req, res) => {
 });
 
 
-module.exports = { register, login, current, logout, refresh, googleAuthCallback, updatePassword }
+module.exports = { register, login, current, logout, refresh, googleAuthCallback, updatePassword, updateProfile, uploadAvatar }

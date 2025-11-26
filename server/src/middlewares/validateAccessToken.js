@@ -20,9 +20,12 @@ const validateAccessToken = asyncHandler(async (req, res, next) => {
     }
     
     const decoded = await verifyJwt(token, process.env.JWT_SECRET_KEY);
+    const userId = decoded.user.id;
     const email = decoded.user.email;
 
-    const user = await User.findOne({ where: { email } });
+    const user =
+      (await User.findByPk(userId)) ||
+      (email ? await User.findOne({ where: { email } }) : null);
 
     if (!user) {
       res.status(404);

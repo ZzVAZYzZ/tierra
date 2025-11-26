@@ -6,40 +6,44 @@ import Link from "next/link";
 import UserIcon from "../../../assets/icons/user_icon";
 import { useDispatch, useSelector } from "react-redux";
 import PenIcon from "../../../assets/icons/pen_icon";
-import { updateUser } from "../../../redux/features/userSlice";
+import { updateProfile, uploadAvatar } from "../../../redux/features/userSlice";
+import { useAuth } from "../../../hook/useAuth";
 
 export default function Page() {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.user.user);
+  const { user, updateProfileStatus, uploadAvatarStatus } = useSelector(
+    (state) => state.user
+  );
+
+  useAuth();
 
   const [isEditing, setIsEditing] = React.useState(false);
   const [isEditingName, setIsEditingName] = React.useState(false);
-
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [phone, setPhone] = React.useState("");
   const [address, setAddress] = React.useState("");
   const [avatarPreview, setAvatarPreview] = React.useState(null);
+  const [notice, setNotice] = React.useState({ message: "", type: "success" });
 
   const fileInputRef = React.useRef(null);
   const nameInputRef = React.useRef(null);
 
   React.useEffect(() => {
-    if (user && !isEditing) {
+    if (user) {
       setName(user.name || "");
       setEmail(user.email || "");
       setPhone(user.phone || "");
       setAddress(user.address || "");
       setAvatarPreview(user.avatar || null);
     }
-  }, [user, isEditing]);
+  }, [user]);
 
-  // ✅ Khi click "Chỉnh sửa"
   const clickEdit = () => {
     setIsEditing(true);
+    setNotice({ message: "", type: "success" });
   };
 
-  // ✅ Khi click "Sửa tên"
   const handleEditName = () => {
     setIsEditingName(true);
     setTimeout(() => {
@@ -47,48 +51,61 @@ export default function Page() {
     }, 100);
   };
 
-  // ✅ Khi blur (click ra ngoài input tên)
   const handleBlurName = () => {
     setIsEditingName(false);
-    dispatch(updateUser({ name }));
   };
 
-  // ✅ Khi bấm “Cập nhật ảnh đại diện” → mở File Picker
   const handleAvatarClick = () => {
-    fileInputRef.current.click();
+    fileInputRef.current?.click();
   };
 
-  // ✅ Khi chọn ảnh mới
-  const handleAvatarChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const imageURL = URL.createObjectURL(file);
-      setAvatarPreview(imageURL);
-      dispatch(updateUser({ avatar: imageURL }));
-      // Nếu có API upload ảnh, bạn có thể thêm tại đây
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setAvatarPreview(URL.createObjectURL(file));
+    setNotice({ message: "", type: "success" });
+
+    try {
+      await dispatch(uploadAvatar(file)).unwrap();
+      setNotice({ message: "Cập nhật ảnh đại diện thành công.", type: "success" });
+    } catch (err) {
+      setNotice({
+        message:
+          typeof err === "string" ? err : "Cập nhật ảnh đại diện thất bại.",
+        type: "error",
+      });
+      setAvatarPreview(user?.avatar || null);
     }
   };
 
-  // ✅ Khi bấm “Lưu thông tin”
-  const handleSave = () => {
-    dispatch(updateUser({ email, phone, address }));
-    setIsEditing(false);
+  const handleSave = async () => {
+    setNotice({ message: "", type: "success" });
+
+    try {
+      await dispatch(updateProfile({ name, email, phone, address })).unwrap();
+      setIsEditing(false);
+      setIsEditingName(false);
+      setNotice({ message: "Đã lưu thông tin.", type: "success" });
+    } catch (err) {
+      setNotice({
+        message: typeof err === "string" ? err : "Lưu thông tin thất bại.",
+        type: "error",
+      });
+    }
   };
+
+  const isSaving = updateProfileStatus === "loading";
+  const isUploading = uploadAvatarStatus === "loading";
 
   return (
     <div className="bg-[#E4E4E4] flex justify-center items-center min-h-screen">
       <div className="w-[1100px] min-h-[800px] bg-white mt-[67px] mb-[67px] flex relative flex-col items-center py-[50px] rounded-lg shadow-md">
-        {/* Nút quay lại */}
-        <Link
-          href="/"
-          className="absolute top-[37px] left-9 cursor-pointer"
-        >
+        <Link href="/" className="absolute top-[37px] left-9 cursor-pointer">
           <Image priority src={backIcon} width={25} height={25} alt="back icon" />
         </Link>
 
-        {/* Nội dung chính */}
         <div className="w-[500px] flex flex-col items-center">
-          {/* Ảnh đại diện */}
           <div className="border rounded-full w-[150px] h-[150px] overflow-hidden flex items-center justify-center">
             {avatarPreview ? (
               <Image
@@ -103,7 +120,6 @@ export default function Page() {
             )}
           </div>
 
-          {/* Input file ẩn */}
           <input
             ref={fileInputRef}
             type="file"
@@ -112,7 +128,6 @@ export default function Page() {
             className="hidden"
           />
 
-          {/* Tên người dùng */}
           <div className="text-[32px] mt-2.5">
             {isEditingName ? (
               <input
@@ -127,7 +142,6 @@ export default function Page() {
             )}
           </div>
 
-          {/* Các nút chỉnh sửa */}
           <div className="flex flex-col items-center mt-5">
             {isEditing ? (
               <>
@@ -139,9 +153,12 @@ export default function Page() {
                 </button>
                 <button
                   onClick={handleAvatarClick}
-                  className="flex items-center justify-center w-[230px] h-[35px] bg-[#D9D9D9] text-[15px] cursor-pointer rounded-sm mb-5"
+                  disabled={isUploading}
+                  className={`flex items-center justify-center w-[230px] h-[35px] bg-[#D9D9D9] text-[15px] cursor-pointer rounded-sm mb-5 ${
+                    isUploading ? "opacity-60 cursor-wait" : ""
+                  }`}
                 >
-                  Cập nhật ảnh đại diện
+                  {isUploading ? "Đang tải ảnh..." : "Cập nhật ảnh đại diện"}
                 </button>
               </>
             ) : (
@@ -154,9 +171,7 @@ export default function Page() {
             )}
           </div>
 
-          {/* Thông tin chi tiết */}
           <div className="flex flex-col gap-[25px] w-full">
-            {/* Email */}
             <div className="w-full">
               <span className="text-[24px]">Email</span>
               {isEditing ? (
@@ -179,7 +194,6 @@ export default function Page() {
               )}
             </div>
 
-            {/* Phone */}
             <div className="w-full">
               <span className="text-[24px]">Số điện thoại</span>
               {isEditing ? (
@@ -202,7 +216,6 @@ export default function Page() {
               )}
             </div>
 
-            {/* Address */}
             <div className="w-full">
               <span className="text-[24px]">Địa chỉ</span>
               {isEditing ? (
@@ -226,13 +239,23 @@ export default function Page() {
             </div>
           </div>
 
-          {/* Nút Lưu */}
+          {notice.message && (
+            <p
+              className={`text-sm mt-4 ${
+                notice.type === "error" ? "text-red-600" : "text-green-700"
+              }`}
+            >
+              {notice.message}
+            </p>
+          )}
+
           {isEditing && (
             <button
               onClick={handleSave}
-              className="flex items-center justify-center w-[180px] h-[45px] bg-[#9B8D6F] text-white mt-[50px] rounded-md cursor-pointer hover:bg-[#8A7E63] transition-all"
+              disabled={isSaving}
+              className="flex items-center justify-center w-[180px] h-[45px] bg-[#9B8D6F] text-white mt-[50px] rounded-md cursor-pointer hover:bg-[#8A7E63] transition-all disabled:opacity-60 disabled:cursor-wait"
             >
-              LƯU THÔNG TIN
+              {isSaving ? "Đang lưu..." : "LƯU THÔNG TIN"}
             </button>
           )}
         </div>

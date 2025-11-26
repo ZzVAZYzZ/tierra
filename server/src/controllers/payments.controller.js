@@ -1,11 +1,11 @@
 require("dotenv").config();
 const Stripe = require("stripe");
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-const Payment = require('../models/payment');
-const Order = require('../models/orders');
-const asyncHandler = require('express-async-handler');
-const { sendPaymentSuccessEmail } = require('../utils/sendMail');
-const User = require('../models/users')
+const Payment = require("../models/payment");
+const Order = require("../models/orders");
+const asyncHandler = require("express-async-handler");
+const { sendPaymentSuccessEmail } = require("../utils/sendMail");
+const User = require("../models/users");
 
 const createPaymentIntent = asyncHandler(async (req, res) => {
   try {
@@ -13,7 +13,12 @@ const createPaymentIntent = asyncHandler(async (req, res) => {
     const { amount, name, email, addressLine1, city, order_id } = req.body;
 
     if (!amount || !name || !email || !addressLine1 || !city || !order_id) {
-      return res.status(400).json({ message: "Missing required customer details (amount, name, email, address, or city)" });
+      return res
+        .status(400)
+        .json({
+          message:
+            "Missing required customer details (amount, name, email, address, or city)",
+        });
     }
 
     // Tạo Payment Intent
@@ -41,7 +46,7 @@ const createPaymentIntent = asyncHandler(async (req, res) => {
     console.error("Lỗi tạo PaymentIntent:", error.message);
     res.status(500).json({ message: error.message });
   }
-})
+});
 
 // Hàm này không cần thay đổi logic, nhưng chúng ta có thể in ra metadata
 const paymentResult = asyncHandler(async (req, res) => {
@@ -66,7 +71,7 @@ const paymentResult = asyncHandler(async (req, res) => {
     console.log("   Trạng thái:", fullPaymentIntent.status);
 
     // KIỂM TRA ĐẢM BẢO THANH TOÁN THÀNH CÔNG TRƯỚC KHI XỬ LÝ
-    if (fullPaymentIntent.status === 'succeeded') {
+    if (fullPaymentIntent.status === "succeeded") {
       const newPayment = new Payment({
         payment_id: fullPaymentIntent.id,
         order_id: customerInfo.order_id,
@@ -83,18 +88,21 @@ const paymentResult = asyncHandler(async (req, res) => {
 
       await newPayment.save();
 
-
-
       console.log("✅ Payment saved successfully to MongoDB");
 
       const updatedOrder = await Order.findOneAndUpdate(
         { order_id: customerInfo.order_id },
-        { status: "paid" },
-        { new: true } // trả về document sau khi update
+        {
+          status: "paid",
+          isPaid: true,
+        },
+        { new: true }
       );
 
       if (updatedOrder) {
-        console.log(`✅ Order ${updatedOrder.order_id} updated to status: ${updatedOrder.status}`);
+        console.log(
+          `✅ Order ${updatedOrder.order_id} updated to status: ${updatedOrder.status}`
+        );
 
         // ✅ Gửi email xác nhận thanh toán
         try {
@@ -104,29 +112,27 @@ const paymentResult = asyncHandler(async (req, res) => {
             fullPaymentIntent.amount,
             fullPaymentIntent.currency
           );
-          console.log(`📧 Email xác nhận đã gửi tới ${customerInfo.customer_email}`);
+          console.log(
+            `📧 Email xác nhận đã gửi tới ${customerInfo.customer_email}`
+          );
         } catch (mailError) {
           console.error("⚠️ Lỗi khi gửi email:", mailError.message);
         }
       }
-
     } else {
       console.log("⚠️ Thanh toán chưa thành công:", fullPaymentIntent.status);
     }
-
-
 
     res.send({
       message: "Server successfully processed payment result",
       status: fullPaymentIntent.status,
       paymentId: fullPaymentIntent.id,
     });
-
   } catch (error) {
     console.error("❌ Lỗi khi lưu Payment:", error.message);
     res.status(500).json({ message: "Failed to process payment result." });
   }
-})
+});
 
 const QRScan = asyncHandler(async (req, res) => {
   try {
@@ -135,7 +141,10 @@ const QRScan = asyncHandler(async (req, res) => {
 
     // Validate dữ liệu
     if (!orderData || !orderData.order_id) {
-      io.emit("paymentStatus", { success: false, error: "Thiếu order_id trong dữ liệu QR" });
+      io.emit("paymentStatus", {
+        success: false,
+        error: "Thiếu order_id trong dữ liệu QR",
+      });
       return res.status(400).render("missingOrderId");
     }
 
@@ -143,7 +152,7 @@ const QRScan = asyncHandler(async (req, res) => {
     console.log("📲 User confirmed for:", orderData.user_id);
     // Truy vấn order từ DB
     const user = await User.findOne({
-      where: { user_id: orderData.user_id }
+      where: { user_id: orderData.user_id },
     });
     const userEmail = user?.email || "N/A";
     console.log(userEmail);
@@ -174,17 +183,23 @@ const QRScan = asyncHandler(async (req, res) => {
         orderId: orderData.order_id,
         error: "Payment lưu thất bại",
       });
-      return res.status(500).render("failed", { error: "Payment lưu thất bại" });
+      return res
+        .status(500)
+        .render("failed", { error: "Payment lưu thất bại" });
     }
 
     // Chỉ khi save Payment thành công mới update Order
     const updatedOrder = await Order.findOneAndUpdate(
       { order_id: orderData.order_id },
-      { status: "paid" },
+      {
+        status: "paid",
+        isPaid: true,
+      },
       { new: true }
     );
 
-    if (updatedOrder) console.log(`✅ Order ${updatedOrder.order_id} updated to "paid"`);
+    if (updatedOrder)
+      console.log(`✅ Order ${updatedOrder.order_id} updated to "paid"`);
 
     // Chỉ khi có userEmail mới gửi mail
     if (userEmail !== "N/A") {
@@ -206,14 +221,19 @@ const QRScan = asyncHandler(async (req, res) => {
       orderId: orderData.order_id,
     });
     res.status(200).render("success", { orderId: orderData.order_id });
-
   } catch (err) {
     console.error("❌ Error during QR scan:", err.message);
     const io = req.app.get("io");
     let orderData = null;
-    try { orderData = req.query.data ? JSON.parse(req.query.data) : null } catch { }
+    try {
+      orderData = req.query.data ? JSON.parse(req.query.data) : null;
+    } catch {}
     if (orderData?.order_id) {
-      io.to(orderData.order_id).emit("paymentStatus", { success: false, orderId: orderData.order_id, error: err.message });
+      io.to(orderData.order_id).emit("paymentStatus", {
+        success: false,
+        orderId: orderData.order_id,
+        error: err.message,
+      });
     } else {
       io.emit("paymentStatus", { success: false, error: err.message });
     }
@@ -221,6 +241,4 @@ const QRScan = asyncHandler(async (req, res) => {
   }
 });
 
-
-
-module.exports = { createPaymentIntent, paymentResult, QRScan }
+module.exports = { createPaymentIntent, paymentResult, QRScan };

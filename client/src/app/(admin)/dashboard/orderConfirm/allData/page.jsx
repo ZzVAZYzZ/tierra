@@ -119,18 +119,13 @@ export default function Page() {
                     {/* Trạng thái thanh toán */}
                     <p
                       className={`px-3 py-1 rounded w-fit ${
-                        order.status === "cancelled" ||
-                        (order.payment_method === "COD" &&
-                          order.status !== "completed") ||
-                        order.status === "created"
+                        !order.isPaid
                           ? "bg-yellow-400 text-[#4b3e1e]"
                           : "bg-green-500 text-white"
                       }`}
                     >
-                      {order.status === "cancelled" ||
-                      (order.payment_method === "COD" &&
-                        order.status !== "completed") ||
-                      order.status === "created"
+                      {
+                      !order.isPaid
                         ? "Chưa thanh toán"
                         : "Đã thanh toán"}
                     </p>

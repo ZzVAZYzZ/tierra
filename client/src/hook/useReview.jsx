@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 /**
  * Hook custom xử lý API đánh giá sản phẩm:
@@ -13,14 +13,15 @@ export function useReview() {
   const [error, setError] = useState(null);
 
   // ✅ Hàm lấy token từ localStorage
-  const getToken = () =>
-    typeof window !== "undefined"
+  const getToken = useCallback(() => {
+    return typeof window !== "undefined"
       ? localStorage.getItem("access_token") ||
-        localStorage.getItem("accessToken")
+          localStorage.getItem("accessToken")
       : null;
+  }, []);
 
   // ✅ Kiểm tra quyền viết đánh giá
-  const checkCanReview = async (productId) => {
+  const checkCanReview = useCallback(async (productId) => {
     if (!productId)
       throw new Error("Thiếu productId khi kiểm tra quyền đánh giá.");
 
@@ -35,8 +36,9 @@ export function useReview() {
       });
 
       const data = await res.json();
-      if (!res.ok)
-        throw new Error(data.message || "Không thể kiểm tra quyền đánh giá.");
+      if (!res.ok){
+        throw new Error(data.message || "Không thể kiểm tra quyền đánh giá.")
+      };
       return data;
     } catch (err) {
       setError(err.message);
@@ -49,10 +51,10 @@ export function useReview() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_URL, getToken]);
 
   // ✅ Gửi đánh giá
-  const postReview = async ({ product_id, rating, comment, user_name }) => {
+  const postReview = useCallback(async ({ product_id, rating, comment, user_name }) => {
     if (!product_id || !rating)
       throw new Error("Thiếu dữ liệu để gửi đánh giá.");
 
@@ -81,9 +83,9 @@ export function useReview() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_URL, getToken]);
 
-  const getReviewsByProduct = async (productId) => {
+  const getReviewsByProduct = useCallback(async (productId) => {
     try {
       setLoading(true);
       setError(null);
@@ -101,7 +103,7 @@ export function useReview() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_URL, getToken]);
 
   return {
     checkCanReview,

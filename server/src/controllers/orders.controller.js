@@ -360,7 +360,6 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
   const { order_id } = req.params;
 
   // 2. Lấy trạng thái mới từ request BODY
-  // Tên trường nên rõ ràng, ví dụ: 'status' hoặc 'newStatus'
   const { newStatus } = req.body;
 
   // Kiểm tra dữ liệu đầu vào
@@ -379,6 +378,7 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
   ];
   const statusToUpdate = newStatus.toLowerCase();
 
+  // ❌ Ở đây bạn đang để trống tham số trong includes
   if (!validStatuses.includes(statusToUpdate)) {
     res.status(400);
     throw new Error(
@@ -388,11 +388,21 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
     );
   }
 
+  // 3.1. Build data để update
+  const updateData = {
+    status: statusToUpdate,
+  };
+
+  // ✅ Nếu status là "completed" thì auto set isPaid = true
+  if (statusToUpdate === "completed") {
+    updateData.isPaid = true;
+  }
+
   // 4. Tìm và Cập nhật đơn hàng trong Mongoose
   const updatedOrder = await Order.findOneAndUpdate(
-    { order_id: order_id }, // Điều kiện tìm kiếm (UUID)
-    { status: statusToUpdate }, // Dữ liệu cần cập nhật
-    { new: true, runValidators: true } // {new: true} trả về tài liệu sau khi cập nhật; {runValidators: true} đảm bảo kiểm tra enum
+    { order_id: order_id },           // Điều kiện tìm kiếm
+    { $set: updateData },             // Dữ liệu cần cập nhật
+    { new: true, runValidators: true } // Options
   );
 
   // 5. Kiểm tra kết quả

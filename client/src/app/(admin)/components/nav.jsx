@@ -61,10 +61,12 @@ const Nav = () => {
             <p>Quản lý sản phẩm</p>
           </div>
         </Link>
-        <div className=" flex flex-row gap-3.5 cursor-pointer  justify-center items-center">
-          <DoanthuIcon />
-          <p>Doanh thu</p>
-        </div>
+        <Link href={"/dashboard/revenue"}>
+          <div className=" flex flex-row gap-3.5 cursor-pointer  justify-center items-center">
+            <DoanthuIcon />
+            <p>Doanh thu</p>
+          </div>
+        </Link>
         <div
           onClick={() => setIsShow(!isShow)}
           className=" flex flex-row gap-5 cursor-pointer  justify-center items-center"

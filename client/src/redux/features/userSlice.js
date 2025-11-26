@@ -1,19 +1,23 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
 const initialState = {
   user: null,
   status: "idle",
   error: "",
   message: "",
   authError: "",
+  updateProfileStatus: "idle",
+  uploadAvatarStatus: "idle",
 }
 
 export const login = createAsyncThunk(
   'user/login',
   async ({ email, password }, { rejectWithValue }) => {
     try {
-      const response = await axios.post('http://localhost:8000/api/users/login', {
+      const response = await axios.post(`${API_URL}/api/users/login`, {
         email,
         password,
       },{
@@ -58,7 +62,7 @@ export const register = createAsyncThunk(
   'user/register',
   async ({ email, password }, { rejectWithValue }) => {
     try {
-      const response = await axios.post('http://localhost:8000/api/users/register', {
+      const response = await axios.post(`${API_URL}/api/users/register`, {
         email,
         password,
       })
@@ -76,7 +80,7 @@ export const refresh = createAsyncThunk(
   'user/refresh',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get('http://localhost:8000/api/users/refresh', {
+      const response = await axios.get(`${API_URL}/api/users/refresh`, {
         withCredentials: true,
       })
       localStorage.setItem('access_token', response.data.accessToken)
@@ -93,7 +97,7 @@ export const current = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('access_token')
-      const response = await axios.get('http://localhost:8000/api/users/current', {
+      const response = await axios.get(`${API_URL}/api/users/current`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       
@@ -105,6 +109,52 @@ export const current = createAsyncThunk(
   }
 )
 
+export const updateProfile = createAsyncThunk(
+  'user/updateProfile',
+  async ({ name, email, phone, address }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await axios.put(
+        `${API_URL}/api/users/profile`,
+        { name, email, phone, address },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      return response.data.user;
+    } catch (error) {
+      const message =
+        error.response?.data?.message || error.message || 'Update profile failed';
+      return rejectWithValue(message);
+    }
+  }
+);
+
+export const uploadAvatar = createAsyncThunk(
+  'user/uploadAvatar',
+  async (file, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const response = await axios.post(`${API_URL}/api/users/avatar`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      return response.data.user;
+    } catch (error) {
+      const message =
+        error.response?.data?.message || error.message || 'Upload avatar failed';
+      return rejectWithValue(message);
+    }
+  }
+);
+
 export const userSlice = createSlice({
   name: 'products',
   initialState,
@@ -114,6 +164,8 @@ export const userSlice = createSlice({
       state.status = "idle"
       state.error = ""
       state.message = ""
+      state.updateProfileStatus = "idle"
+      state.uploadAvatarStatus = "idle"
     },
     updateUser: (state, action) => {
       if (state.user) {
@@ -178,6 +230,28 @@ export const userSlice = createSlice({
       .addCase(current.rejected, (state, action) => {
         state.status = 'failed'
         state.authError = action.payload || action.error.message;
+      })
+      .addCase(updateProfile.pending, (state) => {
+        state.updateProfileStatus = "loading";
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.updateProfileStatus = "succeeded";
+        state.user = action.payload;
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
+        state.updateProfileStatus = "failed";
+        state.error = action.payload || action.error.message;
+      })
+      .addCase(uploadAvatar.pending, (state) => {
+        state.uploadAvatarStatus = "loading";
+      })
+      .addCase(uploadAvatar.fulfilled, (state, action) => {
+        state.uploadAvatarStatus = "succeeded";
+        state.user = action.payload;
+      })
+      .addCase(uploadAvatar.rejected, (state, action) => {
+        state.uploadAvatarStatus = "failed";
+        state.error = action.payload || action.error.message;
       })
   },
 

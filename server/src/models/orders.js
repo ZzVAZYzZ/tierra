@@ -70,6 +70,10 @@ const orderSchema = new mongoose.Schema(
       required: true,
       validate: (v) => Array.isArray(v) && v.length > 0,
     },
+    isPaid: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     // _id: false,
