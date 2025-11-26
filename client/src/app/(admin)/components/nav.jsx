@@ -20,6 +20,7 @@ const Nav = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const [isShow, setIsShow] = React.useState(false);
+  const [isShowRevenue, setIsShowRevenue] = React.useState(false);
   useAuth();
   useRedirect();
 
@@ -61,12 +62,28 @@ const Nav = () => {
             <p>Quản lý sản phẩm</p>
           </div>
         </Link>
-        <Link href={"/dashboard/revenue"}>
-          <div className=" flex flex-row gap-3.5 cursor-pointer  justify-center items-center">
-            <DoanthuIcon />
-            <p>Doanh thu</p>
+        <div
+          onClick={() => setIsShowRevenue(!isShowRevenue)}
+          className=" flex flex-row gap-3.5 cursor-pointer  justify-center items-center"
+        >
+          <DoanthuIcon />
+          <p>Thống kê</p>
+        </div>
+        {/* Menu con (dropdown) */}
+        {isShowRevenue && (
+          <div className="ml-8 mt-2 flex flex-col gap-2 text-sm text-gray-700">
+            <Link href="/dashboard/statistics/revenue">
+              <p className="cursor-pointer hover:text-blue-500">
+                Doanh thu
+              </p>
+            </Link>
+            <Link href="/dashboard/statistics/unitSold">
+              <p className="cursor-pointer hover:text-blue-500">
+                Số lượng sản phẩm
+              </p>
+            </Link>
           </div>
-        </Link>
+        )}
         <div
           onClick={() => setIsShow(!isShow)}
           className=" flex flex-row gap-5 cursor-pointer  justify-center items-center"

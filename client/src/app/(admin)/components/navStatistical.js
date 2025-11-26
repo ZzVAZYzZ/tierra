@@ -1,7 +1,7 @@
 import LichIcon from "../../../assets/icons/admin/lich_icon";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-const NavRevenue = ({
+const NavStatistical = ({
   mode,
   onChangeMode,
   selectedDate,      // { day, month, year } | null
@@ -36,6 +36,7 @@ const NavRevenue = ({
         year: today.getFullYear(),
       };
 
+  useEffect(()=>{console.log(dateToShow);},[dateToShow])
   const [openCalendar, setOpenCalendar] = useState(false);
 
   const baseBtn =
@@ -138,6 +139,9 @@ const NavRevenue = ({
 
       {/* Nút theo tháng / theo năm */}
       <div className="flex flex-row gap-[25px] items-center">
+        <button className={`${baseBtn} bg-amber-700 text-white`}>
+          Xuất file PDF
+        </button>
         <button
           type="button"
           className={`${baseBtn} ${
@@ -160,4 +164,4 @@ const NavRevenue = ({
   );
 };
 
-export default NavRevenue;
+export default NavStatistical;
