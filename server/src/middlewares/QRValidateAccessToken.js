@@ -7,8 +7,11 @@ const User = require("../models/users"); // Sequelize model
 const verifyJwt = util.promisify(jwt.verify);
 
 // ⏱️ Giới hạn thời gian hiệu lực QR (15 phút)
+
 const QR_VALID_DURATION_MS = 15 * 60 * 1000; // 15 phút = 900,000 ms
 
+//@param (req, res, next)
+//@result next()
 const QRValidateAccessToken = asyncHandler(async (req, res, next) => {
   try {
     const { token } = req.query;

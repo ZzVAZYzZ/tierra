@@ -2,6 +2,8 @@ const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const User = require("../models/users");
 
+//@param (accessToken, refreshToken, profile, done)
+//@result (user)
 passport.use(
   new GoogleStrategy(
     {
@@ -38,11 +40,15 @@ passport.use(
 );
 
 // Serialize user (chuyển user thành id lưu trong session)
+//@param (user, done)
+//@result user.user_id
 passport.serializeUser((user, done) => {
   done(null, user.user_id);
 });
 
 // Deserialize user (lấy user từ id lưu trong session)
+//@param (id, done)
+//@result user, error
 passport.deserializeUser(async (id, done) => {
   try {
     const user = await User.findByPk(id);

@@ -4,7 +4,8 @@ const moment = require("moment");
 
 const TZ = "Asia/Ho_Chi_Minh";
 
-
+//@param { mode, dateString }
+//@result { message, data }
 const getRevenueStatistics = async (req, res) => {
   const { mode, dateString } = req.query;
 
@@ -181,6 +182,8 @@ const getRevenueStatistics = async (req, res) => {
 //   - daily:   "YYYY-MM-DD" (vd: "2025-11-27")
 //   - monthly: "YYYY-MM"    (vd: "2025-11")
 //   - yearly:  "YYYY"       (vd: "2025")
+//@param { mode, dateString }
+//@result { message, data }
 const getUnitSoldStatistics = async (req, res) => {
   const { mode, dateString } = req.query;
 

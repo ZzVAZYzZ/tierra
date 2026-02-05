@@ -7,6 +7,8 @@ const User = require("../models/users");
 // @desc Create a new order
 // @route POST /api/orders/create
 // @access Private
+//@param { shipping_address, orderDetails, payment_method }
+//@result { message, order, order_id }
 const createOrder = asyncHandler(async (req, res) => {
   const { shipping_address, orderDetails, payment_method } = req.body;
   const user = req.user;
@@ -116,6 +118,8 @@ const createOrder = asyncHandler(async (req, res) => {
   }
 });
 
+//@param { status }
+//@result { ordersWithDetails }
 const getOrdersByStatus = asyncHandler(async (req, res) => {
   const { status } = req.params;
   let orders;
@@ -213,6 +217,8 @@ const getOrdersByStatus = asyncHandler(async (req, res) => {
 // @desc Get orders by user_id
 // @route GET /api/orders/user/:user_id
 // @access Public
+//@param { user_id }
+//@result { ordersWithDetails }
 const getOrdersByUserId = asyncHandler(async (req, res) => {
   const { user_id } = req.params;
 
@@ -288,6 +294,8 @@ const getOrdersByUserId = asyncHandler(async (req, res) => {
 // @desc Get order by order_id
 // @route GET /api/orders/:order_id
 // @access Public
+//@param { order_id }
+//@result { orderObject }
 const getOrderById = asyncHandler(async (req, res) => {
   const { order_id } = req.params;
 
@@ -355,6 +363,8 @@ const getOrderById = asyncHandler(async (req, res) => {
 // @desc update order by order_id and status
 // @route PATCH /api/orders/:order_id
 // @access Private
+//@param { order_id }
+//@result { message, order }
 const updateOrderStatus = asyncHandler(async (req, res) => {
   // 1. Lấy order_id từ URL parameters
   const { order_id } = req.params;

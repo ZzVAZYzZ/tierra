@@ -3,6 +3,8 @@ const Review = require("../models/review");
 const asyncHandler = require('express-async-handler');
 
 // ✅ Check if user can review
+//@param { productId }
+//@result { success, message }
 const checkCanReview = asyncHandler(async (req, res) => {
   try {
     const userId = req.user.user_id;
@@ -31,13 +33,15 @@ const checkCanReview = asyncHandler(async (req, res) => {
       });
     }
 
-    return res.json({ success: true, message: "You can review this product." });
+    return res.status(200).json({ success: true, message: "You can review this product." });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
 // ✅ Create a new review
+//@param { product_id, rating, comment }
+//@result { success, review }
 const createReview = asyncHandler(async (req, res) => {
   try {
     const userId = req.user.user_id;
@@ -82,6 +86,8 @@ const createReview = asyncHandler(async (req, res) => {
 });
 
 // ✅ Get all reviews for a product
+//@param { productId }
+//@result { success, total, reviews }
 const getReviewsByProduct = asyncHandler(async (req, res) => {
   try {
     const { productId } = req.params;

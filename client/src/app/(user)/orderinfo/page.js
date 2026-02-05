@@ -40,39 +40,6 @@ export default function Page() {
   React.useEffect(() => {
     dispatch(initFromLocal());
   }, [dispatch]);
-  const formatVND = (n) =>
-    new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(Math.max(0, Number(n || 0)));
-
-  // Prefill form từ thông tin user nếu có
-  React.useEffect(() => {
-    if (!user) return;
-    const updates = {};
-    if (user.name && !form.fullName) updates.fullName = user.name;
-    if (user.email && !form.email) updates.email = user.email;
-    if (user.phone && !form.phone) updates.phone = user.phone;
-    if (user.address && !form.address) updates.address = user.address;
-    if (Object.keys(updates).length) {
-      dispatch(setAll({ ...form, ...updates }));
-    }
-  }, [user, form.fullName, form.email, form.phone, form.address, dispatch]);
-
-  React.useEffect(() => {
-    try {
-      const raw = localStorage.getItem("cart_total");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (!isNaN(parsed)) {
-          // setLocalTotal(parsed);
-          dispatch(setField({ key: "cartTotal", value: parsed })); // lưu luôn vào redux
-        }
-      }
-    } catch (e) {
-      console.error("Không thể đọc tổng tiền:", e);
-    }
-  }, [dispatch]);
 
   // Prefill form từ thông tin user nếu có
   React.useEffect(() => {
@@ -341,9 +308,7 @@ export default function Page() {
                     />
                     Thanh toán thẻ
                   </label>
-                  <label
-                    className="flex items-center gap-3"
-                  >
+                  <label className="flex items-center gap-3">
                     <input
                       type="radio"
                       name="payment"

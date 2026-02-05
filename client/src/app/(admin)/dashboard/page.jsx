@@ -24,6 +24,7 @@ export default function Page() {
   const [reviewList, setReviewList] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [reviewsError, setReviewsError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Format date
   function formatDateVN(dateString) {
@@ -34,11 +35,47 @@ export default function Page() {
     ).padStart(2, "0")}/${date.getFullYear()}`;
   }
 
-  // useEffect(()=>{
-  //   console.log(reviewList);
-  // },[reviewList])
+  useEffect(()=>{
+    console.log(products);
+  },[products])
+
+  function removeAccents(str = "") {
+  return str
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D");
+}
+
+  // Lọc sản phẩm theo search
+const normalizedSearch = removeAccents(searchTerm.trim().toLowerCase());
+
+const filteredProducts =
+  status === "successed" && Array.isArray(products)
+    ? products.filter((item) => {
+        const name = removeAccents((item.name || "").toLowerCase());
+        const id = removeAccents(String(item.product_id || "").toLowerCase());
+
+        // format ngày giống UI
+        const createdDate = formatDateVN(item.created_at) || "";
+        const createdSearch = removeAccents(
+          createdDate.toLowerCase()
+        );
+
+        return (
+          name.includes(normalizedSearch) ||
+          id.includes(normalizedSearch) ||
+          createdSearch.includes(normalizedSearch)
+        );
+      })
+    : [];
+
+
+
 
   // Open Review Modal
+  //@param {object} product - sản phẩm được chọn
+  //@result {Promise<void>}
   const handleOpenReviewModal = async (product) => {
     setSelectedProduct(product);
     setShowReviewModal(true);
@@ -90,7 +127,7 @@ export default function Page() {
         </div>
       )}
 
-      <NavPage />
+      <NavPage searchTerm={searchTerm} onSearchChange={setSearchTerm}/>
 
       <div className="w-full h-full bg-white rounded-[10px] flex flex-col px-[72px] pt-[52px] pb-[47px] relative">
         {/* Wrapper có thể cuộn */}
@@ -99,16 +136,16 @@ export default function Page() {
           <div className="w-full min-h-[50px] flex flex-row items-center">
             <div className="w-[7%]">Stt</div>
             <div className="w-[19%]">Sản phẩm</div>
-            <div className="w-[15%]">Ngày tạo</div>
-            <div className="w-[15%]">Lượt mua</div>
-            <div className="w-[20%]">Lượt bình luận/đánh giá</div>
+            <div className="w-[13%]">Ngày tạo</div>
+            <div className="w-[21%]">Tồn kho</div>
+            {/* <div className="w-[20%]">Lượt bình luận/đánh giá</div> */}
             <div className="w-[20%]">Trạng thái tạo sản phẩm</div>
           </div>
 
           {/* Danh sách sản phẩm */}
           <div className="flex flex-col h-[500px] overflow-y-auto gap-[7px]">
             {status === "successed" &&
-              products?.map((item, index) => (
+              filteredProducts?.map((item, index) => (
                 <div
                   key={index}
                   className="product-row relative flex flex-row w-full bg-[#EDEDED] min-h-20 rounded-lg items-center pl-4 pr-10"
@@ -121,11 +158,11 @@ export default function Page() {
                     {item.name}
                   </div>
                   <div className="w-[17%]">{formatDateVN(item.created_at)}</div>
-                  <div className="w-[20%]">140 lượt</div>
-                  <div className="w-[25%]">
+                  <div className="w-[27%]">{item.stock_quantity}</div>
+                  {/* <div className="w-[25%]">
                     {item.reviews_count || 0} đánh giá
-                  </div>
-                  <div className="w-[10%] text-green-600">{item.status}</div>
+                  </div> */}
+                  <div className="w-[30%] text-green-600">{item.status}</div>
 
                   {/* Menu 3 chấm */}
                   <div

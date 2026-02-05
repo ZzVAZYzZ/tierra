@@ -24,6 +24,18 @@ const Product = sequelize.define('Product', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  stone_type: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  stone_shape: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  weight: {
+    type: DataTypes.DECIMAL(10,0),
+    allowNull: false,
+  },
   category_id: {
     type: DataTypes.UUID,
     allowNull: false,

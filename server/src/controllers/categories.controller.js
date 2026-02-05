@@ -4,6 +4,8 @@ const Category = require('../models/categories');
 // @desc Create new category
 // @route POST /api/categories/create
 // @access  Private/Admin
+//@param {name}
+//@result { message, category }
 const createCategory = asyncHandler(async (req, res) => {
   const { name } = req.body;
 
@@ -30,6 +32,8 @@ const createCategory = asyncHandler(async (req, res) => {
 // @desc Get all categories
 // @route GET /api/categories/getAll
 // @access Public
+//@param null
+//@result category 
 const getCategories = asyncHandler(async (req, res) => {
   const categories = await Category.findAll();
   res.status(200).json(categories);
@@ -52,6 +56,8 @@ const getCategoryById = asyncHandler(async (req, res) => {
 // @desc Update category by ID
 // @route PUT /api/categories/:id
 // @access Private/Admin
+//@param null
+//@result {message, category} 
 const updateCategory = asyncHandler(async (req, res) => {
   const category = await Category.findByPk(req.params.id);
 
@@ -78,6 +84,8 @@ const updateCategory = asyncHandler(async (req, res) => {
 // @desc Delete category by ID
 // @route DELETE /api/categories/:id
 // @access Private/Admin
+//@param null
+//@result {message} 
 const deleteCategory = asyncHandler(async (req, res) => {
   const category = await Category.findByPk(req.params.id);
 

@@ -1,6 +1,8 @@
 import LichIcon from "../../../assets/icons/admin/lich_icon";
 import React, { useEffect, useState } from "react";
 
+// @param { mode,onChangeMode,selectedDate, onSelectDay, calendarMonth, calendarYear, onChangeMonth,}
+// @result  nav
 const NavStatistical = ({
   mode,
   onChangeMode,
@@ -13,7 +15,7 @@ const NavStatistical = ({
   const today = new Date();
 
   const months = [
-    "Jan",
+    "Jan",  
     "Feb",
     "Mar",
     "Apr",
@@ -44,10 +46,14 @@ const NavStatistical = ({
   const activeBtn = "bg-[#9B8D6F] text-white";
   const inactiveBtn = "bg-[#E0DED9] text-black";
 
+  // @param null
+  // @result mở / đóng popup lịch
   const handleToggleCalendar = () => {
     setOpenCalendar((prev) => !prev);
   };
 
+  // @param {d} 
+  // @result chọn ngày và đóng popup lịch
   const handleSelectDay = (d) => {
     onSelectDay(d);
     setOpenCalendar(false);
@@ -139,9 +145,7 @@ const NavStatistical = ({
 
       {/* Nút theo tháng / theo năm */}
       <div className="flex flex-row gap-[25px] items-center">
-        <button className={`${baseBtn} bg-amber-700 text-white`}>
-          Xuất file PDF
-        </button>
+        
         <button
           type="button"
           className={`${baseBtn} ${

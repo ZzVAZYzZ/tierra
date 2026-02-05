@@ -28,6 +28,9 @@ const Page = () => {
     fetchProductById(product_id);
   }, []);
   // ✅ Hàm chuyển URL thành File
+  //@param {string} url - đường dẫn ảnh từ server
+  //@param {string} filename - tên file (không kèm đuôi), mặc định "image.png"
+  //@result {Promise<File>} file ảnh tương ứng với URL
   const urlToFile = async (url, filename = "image.png") => {
     const response = await fetch(url);
     const blob = await response.blob();

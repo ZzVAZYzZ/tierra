@@ -100,7 +100,7 @@ export default function Page() {
                 <div className="w-[50%] flex flex-col gap-1 px-4 py-3 text-[14px]">
                   <p className="">Thông tin đặt hàng </p>
                   <p>
-                    <span className="font-semibold">Tên khách hàng: </span>
+                    <span className="font-semibold">Email khách hàng: </span>
                     {order.user_email}
                   </p>
                   <p>

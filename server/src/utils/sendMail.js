@@ -1,6 +1,8 @@
 // utils/sendMail.js
 const nodemailer = require("nodemailer");
 
+//@param (to, orderId, amount, currency)
+//@result mailOptions
 const sendPaymentSuccessEmail = async (to, orderId, amount, currency) => {
   // ⚙️ Thiết lập transporter
   const transporter = nodemailer.createTransport({

@@ -20,6 +20,7 @@ import { useAuth } from "../hook/useAuth";
 import { resetUserState } from "../redux/features/userSlice";
 import { useRedirect } from "../hook/useRedirect";
 import { Box, Search, History } from "lucide-react";
+import useViewport from "../hook/useViewport";
 
 const Nav = () => {
   const { products } = useFetchProducts();
@@ -35,6 +36,10 @@ const Nav = () => {
   const menuRef = React.useRef(null);
   const billMenuRef = React.useRef(null);
   const router = useRouter();
+  const { width } = useViewport();
+  const isLaptop = width > 1024;
+  const isTablet = width > 480 && width <= 1024;
+  const isMobile = width <= 480;
 
   const { user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
@@ -157,273 +162,512 @@ const Nav = () => {
     }
   };
 
-  return (
-    <div className="flex flex-col">
-      {/* make color */}
-      <div className="h-[30px] bg-[#9B8D6F]"></div>
+  // ====== ICON BÊN PHẢI DÙNG CHUNG (Tablet/Mobile) ======
+  const RightIcons = () => (
+    <div className="flex flex-row items-center justify-center gap-[18px]">
+      <div className="flex items-center justify-center">
+        <a href="#" className="flex items-center justify-center">
+          <HeartIcon />
+        </a>
+      </div>
 
-      {/* about */}
-      <div className="h-[100px] flex flex-row items-center justify-between mx-[65px]">
-        <div className="flex flex-row items-center justify-center gap-[15px]">
-          <a href="#">
-            <LocationIcon />
-          </a>
-          <a href="#">
-            <PhoneIcon />
-          </a>
-          <p>028 7939 3939</p>
-        </div>
+      <div className="relative">
+        <a href="/cart">
+          <CartIcon />
+        </a>
+      </div>
 
-        <div>
-          <Link href={"/home"}>
-            <DgNavLogo />
-          </Link>
-        </div>
+      {/* Bill/Order menu */}
+      <div className="relative" ref={billMenuRef}>
+        <button
+          onClick={() => setIsBillMenuOpen((prev) => !prev)}
+          aria-label="Order and History"
+          className="flex items-center justify-center cursor-pointer"
+        >
+          <BillIcon />
+        </button>
 
-        <div className="flex flex-row items-center justify-center gap-[70px]">
-          <div className="flex flex-row items-center justify-center gap-[18px]">
-            <div className="flex items-center justify-center">
-              <a href="#" className="flex items-center justify-center">
-                <HeartIcon />
-              </a>
-            </div>
+        {isBillMenuOpen && (
+          <div className="absolute right-0 mt-2 w-[200px] bg-white rounded-xl shadow-lg border border-gray-100 z-50 animate-fade-in">
+            <Link
+              href="/checkorder"
+              onClick={() => setIsBillMenuOpen(false)}
+              className="flex items-center gap-2 px-4 py-1 text-[#9B8D6F] text-[12px] font-[bold] hover:bg-[#f3f0eb] transition-all"
+            >
+              <Search size={20} />
+              <span>Tra cứu đơn hàng</span>
+            </Link>
 
-            <div className="relative">
-              <a href="/cart">
-                <CartIcon />
-              </a>
-            </div>
+            <hr className="border-[#e2dfda]" />
 
-            {/* 👇 Bill/Order menu click version */}
-            <div className="relative" ref={billMenuRef}>
-              <button
-                onClick={() => setIsBillMenuOpen((prev) => !prev)}
-                aria-label="Order and History"
-                className="flex items-center justify-center cursor-pointer"
+            <Link
+              href="/orderhistory"
+              onClick={() => setIsBillMenuOpen(false)}
+              className="flex items-center gap-2 px-4 py-1 text-[#9B8D6F] text-[12px] font-[bold] hover:bg-[#f3f0eb] transition-all"
+            >
+              <History size={20} />
+              <span>Xem lịch sử đặt hàng</span>
+            </Link>
+          </div>
+        )}
+      </div>
+
+      {/* User menu */}
+      {user ? (
+        <div className="relative" ref={menuRef}>
+          <button
+            onClick={() => setIsUserMenuOpen((prev) => !prev)}
+            className="w-[30px] h-[30px] rounded-full border border-[#9B8D6F] overflow-hidden cursor-pointer"
+          >
+            <Image
+              src={
+                user?.avatar ||
+                "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png"
+              }
+              alt="User Avatar"
+              width={30}
+              height={30}
+              className="object-cover rounded-full"
+              priority
+            />
+          </button>
+
+          {isUserMenuOpen && (
+            <div className="absolute right-0 mt-2 w-[180px] bg-white rounded-xl shadow-lg border border-gray-100 z-50 animate-fade-in">
+              <Link
+                href="/profile"
+                onClick={() => setIsUserMenuOpen(false)}
+                className="flex items-center gap-2 px-4 py-2 text-[#9B8D6F] text-[12px] font-[bold] hover:bg-[#f3f0eb] transition-all"
               >
-                <BillIcon />
-              </button>
-
-              {/* Dropdown cho Bill */}
-              {isBillMenuOpen && (
-                <div className="absolute right-0 mt-2 w-[200px] bg-white rounded-xl shadow-lg border border-gray-100 z-50 animate-fade-in">
-                  {/* Tra cứu đơn hàng */}
+                <Image
+                  src={profileicon}
+                  alt="Profile Icon"
+                  width={16}
+                  height={16}
+                />
+                <span>Thông tin người dùng</span>
+              </Link>
+              <hr className="border-[#e2dfda]" />
+              {user.role === "admin" && (
+                <>
                   <Link
-                    href="/checkorder" // Thay bằng đường dẫn thực tế
-                    onClick={() => setIsBillMenuOpen(false)}
-                    className="flex  items-center gap-2 px-4 py-1 text-[#9B8D6F] text-[12px] font-[bold] hover:bg-[#f3f0eb] transition-all"
+                    href="/dashboard"
+                    onClick={() => setIsUserMenuOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2 text-[#9B8D6F] text-[12px] font-bold hover:bg-[#f3f0eb] transition-all"
                   >
-                    {/* Có thể dùng icon SearchIcon hoặc một icon khác phù hợp */}
-                    <Search size={20} />
-                    <span>Tra cứu đơn hàng</span>
+                    <Box size={16} />
+                    <span>Quản lý cho Admin</span>
                   </Link>
-
-                  <hr className="border-[#e2dfda]" />
-
-                  {/* Xem lịch sử đặt hàng */}
-                  <Link
-                    href="/orderhistory" // Thay bằng đường dẫn thực tế
-                    onClick={() => setIsBillMenuOpen(false)}
-                    className=" gap-2 px-4 py-1 text-[#9B8D6F] text-[12px] font-[bold] hover:bg-[#f3f0eb] transition-all flex items-center "
-                  >
-                    {/* Có thể dùng icon BillIcon hoặc một icon khác phù hợp */}
-                    <History size={20} />
-                    <span>Xem lịch sử đặt hàng</span>
-                  </Link>
-                </div>
+                  <hr className="border-red-100" />
+                </>
               )}
-            </div>
 
-            {/* 👇 User menu click version */}
-            {user ? (
-              <div className="relative" ref={menuRef}>
-                {/* Avatar */}
+              <hr className="border-[#e2dfda]" />
+
+              <button
+                onClick={handleLogout}
+                className="w-full text-left flex text-[12px] font-[bold] items-center gap-2 px-4 py-2 text-[#9B8D6F] hover:bg-[#f3f0eb] transition-all cursor-pointer"
+              >
+                <Image
+                  src={logouticon}
+                  alt="Logout Icon"
+                  width={16}
+                  height={16}
+                />
+                <span>Đăng xuất</span>
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <Link href={"/login"}>
+          <UserIcon />
+        </Link>
+      )}
+    </div>
+  );
+  
+  if (isLaptop) {
+    return (
+      <div className="flex flex-col">
+        {/* make color */}
+        <div className="h-[30px] bg-[#9B8D6F]"></div>
+
+        {/* about */}
+        <div className="h-[100px] flex flex-row items-center justify-between mx-[65px]">
+          <div className="flex flex-row items-center justify-center gap-[15px]">
+            <a href="#">
+              <LocationIcon />
+            </a>
+            <a href="#">
+              <PhoneIcon />
+            </a>
+            <p>028 7939 3939</p>
+          </div>
+
+          <div>
+            <Link href={"/home"}>
+              <DgNavLogo />
+            </Link>
+          </div>
+
+          <div className="flex flex-row items-center justify-center gap-[70px]">
+            <div className="flex flex-row items-center justify-center gap-[18px]">
+              <div className="flex items-center justify-center">
+                <a href="/favorite" className="flex items-center justify-center">
+                  <HeartIcon />
+                </a>
+              </div>
+
+              <div className="relative">
+                <a href="/cart">
+                  <CartIcon />
+                </a>
+              </div>
+
+              {/* 👇 Bill/Order menu click version */}
+              <div className="relative" ref={billMenuRef}>
                 <button
-                  onClick={() => setIsUserMenuOpen((prev) => !prev)}
-                  className="w-[30px] h-[30px] rounded-full border border-[#9B8D6F] overflow-hidden cursor-pointer"
+                  onClick={() => setIsBillMenuOpen((prev) => !prev)}
+                  aria-label="Order and History"
+                  className="flex items-center justify-center cursor-pointer"
                 >
-                  <Image
-                    src={
-                      user?.avatar ||
-                      "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png"
-                    }
-                    alt="User Avatar"
-                    width={30}
-                    height={30}
-                    className="object-cover rounded-full"
-                    priority
-                  />
+                  <BillIcon />
                 </button>
 
-                {/* Dropdown */}
-                {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-[180px] bg-white rounded-xl shadow-lg border border-gray-100 z-50 animate-fade-in">
+                {/* Dropdown cho Bill */}
+                {isBillMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-[200px] bg-white rounded-xl shadow-lg border border-gray-100 z-50 animate-fade-in">
+                    {/* Tra cứu đơn hàng */}
                     <Link
-                      href="/profile"
-                      onClick={() => setIsUserMenuOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-[#9B8D6F] text-[12px] font-[bold] hover:bg-[#f3f0eb] transition-all"
+                      href="/checkorder" // Thay bằng đường dẫn thực tế
+                      onClick={() => setIsBillMenuOpen(false)}
+                      className="flex  items-center gap-2 px-4 py-1 text-[#9B8D6F] text-[12px] font-[bold] hover:bg-[#f3f0eb] transition-all"
                     >
-                      <Image
-                        src={profileicon}
-                        alt="Profile Icon"
-                        width={16}
-                        height={16}
-                      />
-                      <span>Thông tin người dùng</span>
+                      {/* Có thể dùng icon SearchIcon hoặc một icon khác phù hợp */}
+                      <Search size={20} />
+                      <span>Tra cứu đơn hàng</span>
                     </Link>
-                    <hr className="border-[#e2dfda]" />
-                    {user.role === "admin" && (
-                      <>
-                        <Link
-                          href="/dashboard"
-                          onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-2 px-4 py-2 text-[#9B8D6F] text-[12px] font-bold hover:bg-[#f3f0eb] transition-all"
-                        >
-                          {/* Bạn có thể thay thế bằng một icon khác phù hợp với dashboard/admin */}
-                          <Box size={16} />
-                          <span>Quản lý cho Admin</span>
-                        </Link>
-                        <hr className="border-red-100" />
-                      </>
-                    )}
 
                     <hr className="border-[#e2dfda]" />
 
-                    <button
-                      onClick={handleLogout}
-                      className="w-full text-left flex  text-[12px] font-[bold] items-center gap-2 px-4 py-2 text-[#9B8D6F] hover:bg-[#f3f0eb] transition-all cursor-pointer"
+                    {/* Xem lịch sử đặt hàng */}
+                    <Link
+                      href="/orderhistory" // Thay bằng đường dẫn thực tế
+                      onClick={() => setIsBillMenuOpen(false)}
+                      className=" gap-2 px-4 py-1 text-[#9B8D6F] text-[12px] font-[bold] hover:bg-[#f3f0eb] transition-all flex items-center "
                     >
-                      <Image
-                        src={logouticon}
-                        alt="Logout Icon"
-                        width={16}
-                        height={16}
-                      />
-                      <span>Đăng xuất</span>
-                    </button>
+                      {/* Có thể dùng icon BillIcon hoặc một icon khác phù hợp */}
+                      <History size={20} />
+                      <span>Xem lịch sử đặt hàng</span>
+                    </Link>
                   </div>
                 )}
               </div>
-            ) : (
-              <Link href={"/login"}>
-                <UserIcon />
-              </Link>
-            )}
-          </div>
 
-          <div className="h-5 flex flex-row justify-center gap-6">
-            <div>
-              <a href="#">Về chúng tôi</a>
+              {/* 👇 User menu click version */}
+              {user ? (
+                <div className="relative" ref={menuRef}>
+                  {/* Avatar */}
+                  <button
+                    onClick={() => setIsUserMenuOpen((prev) => !prev)}
+                    className="w-[30px] h-[30px] rounded-full border border-[#9B8D6F] overflow-hidden cursor-pointer"
+                  >
+                    <Image
+                      src={
+                        user?.avatar ||
+                        "https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png"
+                      }
+                      alt="User Avatar"
+                      width={30}
+                      height={30}
+                      className="object-cover rounded-full"
+                      priority
+                    />
+                  </button>
+
+                  {/* Dropdown */}
+                  {isUserMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-[180px] bg-white rounded-xl shadow-lg border border-gray-100 z-50 animate-fade-in">
+                      <Link
+                        href="/profile"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-[#9B8D6F] text-[12px] font-[bold] hover:bg-[#f3f0eb] transition-all"
+                      >
+                        <Image
+                          src={profileicon}
+                          alt="Profile Icon"
+                          width={16}
+                          height={16}
+                        />
+                        <span>Thông tin người dùng</span>
+                      </Link>
+                      <hr className="border-[#e2dfda]" />
+                      {user.role === "admin" && (
+                        <>
+                          <Link
+                            href="/dashboard"
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="flex items-center gap-2 px-4 py-2 text-[#9B8D6F] text-[12px] font-bold hover:bg-[#f3f0eb] transition-all"
+                          >
+                            {/* Bạn có thể thay thế bằng một icon khác phù hợp với dashboard/admin */}
+                            <Box size={16} />
+                            <span>Quản lý cho Admin</span>
+                          </Link>
+                          <hr className="border-red-100" />
+                        </>
+                      )}
+
+                      <hr className="border-[#e2dfda]" />
+
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left flex  text-[12px] font-[bold] items-center gap-2 px-4 py-2 text-[#9B8D6F] hover:bg-[#f3f0eb] transition-all cursor-pointer"
+                      >
+                        <Image
+                          src={logouticon}
+                          alt="Logout Icon"
+                          width={16}
+                          height={16}
+                        />
+                        <span>Đăng xuất</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link href={"/login"}>
+                  <UserIcon />
+                </Link>
+              )}
             </div>
-            <div className="flex flex-row items-center gap-[7px] leading-5">
-              <button className="cursor-pointer">EN</button>
-              <hr className="h-[80%] border"></hr>
-              <button className="cursor-pointer">VI</button>
+
+            <div className="h-5 flex flex-row justify-center gap-6">
+              <div>
+                <a href="/aboutme">Về chúng tôi</a>
+              </div>
             </div>
           </div>
         </div>
+
+        {/* hr */}
+        <hr className="h-0.5 bg-[#9B8D6F] border-[white]"></hr>
+
+        {/* menubar */}
+        <div className="h-[100px] flex flex-row justify-between items-center mx-[70px]">
+          <Link href={"/ring"}>Nhẫn</Link>
+          <Link href={"/earring"}>Bông tai</Link>
+          <Link href={"/necklace"}>Dây chuyền</Link>
+          <Link href={"/bracelet"}>Vòng tay</Link>
+          <div>
+            <a>Ưu đãi</a>
+          </div>
+
+          {/* Small trigger search */}
+          <div className="w-[350px] h-[50px] border rounded-full flex items-center px-5 bg-white">
+            <input
+              ref={inputRef}
+              value={query}
+              onFocus={() => setOpen(true)}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Tìm kiếm sản phẩm"
+              className="flex-1 outline-none placeholder-[#C0C0C0] bg-transparent"
+            />
+            <button onClick={() => setOpen(true)} aria-label="Open search">
+              <SearchIcon />
+            </button>
+          </div>
+        </div>
+
+        <hr className="h-0.5 bg-[#9B8D6F] border-[white]"></hr>
+
+        {/* overlay search */}
+        {open && (
+          <div className="fixed inset-0 z-200">
+            <div
+              className="absolute inset-0 bg-black/50"
+              onClick={() => setOpen(false)}
+            />
+            <div
+              ref={panelRef}
+              className="relative z-201 h-full w-full flex flex-col items-center pt-16 overflow-hidden pointer-events-none"
+            >
+              <div className="w-[900px] pointer-events-auto">
+                <div className="w-full h-20 border rounded-full flex items-center px-8 bg-white">
+                  <input
+                    ref={overlayInputRef}
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Tìm kiếm sản phẩm"
+                    className="flex-1 outline-none placeholder-[#C0C0C0] bg-transparent text-lg"
+                  />
+                  <SearchIcon />
+                </div>
+              </div>
+
+              <div className="mt-6 w-[900px] max-h-[70vh] overflow-auto bg-white rounded-xl border pointer-events-auto">
+                <div className="divide-y">
+                  {debounced && results.length === 0 && (
+                    <div className="p-4 text-sm text-gray-500">
+                      Không tìm thấy sản phẩm
+                    </div>
+                  )}
+                  {results.map((item) => (
+                    <div
+                      key={item.product_id}
+                      onClick={() => goToProduct(item)}
+                      className="w-[850px] h-[100px] mx-auto flex items-center gap-5 py-2 cursor-pointer hover:bg-gray-50"
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") goToProduct(item);
+                      }}
+                    >
+                      {getMainImage(item) && (
+                        <img
+                          src={getMainImage(item)}
+                          alt={item.name}
+                          className="w-20 h-20 object-cover rounded"
+                        />
+                      )}
+                      <div className="flex-1 h-full flex flex-col justify-center">
+                        <div className="text-[16px] text-gray-800">
+                          {item.name}
+                        </div>
+                        <div className="text-[14px] text-[#9B8D6F] mt-1">
+                          {formatPrice(item.price)}
+                        </div>
+                      </div>
+                      <div className="self-end text-xs text-gray-500">
+                        0 lượt bán
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (isTablet) {
+    return <div className="flex flex-col">
+      {/* thanh màu trên cùng */}
+      <div className="h-[30px] bg-[#9B8D6F]" />
+
+      {/* header tablet */}
+      <div className="px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2 text-xs text-[#444]">
+          <PhoneIcon />
+          <span>028 7939 3939</span>
+        </div>
+
+        <Link href={"/home"}>
+          <DgNavLogo />
+        </Link>
+
+        <RightIcons />
       </div>
 
-      {/* hr */}
-      <hr className="h-0.5 bg-[#9B8D6F] border-[white]"></hr>
+      <hr className="h-0.5 bg-[#9B8D6F] border-[white]" />
 
-      {/* menubar */}
-      <div className="h-[100px] flex flex-row justify-between items-center mx-[70px]">
-        <Link href={"/ring"}>Nhẫn</Link>
-        <Link href={"/earring"}>Bông tai</Link>
-        <Link href={"/necklace"}>Dây chuyền</Link>
-        <Link href={"/bracelet"}>Vòng tay</Link>
-        <div>
-          <a>Ưu đãi</a>
-        </div>
-
-        {/* Small trigger search */}
-        <div className="w-[350px] h-[50px] border rounded-full flex items-center px-5 bg-white">
+      {/* menu + search tablet */}
+      <div className="px-4 py-3 flex flex-col gap-3">
+        {/* search */}
+        <div className="w-full h-11 border rounded-full flex items-center px-4 bg-white">
           <input
             ref={inputRef}
             value={query}
             onFocus={() => setOpen(true)}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Tìm kiếm sản phẩm"
-            className="flex-1 outline-none placeholder-[#C0C0C0] bg-transparent"
+            className="flex-1 outline-none placeholder-[#C0C0C0] bg-transparent text-sm"
           />
           <button onClick={() => setOpen(true)} aria-label="Open search">
             <SearchIcon />
           </button>
         </div>
+
+        {/* menu */}
+        <div className=" h-6 flex justify-between text-sm">
+          <Link href={"/ring"}>Nhẫn</Link>
+          <Link href={"/earring"}>Bông tai</Link>
+          <Link href={"/necklace"}>Dây chuyền</Link>
+          <Link href={"/bracelet"}>Vòng tay</Link>
+          <a>Ưu đãi</a>
+        </div>
+
+        {/* <div className="text-xs text-right">
+          <a href="#">Về chúng tôi</a>
+        </div> */}
       </div>
 
-      <hr className="h-0.5 bg-[#9B8D6F] border-[white]"></hr>
-
-      {/* overlay search */}
-      {open && (
-        <div className="fixed inset-0 z-200">
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setOpen(false)}
-          />
-          <div
-            ref={panelRef}
-            className="relative z-201 h-full w-full flex flex-col items-center pt-16 overflow-hidden pointer-events-none"
-          >
-            <div className="w-[900px] pointer-events-auto">
-              <div className="w-full h-20 border rounded-full flex items-center px-8 bg-white">
-                <input
-                  ref={overlayInputRef}
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Tìm kiếm sản phẩm"
-                  className="flex-1 outline-none placeholder-[#C0C0C0] bg-transparent text-lg"
-                />
-                <SearchIcon />
-              </div>
-            </div>
-
-            <div className="mt-6 w-[900px] max-h-[70vh] overflow-auto bg-white rounded-xl border pointer-events-auto">
-              <div className="divide-y">
-                {debounced && results.length === 0 && (
-                  <div className="p-4 text-sm text-gray-500">
-                    Không tìm thấy sản phẩm
-                  </div>
-                )}
-                {results.map((item) => (
-                  <div
-                    key={item.product_id}
-                    onClick={() => goToProduct(item)}
-                    className="w-[850px] h-[100px] mx-auto flex items-center gap-5 py-2 cursor-pointer hover:bg-gray-50"
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") goToProduct(item);
-                    }}
-                  >
-                    {getMainImage(item) && (
-                      <img
-                        src={getMainImage(item)}
-                        alt={item.name}
-                        className="w-20 h-20 object-cover rounded"
-                      />
-                    )}
-                    <div className="flex-1 h-full flex flex-col justify-center">
-                      <div className="text-[16px] text-gray-800">
-                        {item.name}
-                      </div>
-                      <div className="text-[14px] text-[#9B8D6F] mt-1">
-                        {formatPrice(item.price)}
-                      </div>
-                    </div>
-                    <div className="self-end text-xs text-gray-500">
-                      0 lượt bán
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <hr className="h-0.5 bg-[#9B8D6F] border-[white]" />
     </div>
-  );
+  }
+  if (isMobile) {
+    return <div className="flex flex-col">
+      {/* thanh màu trên cùng */}
+      <div className="h-[30px] bg-[#9B8D6F]" />
+
+      {/* header mobile */}
+      <div className="px-4 py-2 flex items-center justify-between">
+        <div className="flex items-center gap-1 text-[11px] text-[#444]">
+          <PhoneIcon />
+          <span>028 7939 3939</span>
+        </div>
+
+        <Link href={"/home"}>
+          <DgNavLogo />
+        </Link>
+
+        <RightIcons />
+      </div>
+
+      <hr className="h-0.5 bg-[#9B8D6F] border-[white]" />
+
+      {/* search + menu mobile */}
+      <div className="px-4 py-3 flex flex-col gap-3">
+        {/* search */}
+        <div className="w-full h-[42px] border rounded-full flex items-center px-3 bg-white">
+          <input
+            ref={inputRef}
+            value={query}
+            onFocus={() => setOpen(true)}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Tìm kiếm sản phẩm"
+            className="flex-1 outline-none placeholder-[#C0C0C0] bg-transparent text-sm"
+          />
+          <button onClick={() => setOpen(true)} aria-label="Open search">
+            <SearchIcon />
+          </button>
+        </div>
+
+        {/* menu scroll ngang */}
+        <div className=" h-4 flex gap-4 overflow-x-auto text-sm font-medium pb-1">
+          <Link href={"/ring"} className="whitespace-nowrap">
+            Nhẫn
+          </Link>
+          <Link href={"/earring"} className="whitespace-nowrap">
+            Bông tai
+          </Link>
+          <Link href={"/necklace"} className="whitespace-nowrap">
+            Dây chuyền
+          </Link>
+          <Link href={"/bracelet"} className="whitespace-nowrap">
+            Vòng tay
+          </Link>
+          <a className="whitespace-nowrap">Ưu đãi</a>
+          {/* <a className="whitespace-nowrap">Về chúng tôi</a> */}
+        </div>
+      </div>
+
+      <hr className="h-0.5 bg-[#9B8D6F] border-[white]" />
+    </div>
+  }
+  return null;
 };
 
 export default Nav;

@@ -4,20 +4,24 @@ import Filters from "../components/Filters";
 import ProductGrid from "../components/ProductGrid";
 import { toIntegerVND } from "../utils/price";
 import { useFetchProducts } from "../../../hook/useFetchProducts";
+import useViewport from "../../../hook/useViewport";
+import { useFavorites } from "../../../hook/useFavorites";
 
 const parsePrice = toIntegerVND;
 
 export default function Page() {
-  const { products, loading, error } = useFetchProducts()
-  const [favorites, setFavorites] = React.useState([]);
-
-
+  const { products, loading: productsLoading, error } = useFetchProducts();
+  const { favoriteIds, addFavorite, favoritesError } = useFavorites();
 
   // Filter & sort state
   const [priceRange, setPriceRange] = React.useState("");
   const [color, setColor] = React.useState("");
   const [material, setMaterial] = React.useState("");
   const [sortBy, setSortBy] = React.useState("");
+  const { width } = useViewport();
+  const isLaptop = width > 1024;
+  const isTablet = width > 480 && width <= 1024;
+  const isMobile = width <= 480;
 
   // Apply category filter for "bong tai" + other filters/sorts
   const displayedData = React.useMemo(() => {
@@ -31,7 +35,8 @@ export default function Page() {
 
     // price range filter
     if (priceRange) {
-      let min = 0, max = Infinity;
+      let min = 0,
+        max = Infinity;
       if (priceRange.includes("-")) {
         const [minStr, maxStr] = priceRange.split("-");
         min = Number(minStr);
@@ -64,7 +69,8 @@ export default function Page() {
       else if (color === "6") colorName = "Vang hong";
       else if (color === "7") colorName = "Trang";
       list = list.filter(
-        (item) => String(item.color).toLowerCase() === String(colorName).toLowerCase()
+        (item) =>
+          String(item.color).toLowerCase() === String(colorName).toLowerCase()
       );
     }
 
@@ -74,7 +80,9 @@ export default function Page() {
       if (material === "8") materialName = "vang";
       else if (material === "9") materialName = "kim cuong";
       list = list.filter(
-        (item) => String(item.material).toLowerCase() === String(materialName).toLowerCase()
+        (item) =>
+          String(item.material).toLowerCase() ===
+          String(materialName).toLowerCase()
       );
     }
 
@@ -90,46 +98,139 @@ export default function Page() {
     return list;
   }, [products, priceRange, color, material, sortBy]);
 
-  const toggleFavorite = (productId) => {
-    setFavorites((prev) =>
-      prev.includes(productId)
-        ? prev.filter((id) => id !== productId)
-        : [...prev, productId]
-    );
+  const renderStatus = () => (
+    <>
+      {productsLoading && (
+        <div className="p-4 text-sm text-gray-500">Đang tải sản phẩm...</div>
+      )}
+      {error && (
+        <div className="p-4 text-sm text-red-500">
+          lỗi tải dữ liệu: {String(error)}
+        </div>
+      )}
+      {favoritesError && (
+        <div className="p-4 text-sm text-red-500">
+          Lỗi tải danh sách yêu thích: {String(favoritesError)}
+        </div>
+      )}
+    </>
+  );
+
+  const handleFavoriteClick = async (productId) => {
+    if (favoriteIds.includes(String(productId))) {
+      alert("Sản phẩm đã có trong danh sách yêu thích");
+      return;
+    }
+
+    try {
+      await addFavorite(productId);
+      alert("Đã thêm sản phẩm vào danh sách yêu thích");
+    } catch (err) {
+      if (err?.message === "Missing access token") return;
+      alert(
+        err?.message || "Không thể thêm sản phẩm vào danh sách yêu thích lúc này"
+      );
+    }
   };
 
-  return (
-    <div className=" flex flex-col items-center gap-[30px] mt-[40px]">
-      <div className=" w-[90%]">
-        <p className=" text-[32px] text-[#9B8D6F] text-left">Bông tai</p>
+  // Handlers passed to child components
+  const handlePriceChange = (value) => setPriceRange(value);
+  const handleColorChange = (value) => setColor(value);
+  const handleMaterialChange = (value) => setMaterial(value);
+  const handleSortChange = (value) => setSortBy(value);
+
+  if (isLaptop) {
+    return (
+      <div className="flex flex-col items-center gap-10 mt-10">
+        <div className="w-[90%]">
+          <p className="text-[32px] text-[#9B8D6F] text-left">Bông tai</p>
+        </div>
+        <div className="w-[90%] flex flex-row gap-8 xl:gap-[50px]">
+          <Filters
+            priceRange={priceRange}
+            color={color}
+            material={material}
+            sortBy={sortBy}
+            onPriceRangeChange={handlePriceChange}
+            onColorChange={handleColorChange}
+            onMaterialChange={handleMaterialChange}
+            onSortChange={handleSortChange}
+            className="lg:sticky lg:top-6 self-start"
+          />
+
+          <div className="flex-1">
+            {renderStatus()}
+            <ProductGrid
+              products={displayedData}
+              favorites={favoriteIds}
+              onToggleFavorite={handleFavoriteClick}
+            />
+          </div>
+        </div>
       </div>
-      <div className="w-[90%] flex flex-row gap-[50px]">
+    );
+  }
+
+  if (isTablet) {
+    return (
+      <div className="flex flex-col items-center gap-8 px-6 pb-14 pt-8">
+        <div className="w-full max-w-5xl">
+          <p className="text-[28px] text-[#9B8D6F] text-left">Bông tai</p>
+        </div>
+        <div className="w-full max-w-5xl flex flex-col gap-6">
+          <Filters
+            priceRange={priceRange}
+            color={color}
+            material={material}
+            sortBy={sortBy}
+            onPriceRangeChange={handlePriceChange}
+            onColorChange={handleColorChange}
+            onMaterialChange={handleMaterialChange}
+            onSortChange={handleSortChange}
+          />
+
+          <div className="flex-1">
+            {renderStatus()}
+            <ProductGrid
+              products={displayedData}
+              favorites={favoriteIds}
+              onToggleFavorite={handleFavoriteClick}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isMobile) {
+    return (
+      <div className="flex flex-col gap-6 px-4 pb-14 pt-6">
+        <p className="text-[22px] text-[#9B8D6F] text-left">Bông tai</p>
+
         <Filters
           priceRange={priceRange}
           color={color}
           material={material}
           sortBy={sortBy}
-          onPriceRangeChange={setPriceRange}
-          onColorChange={setColor}
-          onMaterialChange={setMaterial}
-          onSortChange={setSortBy}
+          onPriceRangeChange={handlePriceChange}
+          onColorChange={handleColorChange}
+          onMaterialChange={handleMaterialChange}
+          onSortChange={handleSortChange}
         />
 
         <div className="flex-1">
-          {loading && (
-            <div className="p-4 text-sm text-gray-500">Đang tải sản phẩm…</div>
-          )}
-          {error  && (
-            <div className="p-4 text-sm text-red-500">Lỗi tải dữ liệu: {String(error)}</div>
-          )}
+          {renderStatus()}
           <ProductGrid
             products={displayedData}
-            favorites={favorites}
-            onToggleFavorite={toggleFavorite}
+            favorites={favoriteIds}
+            onToggleFavorite={handleFavoriteClick}
           />
         </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  // fallback
+  return null;
 }
 

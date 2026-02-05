@@ -4,6 +4,7 @@ import userReducer from './features/userSlice';
 import orderInfoReducer from "./features/orderInfoSlice";
 import orderTrackingReducer from './features/orderTrackingSlice';
 import orderHistoryReducer from './features/orderHistorySlice';
+import favoritesSlice  from './features/favoritesSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,5 +13,6 @@ export const store = configureStore({
     orderInfo: orderInfoReducer,
     orderTracking: orderTrackingReducer,
     orderHistory: orderHistoryReducer,
+    favorites: favoritesSlice,
   },
 })

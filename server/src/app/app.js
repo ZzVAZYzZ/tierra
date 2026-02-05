@@ -13,6 +13,7 @@ const passport = require("passport");
 const cookieParser = require("cookie-parser");
 const useragent = require("express-useragent");
 const path = require("path");
+const initRedis = require('../databases/redis/redisConnect');
 
 // test
 
@@ -24,7 +25,7 @@ require("../middlewares/passport");
 // init middlewares
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:8000"],
+    origin: ["http://localhost:3000", "http://localhost:8000", "https://proadmission-maison-pseudoexperimentally.ngrok-free.dev"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -42,6 +43,7 @@ app.use(useragent.express());
 // init database
 mysqlConnect();
 mongodbConnect();
+initRedis.connectRedis();
 
 // init routers
 app.use("/", router);

@@ -11,9 +11,13 @@ export default function ReviewModal({
 }) {
   if (!selectedProduct) return null;
 
+  // @param name 
+  // @result  ký tự đầu tiên viết hoa, hoặc "?" nếu không có tên
   const getInitial = (name) =>
     name?.trim()?.charAt(0)?.toUpperCase() || "?";
 
+  // @param rating 
+  // @result  mảng 5 icon sao, sao vàng tương ứng với rating
   const renderStars = (rating = 0) =>
     Array.from({ length: 5 }).map((_, idx) => (
       <Star
@@ -23,14 +27,6 @@ export default function ReviewModal({
         fill={idx < rating ? "#F5C344" : "transparent"}
       />
     ));
-
-  const formatDateVN = (dateString) => {
-    if (!dateString) return "--/--/----";
-    const date = new Date(dateString);
-    return `${String(date.getDate()).padStart(2, "0")}/${String(
-      date.getMonth() + 1
-    ).padStart(2, "0")}/${date.getFullYear()}`;
-  };
 
   return (
     <>

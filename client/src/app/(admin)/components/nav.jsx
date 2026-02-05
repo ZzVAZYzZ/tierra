@@ -14,16 +14,19 @@ import { useAuth } from "../../../hook/useAuth";
 import { useDispatch } from "react-redux";
 import { resetUserState } from "../../../redux/features/userSlice";
 import { useRouter } from "next/navigation";
-import { House } from "lucide-react";
+import { House, MessageCircle, BookUser } from "lucide-react";
 
 const Nav = () => {
   const dispatch = useDispatch();
   const router = useRouter();
-  const [isShow, setIsShow] = React.useState(false);
+  const [isShowOrder, setIsShowOrder] = React.useState(false);
   const [isShowRevenue, setIsShowRevenue] = React.useState(false);
+  const [isShowIsBlock, setIsShowIsBlock] = React.useState(false);
   useAuth();
   useRedirect();
 
+  // @param null
+  // @result gọi API logout, xoá token client, reset Redux user, điều hướng về trang home
   const handleLogout = async () => {
     try {
       const backendUrl =
@@ -56,12 +59,14 @@ const Nav = () => {
     <nav className=" w-[250px] h-full flex flex-col justify-between items-start relative bg-white rounded-[10px] py-[42px] pl-[22px]">
       <div className=" absolute w-[80%] border border-[#D9D9D9] top-8"></div>
       <div className=" flex flex-col gap-4 justify-center items-start">
+        {/* Quản lý sản phẩm */}
         <Link href={"/dashboard"}>
           <div className=" flex flex-row gap-3.5 cursor-pointer justify-center items-center">
             <MenuAdminIcon />
             <p>Quản lý sản phẩm</p>
           </div>
         </Link>
+        {/* Thống kê */}
         <div
           onClick={() => setIsShowRevenue(!isShowRevenue)}
           className=" flex flex-row gap-3.5 cursor-pointer  justify-center items-center"
@@ -69,13 +74,11 @@ const Nav = () => {
           <DoanthuIcon />
           <p>Thống kê</p>
         </div>
-        {/* Menu con (dropdown) */}
+        {/* Menu con Thống kê (dropdown) */}
         {isShowRevenue && (
           <div className="ml-8 mt-2 flex flex-col gap-2 text-sm text-gray-700">
             <Link href="/dashboard/statistics/revenue">
-              <p className="cursor-pointer hover:text-blue-500">
-                Doanh thu
-              </p>
+              <p className="cursor-pointer hover:text-blue-500">Doanh thu</p>
             </Link>
             <Link href="/dashboard/statistics/unitSold">
               <p className="cursor-pointer hover:text-blue-500">
@@ -84,29 +87,20 @@ const Nav = () => {
             </Link>
           </div>
         )}
+        {/* Quản lý đơn hàng */}
         <div
-          onClick={() => setIsShow(!isShow)}
+          onClick={() => setIsShowOrder(!isShowOrder)}
           className=" flex flex-row gap-5 cursor-pointer  justify-center items-center"
         >
           <QuanlyIcon />
           <p>Quản lý đơn hàng</p>
         </div>
-        {/* Menu con (dropdown) */}
-        {isShow && (
+        {/* Menu con Quản lý đơn hàng (dropdown) */}
+        {isShowOrder && (
           <div className="ml-8 mt-2 flex flex-col gap-2 text-sm text-gray-700">
             <Link href="/dashboard/orderConfirm/validation">
               <p className="cursor-pointer hover:text-blue-500">
                 Xác nhận đơn hàng
-              </p>
-            </Link>
-            <Link href="#">
-              <p className="cursor-pointer hover:text-blue-500">
-                Đơn hàng đã hoàn thành
-              </p>
-            </Link>
-            <Link href="#">
-              <p className="cursor-pointer hover:text-blue-500">
-                Đơn hàng đang xử lý
               </p>
             </Link>
             <Link href="/dashboard/orderConfirm/allData">
@@ -116,6 +110,35 @@ const Nav = () => {
             </Link>
           </div>
         )}
+        {/* Quản lý người dùng */}
+        <div
+          onClick={() => setIsShowIsBlock(!isShowIsBlock)}
+          className=" flex flex-row gap-3.5 cursor-pointer justify-center items-center">
+          <BookUser />
+          <p>Quản lý người dùng</p>
+        </div>
+        {/* Menu con Quản lý người dùng (dropdown) */}
+        {isShowIsBlock && (
+          <div className="ml-8 mt-2 flex flex-col gap-2 text-sm text-gray-700">
+            <Link href="/dashboard/usersManagement/usersList">
+              <p className="cursor-pointer hover:text-blue-500">
+                Danh sách người dùng
+              </p>
+            </Link>
+            <Link href="/dashboard/usersManagement/blockList">
+              <p className="cursor-pointer hover:text-blue-500">
+                Danh sách bị chặn
+              </p>
+            </Link>
+          </div>
+        )}
+        {/* Quản lý đoạn chat */}
+        <Link href={"/dashboard/chatManagement"}>
+          <div className=" flex flex-row gap-3.5 cursor-pointer justify-center items-center">
+            <MessageCircle />
+            <p>Quản lý đoạn chat</p>
+          </div>
+        </Link>
       </div>
       <div className=" flex flex-col gap-3 justify-center items-start">
         <div className=" flex flex-row gap-3.5 cursor-pointer justify-center items-center">
