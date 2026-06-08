@@ -71,7 +71,11 @@ const Page = () => {
       else if (color === "7") colorName = "Trang";
       list = list.filter(
         (item) =>
+<<<<<<< HEAD
           String(item.color).toLowerCase() === String(colorName).toLowerCase(),
+=======
+          String(item.color).toLowerCase() === String(colorName).toLowerCase()
+>>>>>>> 340173087d8917f22f1c39af073ed3a9f86b8c03
       );
     }
 
@@ -83,7 +87,11 @@ const Page = () => {
       list = list.filter(
         (item) =>
           String(item.material).toLowerCase() ===
+<<<<<<< HEAD
           String(materialName).toLowerCase(),
+=======
+          String(materialName).toLowerCase()
+>>>>>>> 340173087d8917f22f1c39af073ed3a9f86b8c03
       );
     }
 

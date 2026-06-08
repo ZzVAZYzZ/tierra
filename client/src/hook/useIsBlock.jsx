@@ -8,9 +8,15 @@ export const useIsBlock = () => {
   const [loading, setLoading] = useState(false);      // load list
   const [blockLoading, setBlockLoading] = useState(false);     // đang chặn
   const [unblockLoading, setUnblockLoading] = useState(false); // đang gỡ chặn
+<<<<<<< HEAD
   
   const backendUrl =
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+=======
+
+  const backendUrl =
+    process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+>>>>>>> 340173087d8917f22f1c39af073ed3a9f86b8c03
 
   const getToken = () => {
     if (typeof window === "undefined") return null;

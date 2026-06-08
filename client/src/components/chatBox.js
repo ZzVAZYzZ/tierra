@@ -11,7 +11,11 @@ import Messenger from "../assets/icons/messenger";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 
+<<<<<<< HEAD
 const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+=======
+const SOCKET_URL = "http://localhost:8000";
+>>>>>>> 340173087d8917f22f1c39af073ed3a9f86b8c03
 
 const ChatBox = () => {
   // Redux
@@ -172,7 +176,11 @@ const ChatBox = () => {
     return <></>;
   } else {
     return (
+<<<<<<< HEAD
       <div className="fixed sm:bottom-[35px] sm:right-[105px] bottom-[20px] right-[20px] z-50">
+=======
+      <div className="fixed bottom-[35px] right-[105px] z-50">
+>>>>>>> 340173087d8917f22f1c39af073ed3a9f86b8c03
         {/* audio notification */}
         <audio
           ref={audioRef}
@@ -182,7 +190,11 @@ const ChatBox = () => {
 
         {/* Popup menu nhỏ */}
         {isChatMenuOpen && (
+<<<<<<< HEAD
           <div className="absolute top-[-155px] right-[10px] sm:right-[-10px] md:right-[-15px] w-[230px] bg-white rounded-2xl shadow-lg p-4 flex flex-col gap-3 z-20">
+=======
+          <div className="absolute top-[-155px] right-[-15px] w-[230px] bg-white rounded-2xl shadow-lg p-4 flex flex-col gap-3 z-20">
+>>>>>>> 340173087d8917f22f1c39af073ed3a9f86b8c03
             <button
               onClick={handleDirectChat}
               className="w-full h-[45px] rounded-lg bg-[#9B8D6F] text-white font-medium hover:opacity-90 transition flex flex-row items-center justify-center gap-2 cursor-pointer"
@@ -207,8 +219,12 @@ const ChatBox = () => {
 
         {/* KHUNG CHAT LỚN */}
         {isChatBoxOpen && (
+<<<<<<< HEAD
           <div className=" absolute bottom-[80px] right-0 w-[calc(100vw-20px)] h-[70vh] sm:w-[350px] sm:h-[500px] md:w-[400px] md:h-[600px] max-w-[400px] bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden z-40 flex flex-col">
             {" "}
+=======
+          <div className="absolute bottom-[90px] right-[-15px] w-[400px] h-[600px] bg-white rounded-3xl shadow-2xl overflow-hidden z-40 flex flex-col">
+>>>>>>> 340173087d8917f22f1c39af073ed3a9f86b8c03
             {/* Header */}
             <div className="h-[70px] bg-[#9B8D6F] text-white flex items-center justify-between px-4">
               <div className="flex items-center gap-3">
@@ -231,6 +247,10 @@ const ChatBox = () => {
                 <X size={22} color="white" />
               </button>
             </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 340173087d8917f22f1c39af073ed3a9f86b8c03
             {/* Nội dung chat */}
             <div className="flex-1 bg-white px-3 py-3 overflow-y-auto space-y-2">
               {messages.map((m) => {
@@ -265,6 +285,10 @@ const ChatBox = () => {
 
               <div ref={messagesEndRef} />
             </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 340173087d8917f22f1c39af073ed3a9f86b8c03
             {/* Ô nhập tin nhắn */}
             <div className="h-20 px-4 flex items-center">
               <div className="flex-1 flex items-center border border-[#9B8D6F] rounded-full overflow-hidden px-4">

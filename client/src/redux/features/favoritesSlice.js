@@ -1,8 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
+<<<<<<< HEAD
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+=======
+>>>>>>> 340173087d8917f22f1c39af073ed3a9f86b8c03
 const initialState = {
   favorites: [],      // danh sách sản phẩm yêu thích
   status: "idle",
@@ -15,7 +18,11 @@ export const favoriteProduct = createAsyncThunk(
   async ({ productId, token }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
+<<<<<<< HEAD
         `${API_URL}/api/favorites/favoriteProduct/`,
+=======
+        "http://localhost:8000/api/favorites/favoriteProduct/",
+>>>>>>> 340173087d8917f22f1c39af073ed3a9f86b8c03
         { product_id: productId },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -40,7 +47,11 @@ export const unFavoriteProduct = createAsyncThunk(
     try {
       // LƯU Ý: axios.delete muốn gửi body thì phải dùng { data: {...} }
       const response = await axios.delete(
+<<<<<<< HEAD
         `${API_URL}/api/favorites/unFavoriteProduct/`,
+=======
+        "http://localhost:8000/api/favorites/unFavoriteProduct/",
+>>>>>>> 340173087d8917f22f1c39af073ed3a9f86b8c03
         {
           data: { product_id: productId },
           headers: { Authorization: `Bearer ${token}` },
@@ -64,7 +75,11 @@ export const getUserFavorites = createAsyncThunk(
   async ({ token }, { rejectWithValue }) => {
     try {
       const response = await axios.get(
+<<<<<<< HEAD
         `${API_URL}/api/favorites/getUserFavorites/`,
+=======
+        "http://localhost:8000/api/favorites/getUserFavorites/",
+>>>>>>> 340173087d8917f22f1c39af073ed3a9f86b8c03
         {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
