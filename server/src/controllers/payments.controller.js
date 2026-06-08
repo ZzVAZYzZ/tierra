@@ -7,6 +7,8 @@ const asyncHandler = require("express-async-handler");
 const { sendPaymentSuccessEmail } = require("../utils/sendMail");
 const User = require("../models/users");
 
+//@param { amount, name, email, addressLine1, city, order_id }
+//@result { clientSecret }
 const createPaymentIntent = asyncHandler(async (req, res) => {
   try {
     // NHẬN THÊM CÁC THÔNG TIN KHÁCH HÀNG TỪ FRONTEND
@@ -49,6 +51,8 @@ const createPaymentIntent = asyncHandler(async (req, res) => {
 });
 
 // Hàm này không cần thay đổi logic, nhưng chúng ta có thể in ra metadata
+//@param { paymentIntent }
+//@result { message, status, paymentId }
 const paymentResult = asyncHandler(async (req, res) => {
   // Frontend chỉ gửi về một phần của paymentIntent (thường chỉ có id và status)
   const { paymentIntent } = req.body;
@@ -123,7 +127,7 @@ const paymentResult = asyncHandler(async (req, res) => {
       console.log("⚠️ Thanh toán chưa thành công:", fullPaymentIntent.status);
     }
 
-    res.send({
+    res.status(200).send({
       message: "Server successfully processed payment result",
       status: fullPaymentIntent.status,
       paymentId: fullPaymentIntent.id,
@@ -134,6 +138,8 @@ const paymentResult = asyncHandler(async (req, res) => {
   }
 });
 
+//@param null
+//@result { orderId }
 const QRScan = asyncHandler(async (req, res) => {
   try {
     const orderData = req.query.data ? JSON.parse(req.query.data) : null;
