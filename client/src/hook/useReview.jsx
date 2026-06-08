@@ -8,7 +8,7 @@ import { useCallback, useState } from "react";
  */
 
 export function useReview() {
-  const API_URL = "http://localhost:8000"; // Ví dụ: http://localhost:8000
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 

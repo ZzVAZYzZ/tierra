@@ -1,6 +1,7 @@
 import "../globals.css";
 import Nav from "../../components/nav";
 import Footer from "../../components/footer";
+import ChatBox from "../../components/chatBox";
 
 export const metadata = {
   title: "web trang suc nu",
@@ -9,11 +10,11 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <div>
+    <div >
       <Nav />
+      <ChatBox />
       {children}
       <Footer />
     </div>
-
-  )
+  );
 }

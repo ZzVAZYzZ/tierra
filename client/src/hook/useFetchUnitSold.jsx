@@ -7,6 +7,8 @@ export const useFetchUnitSold = (mode, dateString) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
   useEffect(() => {
     if (!mode || !dateString) return;
 
@@ -14,7 +16,7 @@ export const useFetchUnitSold = (mode, dateString) => {
       try {
         setLoading(true);
         const res = await axios.get(
-          "http://localhost:8000/api/statistics/unit-sold",
+          `${API_URL}/api/statistics/unit-sold`,
           {
             params: { mode, dateString },
           }

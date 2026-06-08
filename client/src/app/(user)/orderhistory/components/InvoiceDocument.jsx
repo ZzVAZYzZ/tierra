@@ -115,7 +115,7 @@ const InvoiceDocument = ({ order }) => {
     
     // Tạo data cho bảng
     const tableData = order.orderDetails.map((detail) => {
-        const lineTotal = detail.unit_price * detail.quantity - (detail.discount || 0);
+        const lineTotal = detail.unit_price * detail.quantity - (detail.discount * detail.quantity || 0);
         return {
             name: detail.product_name,
             sl: detail.quantity,

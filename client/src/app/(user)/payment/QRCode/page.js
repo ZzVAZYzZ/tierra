@@ -10,9 +10,10 @@ export default function Page() {
   const { user } = useSelector((state) => state.user);
   const orderInfo = useSelector((state) => state.orderInfo.orderInfo);
   const router = useRouter();
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
   useRefresh()
   const [status, setStatus] = React.useState("waiting"); // waiting | success | failed
-  const backendIp = "10.102.70.166";
+  const backendIp = "10.102.62.243";
   // ✅ Tạo object chứa dữ liệu order thực tế
   const objNew = React.useMemo(() => {
     if (!user || !orderInfo) return null;
@@ -49,7 +50,11 @@ export default function Page() {
     console.log(objNew.order_id);
 
     console.log("🧠 Connecting to socket server...");
-    const socket = io(`http://${backendIp}:8000`, {
+    // const socket = io(`http://${backendIp}:8000`, {
+    //   transports: ["websocket"],
+    // });
+
+    const socket = io(`${API_URL}`, {
       transports: ["websocket"],
     });
 
@@ -127,7 +132,8 @@ export default function Page() {
     typeof window !== "undefined"
       ? localStorage.getItem("access_token")
       : "";
-  const backendUrl = `http://${backendIp}:8000/api/test-qr-scan`;
+  // const backendUrl = `http://${backendIp}:8000/api/test-qr-scan`;
+  const backendUrl = `${API_URL}/api/test-qr-scan`;
   const encodedJson = encodeURIComponent(JSON.stringify(objNew));
   const dataToEncode = `${backendUrl}?data=${encodedJson}&token=${token}&timestamp=${Date.now()}`;
 

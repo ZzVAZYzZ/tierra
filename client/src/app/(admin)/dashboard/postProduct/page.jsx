@@ -2,7 +2,7 @@
 import React, { useRef, useState } from "react";
 import useAddProduct from "../../../../hook/usePostProduct";
 import "./globals.css";
-import { useAuth } from "../../../../hook/useAuth";
+// import { useAuth } from "../../../../hook/useAuth";
 
 const Page = () => {
   const [form, setForm] = useState({
@@ -15,6 +15,9 @@ const Page = () => {
     stock_quantity: 10,
     status: "active",
     color: "",
+    stone_type: "",
+    stone_shape: "",
+    weight: 0,
     main_index: Number(0),
   });
 
@@ -28,18 +31,26 @@ const Page = () => {
     description: useRef(null),
     material: useRef(null),
     color: useRef(null),
+    stone_type: useRef(null),
+    stone_shape: useRef(null),
+    weight: useRef(null),
     category_id: useRef(null),
     price: useRef(null),
     stock_quantity: useRef(null),
   };
 
   // 👉 Hàm kích hoạt shake
+  // @param  ref
+  // @result  thêm class "shake" tạm thời cho element để tạo hiệu ứng rung khi lỗi
   const triggerShake = (ref) => {
     if (!ref?.current) return;
     ref.current.classList.add("shake");
     setTimeout(() => ref.current.classList.remove("shake"), 400);
   };
 
+  // @param {Event} e - sự kiện onChange của input file
+  // @param {number} index - vị trí ảnh trong mảng images
+  // @result  cập nhật file ảnh tương ứng với index
   const handleImageChange = (e, index) => {
     const file = e.target.files[0];
     if (file) {
@@ -49,6 +60,8 @@ const Page = () => {
     }
   };
 
+  // @param  e - sự kiện onChange của input text/number/radio
+  // @result cập nhật state form + reset lỗi field đó
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({
@@ -63,12 +76,17 @@ const Page = () => {
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
+  // @param {}
+  // @result  true nếu form hợp lệ, false nếu có lỗi; đồng thời set error + trigger shake
   const validateForm = () => {
     const newErrors = {};
     if (!form.name.trim()) newErrors.name = "Vui lòng nhập tên sản phẩm";
     if (!form.description.trim()) newErrors.description = "Vui lòng nhập mô tả";
     if (!form.material) newErrors.material = "Vui lòng chọn chất liệu";
     if (!form.color) newErrors.color = "Vui lòng chọn màu sắc";
+    // if (!form.stone_type) newErrors.stone_type = "Vui lòng chọn loại đá";
+    // if (!form.stone_shape) newErrors.stone_shape = "Vui lòng chọn hình dạng đá";
+    // if (!form.weight) newErrors.weight = "Vui lòng chọn trọng lượng";
     if (!form.category_id)
       newErrors.category_id = "Vui lòng chọn loại sản phẩm";
     if (!form.price || form.price <= 0)
@@ -87,7 +105,8 @@ const Page = () => {
 
     return Object.keys(newErrors).length === 0;
   };
-
+ // @param null
+  // @result  validate form, check ảnh, sau đó gọi API addProduct
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
@@ -252,6 +271,62 @@ const Page = () => {
               <p className="text-red-500 text-sm mt-1">{errors.price}</p>
             )}
           </div>
+        </div>
+        {/* Loại đá & Hình dạng đá & Trọng lượng */}
+        <div className="flex flex-row gap-6">
+          <div className="flex-1">
+            <h3 className="font-medium mb-2">Loại đá</h3>
+            <input
+              ref={refs.stone_type}
+              className={`border rounded-lg px-4 py-2 w-full outline-none focus:border-[#9B8D6F] ${
+                errors.stone_type ? "border-red-500" : ""
+              }`}
+              placeholder="Loại đá"
+              type="text"
+              name="stone_type"
+              onChange={handleChange}
+            />
+            {errors.stone_type && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.stone_type}
+              </p>
+            )}
+          </div>
+
+          <div className="flex-1">
+            <h3 className="font-medium mb-2">Hình dạng đá</h3>
+            <input
+              ref={refs.stone_shape}
+              className={`border rounded-lg px-4 py-2 w-full outline-none focus:border-[#9B8D6F] ${
+                errors.price ? "border-red-500" : ""
+              }`}
+              placeholder="Hình dạng đá"
+              type="text"
+              name="stone_shape"
+              onChange={handleChange}
+            />
+            {errors.stone_shape && (
+              <p className="text-red-500 text-sm mt-1">{errors.stone_shape}</p>
+            )}
+          </div>
+
+          <div className="flex-1">
+            <h3 className="font-medium mb-2">Trọng lượng</h3>
+            <input
+              type="text"
+              name="weight"
+              onChange={handleChange}
+              ref={refs.weight}
+              className={`border rounded-lg px-4 py-2 w-full outline-none focus:border-[#9B8D6F] ${
+                errors.weight ? "border-red-500" : ""
+              }`}
+              placeholder="Trọng lượng"
+            />
+            {errors.weight && (
+              <p className="text-red-500 text-sm mt-1">{errors.weight}</p>
+            )}
+          </div>
+          
         </div>
 
         {/* Mô tả sản phẩm */}

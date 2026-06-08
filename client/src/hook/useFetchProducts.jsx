@@ -12,5 +12,7 @@ export const useFetchProducts = () => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
-  return { products, status, error };
+  const loading = status === "idle" || status === "loading";
+
+  return { products, status, error, loading };
 };

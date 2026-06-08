@@ -4,6 +4,7 @@ import { toIntegerVND } from "../utils/price";
 import InsideCart from "../../../assets/icons/inside_cart";
 import TrashIcon from "../../../assets/icons/trash_icon";
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 
 
 const fmt = (v) =>
@@ -29,6 +30,12 @@ const saveCart = (items) => {
 export default function Page() {
   const [items, setItems] = React.useState([]);
   const router = useRouter();
+  const {user} = useSelector((state) => state.user);
+
+
+  React.useEffect(()=>{
+    console.log(user);
+  },[])
 
   React.useEffect(() => {
     setItems(loadCart());
@@ -99,6 +106,14 @@ export default function Page() {
 }, [total]);
 
   const allChecked = items.length > 0 && items.every((it) => it.selected);
+
+  const navigateToOrderInfoPage = () => {
+    if(user!=null) {
+      router.push("/orderinfo")
+    }else{
+      alert("Bạn cần đăng nhập để đặt hàng!")
+    };
+  }
 
   if (items.length === 0) {
     return (
@@ -210,7 +225,7 @@ export default function Page() {
                 </div>
               </div>
               
-              <button onClick={() => router.push("/orderinfo")} className="mt-6 w-[90%] h-[44px] rounded-full bg-[#9B8D6F] text-white font-medium cursor-pointer hover:opacity-90 transition">
+              <button onClick={navigateToOrderInfoPage} className="mt-6 w-[90%] h-[44px] rounded-full bg-[#9B8D6F] text-white font-medium cursor-pointer hover:opacity-90 transition">
                 Tiếp tục
               </button>
             </div>

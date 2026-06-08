@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 const initialState = {
   products: [],
   product: null,
@@ -12,7 +14,7 @@ const initialState = {
 export const fetchProducts = createAsyncThunk(
   "products/fetchProducts",
   async () => {
-    const response = await axios.get("http://localhost:8000/api/products");
+    const response = await axios.get(`${API_URL}/api/products`);
 
     return response.data;
   }
@@ -23,7 +25,7 @@ export const addProduct = createAsyncThunk(
   async ({ data, token }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/products/add",
+        `${API_URL}/api/products/add`,
         data,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -44,7 +46,7 @@ export const deleteProduct = createAsyncThunk(
   async ({ id, token }, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `http://localhost:8000/api/products/${id}`,
+        `${API_URL}/api/products/${id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
@@ -64,7 +66,7 @@ export const fetchProductsById = createAsyncThunk(
   async ({ id, token }, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `http://localhost:8000/api/products/${id}`,
+        `${API_URL}/api/products/${id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
@@ -84,7 +86,7 @@ export const updateProduct = createAsyncThunk(
   async ({ id, data, token }, { rejectWithValue }) => {
     try {
       const response = await axios.put(
-        `http://localhost:8000/api/products/${id}`,
+        `${API_URL}/api/products/${id}`,
         data,
         {
           headers: {

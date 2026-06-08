@@ -2,9 +2,9 @@
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios';
-// ⚠️ Cần import thunk refresh từ userSlice của bạn
 import { refresh } from './userSlice';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 const initialState = {
     orders: [],
@@ -14,7 +14,7 @@ const initialState = {
 
 // Hàm gọi API lấy danh sách đơn hàng
 const fetchOrdersApi = async (userId, token) => {
-    const response = await axios.get(`http://localhost:8000/api/orders/user/${userId}`, {
+    const response = await axios.get(`${API_URL}/api/orders/user/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
     });

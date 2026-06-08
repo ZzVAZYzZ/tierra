@@ -5,7 +5,9 @@ import DaucongIcon from "../../../assets/icons/admin/daucong_icon";
 import React from "react";
 import Link from "next/link";
 
-const NavPage = () => {
+//@param { searchTerm, onSearchChange }
+//@result header điều hướng trang sản phẩm, có ô tìm kiếm + nút tạo sản phẩm
+const NavPage = ({ searchTerm, onSearchChange }) => {
   const today = new Date();
   const day = today.getDate(); // Ngày
   const months = [
@@ -38,13 +40,18 @@ const NavPage = () => {
             type="text"
             placeholder="Tìm kiếm sản phẩm"
             className="w-full h-full rounded-xl border border-black pl-[17px] pr-[45px] focus:outline-none"
+            value={searchTerm}
+            onChange={(e) => onSearchChange(e.target.value)}
           />
           <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
             <TimKiemIcon />
           </div>
         </div>
 
-        <Link href="/dashboard/postProduct" className="w-[200px] h-[45px] bg-[#9B8D6F]  shadow-[0px_4px_15px_rgba(0,0,0,0.4)] rounded-lg flex justify-center items-center text-white gap-[5px] cursor-pointer text-[15px]">
+        <Link
+          href="/dashboard/postProduct"
+          className="w-[200px] h-[45px] bg-[#9B8D6F]  shadow-[0px_4px_15px_rgba(0,0,0,0.4)] rounded-lg flex justify-center items-center text-white gap-[5px] cursor-pointer text-[15px]"
+        >
           <DaucongIcon />
           <div>Tạo sản phẩm</div>
         </Link>

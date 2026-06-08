@@ -4,6 +4,8 @@ import { useDispatch } from "react-redux";
 import { clearOrder } from "../../../../../redux/features/orderInfoSlice";
 import { useRouter } from "next/navigation";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 const CheckoutForm = ({ paymentInfo }) => {
     const stripe = useStripe();
     const elements = useElements();
@@ -33,7 +35,7 @@ const CheckoutForm = ({ paymentInfo }) => {
 
         // Bắt đầu: Tạo PaymentIntent từ Backend
         try {
-            const res = await fetch("http://localhost:8000/api/create-payment-intent", {
+            const res = await fetch(`${API_URL}/api/create-payment-intent`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -86,7 +88,7 @@ const CheckoutForm = ({ paymentInfo }) => {
                 alert("✅ Thanh toán thành công! Mã giao dịch: " + paymentIntent.id);
 
                 // Gửi kết quả thanh toán về server
-                await fetch("http://localhost:8000/api/payment-result", {
+                await fetch(`${API_URL}/api/payment-result`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

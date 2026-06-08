@@ -40,39 +40,6 @@ export default function Page() {
   React.useEffect(() => {
     dispatch(initFromLocal());
   }, [dispatch]);
-  const formatVND = (n) =>
-    new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(Math.max(0, Number(n || 0)));
-
-  // Prefill form từ thông tin user nếu có
-  React.useEffect(() => {
-    if (!user) return;
-    const updates = {};
-    if (user.name && !form.fullName) updates.fullName = user.name;
-    if (user.email && !form.email) updates.email = user.email;
-    if (user.phone && !form.phone) updates.phone = user.phone;
-    if (user.address && !form.address) updates.address = user.address;
-    if (Object.keys(updates).length) {
-      dispatch(setAll({ ...form, ...updates }));
-    }
-  }, [user, form.fullName, form.email, form.phone, form.address, dispatch]);
-
-  React.useEffect(() => {
-    try {
-      const raw = localStorage.getItem("cart_total");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (!isNaN(parsed)) {
-          // setLocalTotal(parsed);
-          dispatch(setField({ key: "cartTotal", value: parsed })); // lưu luôn vào redux
-        }
-      }
-    } catch (e) {
-      console.error("Không thể đọc tổng tiền:", e);
-    }
-  }, [dispatch]);
 
   // Prefill form từ thông tin user nếu có
   React.useEffect(() => {
@@ -122,7 +89,7 @@ export default function Page() {
       .filter((it) => it.selected !== false) // chỉ lấy sp đã chọn
       .map((it) => ({
         product_id: it.product_id,
-        product_name: it.product_name || it.name || "",
+        product_name: it.product_name || it.name || " ",
         quantity: Math.max(1, Number(it.quantity) || 1),
         unit_price: Number(it.unit_price ?? it.price ?? 0),
         discount: Math.max(0, Number(it.discount ?? it.discount_price ?? 0)),
@@ -134,14 +101,14 @@ export default function Page() {
     // }, 0);
 
     return {
-      shipping_address: String(orderInfo.address || "").trim(),
+      shipping_address: String(orderInfo.address || " ").trim(),
       orderDetails,
       payment_method: form.payment,
     };
   }, [orderInfo]);
 
   const onChange = (key) => (e) => {
-    const value = e.target?.value ?? "";
+    const value = e.target?.value ?? " ";
     dispatch(setField({ key, value }));
     if (errors[key]) setErrors((er) => ({ ...er, [key]: undefined }));
   };
@@ -181,10 +148,10 @@ export default function Page() {
       const token =
         typeof window !== "undefined"
           ? localStorage.getItem("access_token")
-          : "";
-
+          : " ";
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
       const resp = await axios.post(
-        "http://localhost:8000/api/orders/makeOrder",
+        `${API_URL}/api/orders/makeOrder`,
         {
           shipping_address: objNew.shipping_address,
           orderDetails: objNew.orderDetails,
@@ -341,9 +308,7 @@ export default function Page() {
                     />
                     Thanh toán thẻ
                   </label>
-                  <label
-                    className="flex items-center gap-3"
-                  >
+                  <label className="flex items-center gap-3">
                     <input
                       type="radio"
                       name="payment"

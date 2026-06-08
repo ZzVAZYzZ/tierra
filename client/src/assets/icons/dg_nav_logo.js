@@ -8,6 +8,7 @@ const DgNavLogo = () => {
       viewBox="0 0 200 150"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      className="w-[100px] md:w-[160px] lg:w-[200px]"
     >
       {/* Mask 0 */}
       <mask

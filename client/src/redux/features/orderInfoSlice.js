@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 const STORAGE_KEY = "order_info";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 const initialState = {
   orderInfo: {
@@ -132,7 +133,7 @@ export const makeOrder = createAsyncThunk(
       }, 0);
 
       const resp = await axios.post(
-        "http://localhost:8000/api/orders/makeOrder",
+        `${API_URL}/api/orders/makeOrder`,
         {
           shipping_address: String(orderInfo.address || "").trim(),
           total_amount,
@@ -173,7 +174,7 @@ export const fetchOrdersByStatus = createAsyncThunk(
       }
 
       const response = await axios.get(
-        `http://localhost:8000/api/orders/status/${status}`,
+        `${API_URL}/api/orders/status/${status}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -215,7 +216,7 @@ export const updateOrderStatus = createAsyncThunk(
       if (!token) throw new Error("Không tìm thấy token xác thực.");
 
       const res = await axios.patch(
-        `http://localhost:8000/api/orders/${orderId}`,
+        `${API_URL}/api/orders/${orderId}`,
         { newStatus },
         {
           headers: { Authorization: `Bearer ${token}` },

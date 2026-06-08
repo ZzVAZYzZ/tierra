@@ -3,15 +3,14 @@ import React from "react";
 const DgFooterLogo = () => {
   return (
     <svg
-      width="300"
-      height="200"
-      viewBox="0 0 300 200"
+      viewBox="0 0 250 150"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      className="w-[100px] md:w-[160px] lg:w-[180px]"
     >
       <mask
         id="mask0_52_374"
-        style={{ maskType: "luminance" }} 
+        style={{ maskType: "luminance" }}
         maskUnits="userSpaceOnUse"
         x="64"
         y="65"
@@ -27,7 +26,7 @@ const DgFooterLogo = () => {
         />
         <mask
           id="mask1_52_374"
-          style={{ maskType: "luminance" }} 
+          style={{ maskType: "luminance" }}
           maskUnits="userSpaceOnUse"
           x="152"
           y="65"
@@ -45,7 +44,7 @@ const DgFooterLogo = () => {
       </g>
       <mask
         id="mask2_52_374"
-        style={{ maskType: "luminance" }} 
+        style={{ maskType: "luminance" }}
         maskUnits="userSpaceOnUse"
         x="64"
         y="98"
@@ -60,7 +59,7 @@ const DgFooterLogo = () => {
       <g mask="url(#mask2_52_374)">
         <mask
           id="mask3_52_374"
-          style={{ maskType: "luminance" }} 
+          style={{ maskType: "luminance" }}
           maskUnits="userSpaceOnUse"
           x="64"
           y="98"
@@ -72,7 +71,7 @@ const DgFooterLogo = () => {
         <g mask="url(#mask3_52_374)">
           <mask
             id="mask4_52_374"
-            style={{ maskType: "luminance" }} 
+            style={{ maskType: "luminance" }}
             maskUnits="userSpaceOnUse"
             x="64"
             y="98"
@@ -94,7 +93,7 @@ const DgFooterLogo = () => {
       </g>
       <mask
         id="mask5_52_374"
-        style={{ maskType: "luminance" }} 
+        style={{ maskType: "luminance" }}
         maskUnits="userSpaceOnUse"
         x="93"
         y="99"

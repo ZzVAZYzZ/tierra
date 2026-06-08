@@ -9,6 +9,8 @@ export const useFetchStatistics = (mode, dateString) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
   useEffect(() => {
     if (!mode || !dateString) return;
 
@@ -20,7 +22,7 @@ export const useFetchStatistics = (mode, dateString) => {
         setError(null);
 
         const res = await axios.get(
-          "http://localhost:8000/api/statistics/revenue",
+          `${API_URL}/api/statistics/revenue`,
           {
             params: { mode, dateString },
             signal: controller.signal,

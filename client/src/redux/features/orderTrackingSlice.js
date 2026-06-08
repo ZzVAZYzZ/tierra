@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 const initialState = {
   orderTrackingData: null,
   status: "idle",
@@ -14,7 +16,7 @@ export const lookupOrder = createAsyncThunk(
   async ({ orderId }, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('access_token')
-      const response = await axios.get(`http://localhost:8000/api/orders/${orderId}`, {
+      const response = await axios.get(`${API_URL}/api/orders/${orderId}`, {
         headers: { Authorization: `Bearer ${token}` },
       }, {
         withCredentials: true,
