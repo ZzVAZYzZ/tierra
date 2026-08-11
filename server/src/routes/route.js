@@ -9,6 +9,7 @@ const reviewRoute = require('./reviewRoute/reviewRoute');
 const statisticsRoute = require('./statisticsRoute/statisticsRoute');
 const isBlockRoute = require("./isBlockRoute/isBlockRoute");
 const favoritesRoute = require("./favoritesRoute/favoritesRoute");
+const chatbotRoute = require("./chatbotRoute/chatbotRoute");
 
 router.use('/api',usersRoute);
 router.use('/api',productsRoute);
@@ -19,5 +20,6 @@ router.use('/api',reviewRoute);
 router.use('/api',statisticsRoute);
 router.use("/api", isBlockRoute);
 router.use("/api", favoritesRoute);
+router.use("/api", chatbotRoute);
 
 module.exports = router;

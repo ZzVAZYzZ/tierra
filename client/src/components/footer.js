@@ -1,9 +1,5 @@
 "use client";
-<<<<<<< HEAD
 import React, { useEffect } from "react";
-=======
-import React from "react";
->>>>>>> 340173087d8917f22f1c39af073ed3a9f86b8c03
 import DgFooterLogo from "../assets/icons/dg_footer_logo";
 import FacebookIcon from "../assets/icons/facebook_icon";
 import Instagram from "../assets/icons/instagram";
@@ -11,7 +7,6 @@ import useViewport from "../hook/useViewport";
 
 const Footer = () => {
   const { width } = useViewport();
-<<<<<<< HEAD
   const [isLaptop, setIsLaptop] = React.useState(false);
   const [isTablet, setIsTablet] = React.useState(false);
   const [isMobile, setIsMobile] = React.useState(false);
@@ -34,12 +29,6 @@ const Footer = () => {
   useEffect(() => {
     console.log(width);
   }, [width]);
-=======
-  const isLaptop = width > 1024;
-  const isTablet = width > 480 && width <= 1024;
-  const isMobile = width <= 480;
-
->>>>>>> 340173087d8917f22f1c39af073ed3a9f86b8c03
   if (isLaptop) {
     return (
       <div className="h-[250px] bg-[#9B8D6F] flex flex-row items-center justify-around relative">
@@ -77,11 +66,7 @@ const Footer = () => {
     );
   }
   // ============ TABLET ============
-<<<<<<< HEAD
   else if (isTablet) {
-=======
-  if (isTablet) {
->>>>>>> 340173087d8917f22f1c39af073ed3a9f86b8c03
     return (
       <div className="bg-[#9B8D6F] px-6 py-8 flex flex-row items-start justify-between gap-4 text-white">
         {/* OUR COMPANY */}
@@ -116,15 +101,9 @@ const Footer = () => {
   }
 
   // ============ MOBILE ============
-<<<<<<< HEAD
   else if (isMobile) {
     return (
       <div className=" bg-[#9B8D6F] px-4 py-7 flex flex-row items-start justify-between gap-3 text-white">
-=======
-  if (isMobile) {
-    return (
-      <div className="bg-[#9B8D6F] px-4 py-7 flex flex-row items-start justify-between gap-3 text-white">
->>>>>>> 340173087d8917f22f1c39af073ed3a9f86b8c03
         {/* OUR COMPANY */}
         <div className="flex flex-col gap-1 min-w-20">
           <p className="text-[16px] font-semibold">OUR COMPANY</p>

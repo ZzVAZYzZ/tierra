@@ -86,11 +86,20 @@ export default function page() {
               </p>
             )}
 
-            <div className="w-full text-center mt-[26px]">
-              Bạn đã có tài khoản?{" "}
-              <Link href={"/login"}>
-                <span className="cursor-pointer text-[#9B8D6F]">
-                  <strong>Đăng nhập</strong>
+            <div className="w-full text-center mt-4 text-sm flex flex-col items-center gap-2">
+              <div>
+                Bạn đã có tài khoản?{" "}
+                <Link href="/login">
+                  <span className="cursor-pointer text-[#9B8D6F] font-bold">
+                    Đăng nhập
+                  </span>
+                </Link>
+              </div>
+
+              <Link href="/home">
+                Quay lại
+                <span className="cursor-pointer text-[#9B8D6F] font-bold ml-1">
+                  Trang Chủ
                 </span>
               </Link>
             </div>
@@ -186,11 +195,20 @@ export default function page() {
               </p>
             )}
 
-            <div className="w-full text-center mt-4 text-sm">
-              Bạn đã có tài khoản?{" "}
-              <Link href={"/login"}>
-                <span className="cursor-pointer text-[#9B8D6F] font-bold">
-                  Đăng nhập
+            <div className="w-full text-center mt-4 text-sm flex flex-col items-center gap-2">
+              <div>
+                Bạn đã có tài khoản?{" "}
+                <Link href="/login">
+                  <span className="cursor-pointer text-[#9B8D6F] font-bold">
+                    Đăng nhập
+                  </span>
+                </Link>
+              </div>
+
+              <Link href="/home">
+                Quay lại
+                <span className="cursor-pointer text-[#9B8D6F] font-bold ml-1">
+                  Trang Chủ
                 </span>
               </Link>
             </div>
@@ -227,11 +245,11 @@ export default function page() {
           </Link>
 
           <div className="w-full flex justify-center mt-4 mb-2">
-            <img
+            {/* <img
               src={loginImage.src}
               alt="register"
               className="w-full max-w-xs rounded-xl object-cover"
-            />
+            /> */}
           </div>
 
           <form
@@ -293,11 +311,20 @@ export default function page() {
             </p>
           )}
 
-          <div className="w-full text-center mt-4 text-sm">
-            Bạn đã có tài khoản?{" "}
-            <Link href={"/login"}>
-              <span className="cursor-pointer text-[#9B8D6F] font-bold">
-                Đăng nhập
+          <div className="w-full text-center mt-4 text-sm flex flex-col items-center gap-2">
+            <div>
+              Bạn đã có tài khoản?{" "}
+              <Link href="/login">
+                <span className="cursor-pointer text-[#9B8D6F] font-bold">
+                  Đăng nhập
+                </span>
+              </Link>
+            </div>
+
+            <Link href="/home">
+              Quay lại
+              <span className="cursor-pointer text-[#9B8D6F] font-bold ml-1">
+                Trang Chủ
               </span>
             </Link>
           </div>

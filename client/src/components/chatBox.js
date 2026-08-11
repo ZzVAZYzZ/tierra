@@ -5,17 +5,14 @@ import {
   X,
   MessageCircle,
   SendHorizontal,
+  Bot
 } from "lucide-react";
 import { io } from "socket.io-client";
 import Messenger from "../assets/icons/messenger";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-
-<<<<<<< HEAD
+import AIChatBox from "./aiChatBox";
 const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-=======
-const SOCKET_URL = "http://localhost:8000";
->>>>>>> 340173087d8917f22f1c39af073ed3a9f86b8c03
 
 const ChatBox = () => {
   // Redux
@@ -26,8 +23,9 @@ const ChatBox = () => {
   // UI state
   const [isChatMenuOpen, setIsChatMenuOpen] = useState(false);
   const [isChatBoxOpen, setIsChatBoxOpen] = useState(false);
+  const [isAIChatOpen, setIsAIChatOpen] = useState(false);
   const [isMessengerHover, setIsMessengerHover] = useState(false);
-  const isAnyChatOpen = isChatMenuOpen || isChatBoxOpen;
+  const isAnyChatOpen = isChatMenuOpen || isChatBoxOpen || isAIChatOpen;
 
   // chat state
   const socketRef = useRef(null);
@@ -45,9 +43,9 @@ const ChatBox = () => {
     isChatBoxOpenRef.current = isChatBoxOpen;
   }, [isChatBoxOpen]);
 
-  // KẾT NỐI SOCKET 1 lần khi có userId
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !isChatBoxOpen) return;
+    if (socketRef.current) return;
 
     const socket = io(SOCKET_URL, {
       withCredentials: true,
@@ -62,34 +60,24 @@ const ChatBox = () => {
     socket.on("connect", () => {
       console.log("✅ User socket connected:", socket.id);
 
-      // lấy số unread từ backend khi connect
-      socket.emit("support:userInitUnread");
+      socket.emit("support:join");
+      socket.emit("support:markAsRead");
     });
 
     socket.on("disconnect", () => {
       console.log("❌ User socket disconnected");
     });
 
-    // BE trả về số unread ban đầu
-    socket.on("support:initUnreadForUser", ({ unreadCount }) => {
-      console.log("📊 initUnreadForUser:", unreadCount);
-      setUnreadCount(unreadCount || 0);
-    });
-
-    // lịch sử chat sau khi join
     socket.on("support:history", (history) => {
       console.log("📜 support:history", history);
       setMessages(history || []);
     });
 
-    // tin nhắn mới (user & admin) trong room này
     socket.on("support:newMessage", (msg) => {
       console.log("💬 support:newMessage", msg);
       setMessages((prev) => [...prev, msg]);
 
-      // Nếu tin từ admin
       if (msg.senderRole === "admin") {
-        // nếu khung chat đang đóng => tăng unread + phát âm thanh
         if (!isChatBoxOpenRef.current) {
           setUnreadCount((prev) => prev + 1);
 
@@ -98,7 +86,6 @@ const ChatBox = () => {
             audioRef.current.play().catch(() => {});
           }
         } else {
-          // nếu đang mở chat => coi như đang đọc -> markAsRead luôn
           socket.emit("support:markAsRead");
         }
       }
@@ -115,14 +102,14 @@ const ChatBox = () => {
     return () => {
       socket.off("connect");
       socket.off("disconnect");
-      socket.off("support:initUnreadForUser");
       socket.off("support:history");
       socket.off("support:newMessage");
       socket.off("support:error");
       socket.off("support:markAsRead:done");
       socket.disconnect();
+      socketRef.current = null;
     };
-  }, [userId]);
+  }, [userId, isChatBoxOpen]);
 
   // Auto scroll
   useEffect(() => {
@@ -133,9 +120,10 @@ const ChatBox = () => {
 
   // Toggle nút tròn
   const handleToggleChatButton = () => {
-    if (isChatBoxOpen) {
+    if (isChatBoxOpen || isAIChatOpen) {
       // đang mở -> tắt hết
       setIsChatBoxOpen(false);
+      setIsAIChatOpen(false);
       setIsChatMenuOpen(false);
       return;
     }
@@ -163,6 +151,17 @@ const ChatBox = () => {
     setUnreadCount(0);
   };
 
+  // Mở khung chat AI
+  const handleDirectAI = () => {
+    // if (!userId) {
+    //   router.push("/login");
+    //   return;
+    // }
+
+    setIsAIChatOpen(true);
+    setIsChatMenuOpen(false);
+  };
+
   const handleSendMessage = () => {
     if (!input.trim()) return;
     const socket = socketRef.current;
@@ -176,11 +175,7 @@ const ChatBox = () => {
     return <></>;
   } else {
     return (
-<<<<<<< HEAD
       <div className="fixed sm:bottom-[35px] sm:right-[105px] bottom-[20px] right-[20px] z-50">
-=======
-      <div className="fixed bottom-[35px] right-[105px] z-50">
->>>>>>> 340173087d8917f22f1c39af073ed3a9f86b8c03
         {/* audio notification */}
         <audio
           ref={audioRef}
@@ -188,13 +183,18 @@ const ChatBox = () => {
           preload="auto"
         />
 
+        {/* AI Chat Box */}
+        <AIChatBox isOpen={isAIChatOpen} onClose={() => setIsAIChatOpen(false)} />
+
         {/* Popup menu nhỏ */}
         {isChatMenuOpen && (
-<<<<<<< HEAD
           <div className="absolute top-[-155px] right-[10px] sm:right-[-10px] md:right-[-15px] w-[230px] bg-white rounded-2xl shadow-lg p-4 flex flex-col gap-3 z-20">
-=======
-          <div className="absolute top-[-155px] right-[-15px] w-[230px] bg-white rounded-2xl shadow-lg p-4 flex flex-col gap-3 z-20">
->>>>>>> 340173087d8917f22f1c39af073ed3a9f86b8c03
+            <button
+              onClick={handleDirectAI}
+              className="w-full h-[45px] rounded-lg bg-[#6ab04c] text-white font-medium hover:opacity-90 transition flex flex-row items-center justify-center gap-2 cursor-pointer"
+            >
+              <Bot /> <p>AI hỗ trợ</p>
+            </button>
             <button
               onClick={handleDirectChat}
               className="w-full h-[45px] rounded-lg bg-[#9B8D6F] text-white font-medium hover:opacity-90 transition flex flex-row items-center justify-center gap-2 cursor-pointer"
@@ -219,12 +219,8 @@ const ChatBox = () => {
 
         {/* KHUNG CHAT LỚN */}
         {isChatBoxOpen && (
-<<<<<<< HEAD
           <div className=" absolute bottom-[80px] right-0 w-[calc(100vw-20px)] h-[70vh] sm:w-[350px] sm:h-[500px] md:w-[400px] md:h-[600px] max-w-[400px] bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden z-40 flex flex-col">
             {" "}
-=======
-          <div className="absolute bottom-[90px] right-[-15px] w-[400px] h-[600px] bg-white rounded-3xl shadow-2xl overflow-hidden z-40 flex flex-col">
->>>>>>> 340173087d8917f22f1c39af073ed3a9f86b8c03
             {/* Header */}
             <div className="h-[70px] bg-[#9B8D6F] text-white flex items-center justify-between px-4">
               <div className="flex items-center gap-3">
@@ -247,10 +243,6 @@ const ChatBox = () => {
                 <X size={22} color="white" />
               </button>
             </div>
-<<<<<<< HEAD
-=======
-
->>>>>>> 340173087d8917f22f1c39af073ed3a9f86b8c03
             {/* Nội dung chat */}
             <div className="flex-1 bg-white px-3 py-3 overflow-y-auto space-y-2">
               {messages.map((m) => {
@@ -285,10 +277,6 @@ const ChatBox = () => {
 
               <div ref={messagesEndRef} />
             </div>
-<<<<<<< HEAD
-=======
-
->>>>>>> 340173087d8917f22f1c39af073ed3a9f86b8c03
             {/* Ô nhập tin nhắn */}
             <div className="h-20 px-4 flex items-center">
               <div className="flex-1 flex items-center border border-[#9B8D6F] rounded-full overflow-hidden px-4">
